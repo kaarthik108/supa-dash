@@ -1,22 +1,22 @@
-import { fetchRevenueData } from "@/app/actions";
+import { fetchBudgeteData, fetchRevenueData } from "@/app/actions";
 import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
 import { RevenueOverTime } from "./charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-const getRevenueData = cache(async () => {
-  const revenueData = await fetchRevenueData();
-  const formattedData = revenueData
-    ? groupByField(revenueData, "StartDate", "Revenue")
+const getBudgetData = cache(async () => {
+  const budgetData = await fetchBudgeteData();
+  const formattedData = budgetData
+    ? groupByField(budgetData, "StartDate", "Budget")
     : [];
   return formattedData;
 });
 
-export async function RevenueCard({ month }: { month: string }) {
+export async function BudgetCard({ month }: { month: string }) {
   const selectedMonth = month;
 
-  const formattedData = await getRevenueData();
+  const formattedData = await getBudgetData();
 
   const filteredData =
     selectedMonth === "all"
@@ -24,8 +24,6 @@ export async function RevenueCard({ month }: { month: string }) {
       : formattedData.filter(
           (item) => item.month.slice(0, 3) === selectedMonth
         );
-
-  console.log(filteredData);
 
   const totalRevenue = filteredData.reduce(
     (sum, item) => sum + item.revenue!,
@@ -44,7 +42,7 @@ export async function RevenueCard({ month }: { month: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+        <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
         <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>

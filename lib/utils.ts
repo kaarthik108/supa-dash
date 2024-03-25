@@ -5,18 +5,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function groupByMonth(
-  data: { Revenue: number | null; StartDate: string | null }[]
-) {
-  const groupedData: { [month: string]: number } = {};
+export function groupByField(
+  data: any[],
+  groupField: string,
+  valueField: string
+): { month: string; revenue: number | null }[] {
+  const groupedData: { [key: string]: number } = {};
+
   data.forEach((item) => {
-    if (item.StartDate && item.Revenue) {
-      const month = formatDate(item.StartDate);
-      if (month !== "Invalid Date") {
-        if (groupedData[month]) {
-          groupedData[month] += item.Revenue;
+    const groupValue = item[groupField];
+    const value = item[valueField];
+
+    if (groupValue && typeof value === "number") {
+      const formattedGroupValue = formatDate(groupValue.toString());
+
+      if (formattedGroupValue !== "Invalid Date") {
+        if (groupedData[formattedGroupValue]) {
+          groupedData[formattedGroupValue] += value;
         } else {
-          groupedData[month] = item.Revenue;
+          groupedData[formattedGroupValue] = value;
         }
       }
     }
@@ -25,7 +32,7 @@ export function groupByMonth(
   return Object.entries(groupedData)
     .map(([month, revenue]) => ({
       month,
-      revenue,
+      revenue: revenue || null,
     }))
     .sort((a, b) => {
       const monthA = new Date(a.month);
