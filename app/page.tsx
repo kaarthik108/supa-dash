@@ -1,9 +1,5 @@
-import { Dashboard } from "@/components/dashboard";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Dashboard />
-    </main>
-  );
+export default async function Home({ params }: { params: { month: string } }) {
+  redirect("/dashboard/?month=all");
 }
