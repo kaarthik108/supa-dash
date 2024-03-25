@@ -37,8 +37,6 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
     }).format(value);
   };
 
-  console.log(data);
-
   return (
     <div className="h-full overflow-x-auto hide-scrollbar">
       <Table className="h-full text-xs">
@@ -46,7 +44,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
           <TableRow>
             <TableHeaderCell></TableHeaderCell>
             {data.map((item) => (
-              <TableHeaderCell key={item.platform} className="text-right px-2">
+              <TableHeaderCell key={item.platform} className="text-right">
                 {item.platform}
               </TableHeaderCell>
             ))}

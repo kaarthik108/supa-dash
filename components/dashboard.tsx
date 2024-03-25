@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { BudgetCard } from "./BudgetCard";
 import { ClicksCard } from "./ClicksCard";
+import { ContentCard } from "./ContentCard";
 import { TopHeader } from "./Header";
 import { ImpressionCard } from "./ImpressionCard";
 import { PlatformCard } from "./PlatformCard";
@@ -28,7 +29,7 @@ export function Dashboard({ month }: { month: string }) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
             <Card className="h-full">
               <CardContent className="h-full overflow-x-auto custom-scrollbar">
-                <PlatformCard />
+                <PlatformCard month={month} />
               </CardContent>
             </Card>
             {/* <Card className="h-full">
@@ -119,6 +120,17 @@ export function Dashboard({ month }: { month: string }) {
               </div>
             </CardContent>
           </Card>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
+            <ContentCard month={month} />
+
+            {/* <Card className="h-full">
+              <CardContent className="h-full overflow-x-auto custom-scrollbar">
+                <PlatformCard />
+              </CardContent>
+            </Card> */}
+          </div>
         </div>
       </main>
     </div>
