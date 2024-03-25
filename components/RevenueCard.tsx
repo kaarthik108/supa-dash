@@ -8,7 +8,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 export async function RevenueCard() {
   const revenueData = await fetchRevenueData();
   const formattedData = revenueData ? groupByMonth(revenueData) : [];
-  console.log(formattedData);
+
+  const totalRevenue = formattedData.reduce(
+    (sum, item) => sum + item.revenue,
+    0
+  );
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const formattedTotalRevenue = formatter.format(totalRevenue);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -16,7 +30,7 @@ export async function RevenueCard() {
         <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">$45,231.89</div>
+        <div className="text-2xl font-bold">{formattedTotalRevenue}</div>
         <p className="text-xs text-muted-foreground">+20.1% from last month</p>
         <RevenueOverTime chartData={formattedData} />
       </CardContent>

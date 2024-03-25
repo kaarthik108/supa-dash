@@ -9,7 +9,6 @@ export function groupByMonth(
   data: { Revenue: number | null; StartDate: string | null }[]
 ) {
   const groupedData: { [month: string]: number } = {};
-  console.log(data);
   data.forEach((item) => {
     if (item.StartDate && item.Revenue) {
       const month = formatDate(item.StartDate);
