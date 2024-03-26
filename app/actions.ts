@@ -139,6 +139,7 @@ type PlatformData = {
   revenue: number;
   impressions: number;
   subscriptions: number;
+  clicks: number;
 };
 
 export async function fetchPlatformData(
@@ -150,7 +151,7 @@ export async function fetchPlatformData(
   const query = supabase
     .from("campaign")
     .select(
-      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType"
+      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks"
     );
 
   if (audience) {
@@ -175,6 +176,7 @@ export async function fetchPlatformData(
     const revenue = item.Revenue || 0;
     const impressions = item.Impressions || 0;
     const subscriptions = item.NewSubscriptions || 0;
+    const clicks = item.Clicks || 0;
 
     if (
       month === "all" ||
@@ -190,8 +192,15 @@ export async function fetchPlatformData(
         existingPlatform.revenue += revenue;
         existingPlatform.impressions += impressions;
         existingPlatform.subscriptions += subscriptions;
+        existingPlatform.clicks += clicks;
       } else {
-        platformData.push({ platform, revenue, impressions, subscriptions });
+        platformData.push({
+          platform,
+          revenue,
+          impressions,
+          subscriptions,
+          clicks,
+        });
       }
     }
   });

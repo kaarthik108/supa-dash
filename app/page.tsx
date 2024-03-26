@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
-export default async function Home({ params }: { params: { month: string } }) {
+export const runtime = "edge";
+
+export default async function Home() {
   redirect("/dashboard/?month=all");
 }

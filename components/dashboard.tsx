@@ -11,6 +11,7 @@ import { AudienceCard } from "./AudienceCard";
 import { ContentCard } from "./ContentCard";
 import { TopHeader } from "./Header";
 import { PlatformCard } from "./PlatformCard";
+import { MyResponsiveChoropleth } from "./charts/MapChart";
 import { BudgetCard } from "./kpi/BudgetCard";
 import { ClicksCard } from "./kpi/ClicksCard";
 import { ImpressionCard } from "./kpi/ImpressionCard";
@@ -43,12 +44,12 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
           />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
+          <div className="grid grid-cols-2 gap-4">
             <Card
               className="h-full animate-fade-up"
               style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
             >
-              <CardContent className="h-full overflow-x-auto custom-scrollbar">
+              <CardContent className="h-full overflow-x-auto custom-scrollbar pl-0">
                 <PlatformCard
                   month={month}
                   audience={audience}
@@ -56,13 +57,11 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
                 />
               </CardContent>
             </Card>
-            {/* <Card className="h-full">
-              <CardContent className="h-full overflow-x-auto custom-scrollbar">
-                <PlatformCard />
-              </CardContent>
-            </Card> */}
+            <Card className="h-full w-full">
+              <MyResponsiveChoropleth />
+            </Card>
           </div>
-          <Card className="md:col-span-1 h-full">
+          <Card className="h-full">
             <CardHeader>
               <CardTitle>Recent Sales</CardTitle>
             </CardHeader>
@@ -141,12 +140,12 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
                   </p>
                 </div>
                 <div className="ml-auto font-medium">+$39.00</div>
-              </div>
+              </div>{" "}
             </CardContent>
           </Card>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <AudienceCard
               month={month}
               audience={audience}
@@ -157,12 +156,6 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
               audience={audience}
               contentType={contentType}
             />
-
-            {/* <Card className="h-full">
-              <CardContent className="h-full overflow-x-auto custom-scrollbar">
-                <PlatformCard />
-              </CardContent>
-            </Card> */}
           </div>
         </div>
       </main>

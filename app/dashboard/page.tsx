@@ -5,6 +5,7 @@ export type SearchParams = {
   audience?: string | null;
   contentType?: string | null;
 };
+export const runtime = "edge";
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (

@@ -20,6 +20,7 @@ type PlatformData = {
   revenue: number;
   impressions: number;
   subscriptions: number;
+  clicks: number;
 };
 
 type PlatformTableProps = {
@@ -36,6 +37,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
     (sum, item) => sum + item.subscriptions,
     0
   );
+  const totalClicks = data.reduce((sum, item) => sum + item.clicks, 0);
 
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -95,6 +97,17 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             ))}
             <TableCell className="text-center px-2">
               {formatNumber(totalSubscriptions)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Clicks</TableCell>
+            {data.map((item) => (
+              <TableCell key={item.platform} className="text-center px-2">
+                {formatNumber(item.clicks)}
+              </TableCell>
+            ))}
+            <TableCell className="text-center px-2">
+              {formatNumber(totalClicks)}
             </TableCell>
           </TableRow>
         </TableBody>

@@ -14,7 +14,6 @@ export async function PlatformCard({
   contentType,
 }: SearchParams) {
   const platformData = await fetchPlatformData(month, audience, contentType);
-
   return (
     <div
       className="h-full overflow-x-auto custom-scrollbar pt-2 animate-fade-right"
