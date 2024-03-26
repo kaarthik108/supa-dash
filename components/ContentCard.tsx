@@ -18,7 +18,10 @@ export async function ContentCard({
   contentData.sort((a, b) => b.value - a.value);
 
   return (
-    <Card className="mx-auto h-full overflow-x-auto custom-scrollbar">
+    <Card
+      className="mx-auto h-full overflow-x-auto custom-scrollbar animate-fade-up"
+      style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
+    >
       <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
         Content
       </h3>

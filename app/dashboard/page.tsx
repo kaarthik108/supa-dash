@@ -8,12 +8,12 @@ export type SearchParams = {
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="flex w-full">
       <Dashboard
         month={searchParams.month || "all"}
         audience={searchParams.audience}
         contentType={searchParams.contentType}
       />
-    </main>
+    </div>
   );
 }

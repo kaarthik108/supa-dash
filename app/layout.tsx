@@ -1,3 +1,4 @@
+import { TopHeader } from "@/components/Header";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -27,7 +28,12 @@ export default function RootLayout({
             <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px" />
           </div>
         </div>
-        {children}
+        <main className="flex h-full flex-col items-center justify-between p-16">
+          <div className="flex flex-col w-full">
+            <TopHeader />
+          </div>
+          {children}
+        </main>
       </body>
     </html>
   );

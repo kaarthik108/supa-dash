@@ -10,13 +10,10 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
-type MonthFilterProps = {
-  selectedMonth: string;
-};
-
-export function MonthFilter({ selectedMonth }: MonthFilterProps) {
+export function MonthFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const selectedMonth = searchParams.get("month") || "all";
 
   const handleMonthChange = useCallback(
     (value: string) => {

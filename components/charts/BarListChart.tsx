@@ -1,8 +1,7 @@
-// BarListChart.tsx
 "use client";
-import { BarList, EventProps } from "@tremor/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { ClickableBarList } from "./ClickableBarList";
 
 type BarListContentData = {
   name: string;
@@ -45,7 +44,12 @@ export function BarListChart({ data, filterType }: BarListChartProps) {
 
   return (
     <div className="mt-2">
-      <BarList data={filteredData} onValueChange={handleBarClick} />
+      <ClickableBarList
+        data={filteredData}
+        onBarClick={handleBarClick}
+        color="blue"
+        showAnimation
+      />
     </div>
   );
 }
