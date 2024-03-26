@@ -147,58 +147,34 @@ export async function fetchPlatformData(
   contentType?: string | null
 ) {
   const supabase = supabaseServer();
-  const revenueQuery = supabase
+  const query = supabase
     .from("campaign")
-    .select("Platform, Revenue, StartDate, AudienceType, ContentType");
-
-  const impressionsQuery = supabase
-    .from("campaign")
-    .select("Platform, Impressions, StartDate, AudienceType, ContentType");
-
-  const subscriptionsQuery = supabase
-    .from("campaign")
-    .select("Platform, NewSubscriptions, StartDate, AudienceType, ContentType");
+    .select(
+      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType"
+    );
 
   if (audience) {
-    revenueQuery.eq("AudienceType", audience);
-    impressionsQuery.eq("AudienceType", audience);
-    subscriptionsQuery.eq("AudienceType", audience);
+    query.eq("AudienceType", audience);
   }
+
   if (contentType) {
-    revenueQuery.eq("ContentType", contentType);
-    impressionsQuery.eq("ContentType", contentType);
-    subscriptionsQuery.eq("ContentType", contentType);
+    query.eq("ContentType", contentType);
   }
 
-  const [
-    { data: revenueData, error: revenueError },
-    { data: impressionsData, error: impressionsError },
-    { data: subscriptionsData, error: subscriptionsError },
-  ] = await Promise.all([revenueQuery, impressionsQuery, subscriptionsQuery]);
+  const { data, error } = await query;
 
-  if (revenueError || impressionsError || subscriptionsError) {
-    console.error(
-      "Error fetching platform data:",
-      revenueError,
-      impressionsError,
-      subscriptionsError
-    );
+  if (error) {
+    console.error("Error fetching platform data:", error);
     return [];
   }
 
   const platformData: PlatformData[] = [];
 
-  revenueData?.forEach((item) => {
+  data?.forEach((item) => {
     const platform = item.Platform || "";
     const revenue = item.Revenue || 0;
-    const impressions =
-      impressionsData?.find(
-        (i) => i.Platform === platform && i.StartDate === item.StartDate
-      )?.Impressions || 0;
-    const subscriptions =
-      subscriptionsData?.find(
-        (s) => s.Platform === platform && s.StartDate === item.StartDate
-      )?.NewSubscriptions || 0;
+    const impressions = item.Impressions || 0;
+    const subscriptions = item.NewSubscriptions || 0;
 
     if (
       month === "all" ||
@@ -219,6 +195,7 @@ export async function fetchPlatformData(
       }
     }
   });
+
   revalidatePath("/dashboard");
   return platformData;
 }
