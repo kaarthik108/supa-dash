@@ -1,4 +1,5 @@
 import { fetchRevenueData } from "@/app/actions";
+import { SearchParams } from "@/app/dashboard/page";
 import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
@@ -19,11 +20,7 @@ export async function RevenueCard({
   month,
   audience,
   contentType,
-}: {
-  month: string;
-  audience: string | null;
-  contentType: string | null;
-}) {
+}: SearchParams) {
   const selectedMonth = month;
   const formattedData = await getRevenueData(
     audience || null,

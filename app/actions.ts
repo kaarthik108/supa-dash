@@ -39,7 +39,7 @@ export async function fetchRevenueData(
   }
   const { data, error } = await query;
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   if (error) {
     console.error("Error fetching revenue data:", error);
     return null;
@@ -68,7 +68,7 @@ export async function fetchBudgetData(
 
   const { data, error } = await query;
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   if (error) {
     console.error("Error fetching budget data:", error);
     return null;
@@ -96,7 +96,7 @@ export async function fetchImpressionData(
 
   const { data, error } = await query;
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 
   if (error) {
     console.error("Error fetching revenue data:", error);
@@ -125,7 +125,7 @@ export async function fetchClicksData(
 
   const { data, error } = await query;
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 
   if (error) {
     console.error("Error fetching revenue data:", error);
@@ -141,18 +141,40 @@ type PlatformData = {
   subscriptions: number;
 };
 
-export async function fetchPlatformData(month: string) {
+export async function fetchPlatformData(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null
+) {
   const supabase = supabaseServer();
+  const revenueQuery = supabase
+    .from("campaign")
+    .select("Platform, Revenue, StartDate, AudienceType, ContentType");
+
+  const impressionsQuery = supabase
+    .from("campaign")
+    .select("Platform, Impressions, StartDate, AudienceType, ContentType");
+
+  const subscriptionsQuery = supabase
+    .from("campaign")
+    .select("Platform, NewSubscriptions, StartDate, AudienceType, ContentType");
+
+  if (audience) {
+    revenueQuery.eq("AudienceType", audience);
+    impressionsQuery.eq("AudienceType", audience);
+    subscriptionsQuery.eq("AudienceType", audience);
+  }
+  if (contentType) {
+    revenueQuery.eq("ContentType", contentType);
+    impressionsQuery.eq("ContentType", contentType);
+    subscriptionsQuery.eq("ContentType", contentType);
+  }
 
   const [
     { data: revenueData, error: revenueError },
     { data: impressionsData, error: impressionsError },
     { data: subscriptionsData, error: subscriptionsError },
-  ] = await Promise.all([
-    supabase.from("campaign").select("Platform, Revenue, StartDate"),
-    supabase.from("campaign").select("Platform, Impressions, StartDate"),
-    supabase.from("campaign").select('Platform, "NewSubscriptions", StartDate'),
-  ]);
+  ] = await Promise.all([revenueQuery, impressionsQuery, subscriptionsQuery]);
 
   if (revenueError || impressionsError || subscriptionsError) {
     console.error(
@@ -188,7 +210,6 @@ export async function fetchPlatformData(month: string) {
       const existingPlatform = platformData.find(
         (p) => p.platform === platform
       );
-
       if (existingPlatform) {
         existingPlatform.revenue += revenue;
         existingPlatform.impressions += impressions;
@@ -198,7 +219,7 @@ export async function fetchPlatformData(month: string) {
       }
     }
   });
-
+  revalidatePath("/dashboard");
   return platformData;
 }
 type BarListContentData = { name: string; value: number };

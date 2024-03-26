@@ -24,30 +24,34 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
           <RevenueCard
             month={month}
-            audience={audience || null}
-            contentType={contentType || null}
+            audience={audience}
+            contentType={contentType}
           />
           <BudgetCard
             month={month}
-            audience={audience || null}
-            contentType={contentType || null}
+            audience={audience}
+            contentType={contentType}
           />
           <ImpressionCard
             month={month}
-            audience={audience || null}
-            contentType={contentType || null}
+            audience={audience}
+            contentType={contentType}
           />
           <ClicksCard
             month={month}
-            audience={audience || null}
-            contentType={contentType || null}
+            audience={audience}
+            contentType={contentType}
           />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
             <Card className="h-full">
               <CardContent className="h-full overflow-x-auto custom-scrollbar">
-                <PlatformCard month={month} />
+                <PlatformCard
+                  month={month}
+                  audience={audience}
+                  contentType={contentType}
+                />
               </CardContent>
             </Card>
             {/* <Card className="h-full">
@@ -143,13 +147,13 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
             <AudienceCard
               month={month}
-              audience={audience || null}
-              contentType={contentType || null}
+              audience={audience}
+              contentType={contentType}
             />
             <ContentCard
               month={month}
-              audience={audience || null}
-              contentType={contentType || null}
+              audience={audience}
+              contentType={contentType}
             />
 
             {/* <Card className="h-full">
