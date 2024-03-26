@@ -1,22 +1,32 @@
-import { fetchImpressionData } from "@/app/actions";
+import { fetchBudgetData } from "@/app/actions";
+import { SearchParams } from "@/app/dashboard/page";
 import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
-import { RevenueOverTime } from "./charts/sparkChart";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { RevenueOverTime } from "../charts/sparkChart";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getImpressionData = cache(async () => {
-  const budgetData = await fetchImpressionData();
-  const formattedData = budgetData
-    ? groupByField(budgetData, "StartDate", "Impressions")
-    : [];
-  return formattedData;
-});
+const getBudgetData = cache(
+  async (audience: string | null, contentType: string | null) => {
+    const budgetData = await fetchBudgetData(audience, contentType);
+    const formattedData = budgetData
+      ? groupByField(budgetData, "StartDate", "Budget")
+      : [];
+    return formattedData;
+  }
+);
 
-export async function ImpressionCard({ month }: { month: string }) {
+export async function BudgetCard({
+  month,
+  audience,
+  contentType,
+}: SearchParams) {
   const selectedMonth = month;
 
-  const formattedData = await getImpressionData();
+  const formattedData = await getBudgetData(
+    audience || null,
+    contentType || null
+  );
 
   const filteredData =
     selectedMonth === "all"
@@ -31,8 +41,10 @@ export async function ImpressionCard({ month }: { month: string }) {
   );
 
   const formatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
   const formattedTotalRevenue = formatter.format(totalRevenue);
@@ -40,7 +52,7 @@ export async function ImpressionCard({ month }: { month: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Total Impressions</CardTitle>
+        <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
         <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>

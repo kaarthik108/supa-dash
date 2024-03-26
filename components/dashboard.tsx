@@ -1,3 +1,4 @@
+import { SearchParams } from "@/app/dashboard/page";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -6,24 +7,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BudgetCard } from "./BudgetCard";
-import { ClicksCard } from "./ClicksCard";
+import { AudienceCard } from "./AudienceCard";
 import { ContentCard } from "./ContentCard";
 import { TopHeader } from "./Header";
-import { ImpressionCard } from "./ImpressionCard";
 import { PlatformCard } from "./PlatformCard";
-import { RevenueCard } from "./RevenueCard";
+import { BudgetCard } from "./kpi/BudgetCard";
+import { ClicksCard } from "./kpi/ClicksCard";
+import { ImpressionCard } from "./kpi/ImpressionCard";
+import { RevenueCard } from "./kpi/RevenueCard";
 
-export function Dashboard({ month }: { month: string }) {
+export function Dashboard({ month, audience, contentType }: SearchParams) {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <TopHeader month={month} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-          <RevenueCard month={month} />
-          <BudgetCard month={month} />
-          <ImpressionCard month={month} />
-          <ClicksCard month={month} />
+          <RevenueCard
+            month={month}
+            audience={audience || null}
+            contentType={contentType || null}
+          />
+          <BudgetCard
+            month={month}
+            audience={audience || null}
+            contentType={contentType || null}
+          />
+          <ImpressionCard
+            month={month}
+            audience={audience || null}
+            contentType={contentType || null}
+          />
+          <ClicksCard
+            month={month}
+            audience={audience || null}
+            contentType={contentType || null}
+          />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
@@ -123,7 +141,16 @@ export function Dashboard({ month }: { month: string }) {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:col-span-1">
-            <ContentCard month={month} />
+            <AudienceCard
+              month={month}
+              audience={audience || null}
+              contentType={contentType || null}
+            />
+            <ContentCard
+              month={month}
+              audience={audience || null}
+              contentType={contentType || null}
+            />
 
             {/* <Card className="h-full">
               <CardContent className="h-full overflow-x-auto custom-scrollbar">

@@ -1,22 +1,32 @@
-import { fetchRevenueData } from "@/app/actions";
+import { fetchClicksData } from "@/app/actions";
+import { SearchParams } from "@/app/dashboard/page";
 import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
-import { RevenueOverTime } from "./charts/sparkChart";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { RevenueOverTime } from "../charts/sparkChart";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getRevenueData = cache(async () => {
-  const revenueData = await fetchRevenueData();
-  const formattedData = revenueData
-    ? groupByField(revenueData, "StartDate", "Revenue")
-    : [];
-  return formattedData;
-});
+const getClicksData = cache(
+  async (audience: string | null, contentType: string | null) => {
+    const budgetData = await fetchClicksData(audience, contentType);
+    const formattedData = budgetData
+      ? groupByField(budgetData, "StartDate", "Clicks")
+      : [];
+    return formattedData;
+  }
+);
 
-export async function RevenueCard({ month }: { month: string }) {
+export async function ClicksCard({
+  month,
+  audience,
+  contentType,
+}: SearchParams) {
   const selectedMonth = month;
 
-  const formattedData = await getRevenueData();
+  const formattedData = await getClicksData(
+    audience || null,
+    contentType || null
+  );
 
   const filteredData =
     selectedMonth === "all"
@@ -25,18 +35,14 @@ export async function RevenueCard({ month }: { month: string }) {
           (item) => item.month.slice(0, 3) === selectedMonth
         );
 
-  console.log(filteredData);
-
   const totalRevenue = filteredData.reduce(
     (sum, item) => sum + item.revenue!,
     0
   );
 
   const formatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
   const formattedTotalRevenue = formatter.format(totalRevenue);
@@ -44,7 +50,7 @@ export async function RevenueCard({ month }: { month: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+        <CardTitle className="text-sm font-medium">Total Clicks</CardTitle>
         <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
