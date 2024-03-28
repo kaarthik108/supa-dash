@@ -1,5 +1,6 @@
 import { Package2 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { MonthFilter } from "./MonthFilter";
 
 export function TopHeader() {
@@ -26,7 +27,9 @@ export function TopHeader() {
           About
         </Link>
       </nav>
-      <MonthFilter />
+      <Suspense fallback={<div>Loading...</div>}>
+        <MonthFilter />
+      </Suspense>
     </header>
   );
 }
