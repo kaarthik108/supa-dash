@@ -55,7 +55,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableHeaderCell
                 key={item.platform}
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer text-xs"
               >
                 {renderPlatformIcon(item.platform)}
               </TableHeaderCell>
@@ -65,7 +65,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             </TableHeaderCell>
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody className="text-xs md:text-md">
           <TableRow>
             <TableCell>Revenue</TableCell>
             {data.map((item) => (

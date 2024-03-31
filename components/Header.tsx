@@ -1,7 +1,7 @@
 import { Package2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { MonthFilter } from "./MonthFilter";
+import { MonthFilter } from "./ui/combobox";
 
 export function TopHeader() {
   return (

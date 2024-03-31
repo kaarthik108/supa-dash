@@ -29,7 +29,7 @@ export default function RootLayout({
             <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px" />
           </div>
         </div>
-        <main className="flex h-full flex-col items-center justify-between p-16">
+        <main className="flex h-full flex-col items-center justify-between p-8">
           <div className="flex flex-col w-full">
             <TopHeader />
           </div>

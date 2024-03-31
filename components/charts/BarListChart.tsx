@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { ClickableBarList } from "./ClickableBarList";
+import { BarList } from "./rawBarList";
 
 type BarListContentData = {
   name: string;
@@ -37,18 +37,24 @@ export function BarListChart({ data, filterType }: BarListChartProps) {
       } else {
         params.set(filterType, payload.name);
       }
-      router.push(`/dashboard?${params.toString()}`);
+      router.push(`/dashboard?${params.toString()}`, { scroll: false });
     },
     [router, searchParams, filterType]
   );
-
+  const formatNumber = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      compactDisplay: "short",
+    }).format(value);
+  };
   return (
     <div className="mt-2">
-      <ClickableBarList
+      <BarList
         data={filteredData}
-        onBarClick={handleBarClick}
-        color="blue"
+        // color="blue"
         showAnimation
+        onValueChange={handleBarClick}
+        valueFormatter={formatNumber}
       />
     </div>
   );
