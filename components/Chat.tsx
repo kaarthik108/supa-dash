@@ -27,7 +27,7 @@ function Chat() {
   ];
 
   return (
-    <Card>
+    <Card className="shadow-md">
       <CardHeader>
         <CardTitle> Chat</CardTitle>
         <CardDescription>

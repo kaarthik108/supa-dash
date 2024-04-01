@@ -63,13 +63,13 @@ export function Dashboard({
                 />
               </CardContent>
             </Card>
-            <Card className="h-full w-full shadow-md">
+            <div className="h-full w-full shadow-md rounded-md">
               <EngagementCard
                 month={month}
                 audience={audience}
                 contentType={contentType}
               />
-            </Card>
+            </div>
             <LocationDonutCharts
               month={month}
               audience={audience}
