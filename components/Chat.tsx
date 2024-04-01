@@ -1,78 +1,78 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { ScrollArea } from "./ui/scroll-area";
 
 function Chat() {
+  const messages = [
+    {
+      id: 1,
+      role: "assistant",
+      content: "Hello! How can I help you today?",
+    },
+    {
+      id: 2,
+      role: "user",
+      content: "I need help",
+    },
+  ];
+
   return (
-    <Card className="h-full">
+    <Card>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
+        <CardTitle> Chat</CardTitle>
+        <CardDescription>
+          Chat with our AI assistant to get help on your queries
+        </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="flex items-center gap-4">
-          <Avatar className="hidden h-9 w-9 sm:flex">
-            <AvatarImage src="/avatars/01.png" alt="Avatar" />
-            <AvatarFallback>OM</AvatarFallback>
-          </Avatar>
-          <div className="grid gap-1">
-            <p className="text-sm font-medium leading-none">Olivia Martin</p>
-            <p className="text-sm text-muted-foreground">
-              olivia.martin@email.com
-            </p>
-          </div>
-          <div className="ml-auto font-medium">+$1,999.00</div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Avatar className="hidden h-9 w-9 sm:flex">
-            <AvatarImage src="/avatars/02.png" alt="Avatar" />
-            <AvatarFallback>JL</AvatarFallback>
-          </Avatar>
-          <div className="grid gap-1">
-            <p className="text-sm font-medium leading-none">Jackson Lee</p>
-            <p className="text-sm text-muted-foreground">
-              jackson.lee@email.com
-            </p>
-          </div>
-          <div className="ml-auto font-medium">+$39.00</div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Avatar className="hidden h-9 w-9 sm:flex">
-            <AvatarImage src="/avatars/03.png" alt="Avatar" />
-            <AvatarFallback>IN</AvatarFallback>
-          </Avatar>
-          <div className="grid gap-1">
-            <p className="text-sm font-medium leading-none">Isabella Nguyen</p>
-            <p className="text-sm text-muted-foreground">
-              isabella.nguyen@email.com
-            </p>
-          </div>
-          <div className="ml-auto font-medium">+$299.00</div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Avatar className="hidden h-9 w-9 sm:flex">
-            <AvatarImage src="/avatars/04.png" alt="Avatar" />
-            <AvatarFallback>WK</AvatarFallback>
-          </Avatar>
-          <div className="grid gap-1">
-            <p className="text-sm font-medium leading-none">William Kim</p>
-            <p className="text-sm text-muted-foreground">will@email.com</p>
-          </div>
-          <div className="ml-auto font-medium">+$99.00</div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Avatar className="hidden h-9 w-9 sm:flex">
-            <AvatarImage src="/avatars/05.png" alt="Avatar" />
-            <AvatarFallback>SD</AvatarFallback>
-          </Avatar>
-          <div className="grid gap-1">
-            <p className="text-sm font-medium leading-none">Sofia Davis</p>
-            <p className="text-sm text-muted-foreground">
-              sofia.davis@email.com
-            </p>
-          </div>
-          <div className="ml-auto font-medium">+$39.00</div>
-        </div>{" "}
+      <CardContent>
+        <ScrollArea className="h-[600px] w-full pr-4">
+          {messages.map((message) => {
+            return (
+              <div key={message.id} className="flex gap-3 text-sm mb-4">
+                {message.role === "user" && (
+                  <Avatar>
+                    <AvatarImage src="" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                )}
+                {message.role === "assistant" && (
+                  <Avatar>
+                    <AvatarImage src="" />
+                    <AvatarFallback>AI</AvatarFallback>
+                  </Avatar>
+                )}
+
+                <p className="w-full text-primary">
+                  <span className="block font-bold">
+                    {message.role === "user" ? "User" : "Bot"}
+                  </span>
+                  {message.content}
+                </p>
+              </div>
+            );
+          })}
+        </ScrollArea>
       </CardContent>
+      <CardFooter>
+        <form className="w-full flex gap-2">
+          <Input
+            placeholder="Type your message here"
+            // value={input}
+            // onChange={handleInputChange}
+          />
+          <Button type="submit">Send</Button>
+        </form>
+      </CardFooter>
     </Card>
   );
 }

@@ -5,7 +5,6 @@ import Chat from "./Chat";
 import { ContentCard } from "./ContentCard";
 import { EngagementCard } from "./EngagementCard";
 import { LocationDonutCharts } from "./LocationDonut";
-import { MapChartContainer } from "./MapCard";
 import { PlatformCard } from "./PlatformCard";
 import { BudgetCard } from "./kpi/BudgetCard";
 import { ClicksCard } from "./kpi/ClicksCard";
@@ -71,9 +70,16 @@ export function Dashboard({
                 contentType={contentType}
               />
             </Card>
+            <LocationDonutCharts
+              month={month}
+              audience={audience}
+              contentType={contentType}
+              satisfaction={satisfaction}
+              location={location}
+            />
           </div>
-          <div className="grid grid-cols-1 gap-8">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 h-72">
               <AudienceCard
                 month={month}
                 audience={audience}
@@ -87,17 +93,10 @@ export function Dashboard({
                 satisfaction={satisfaction}
               />
             </div>
-            <Chat />
+            <div className="flex-1">
+              <Chat />
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <LocationDonutCharts
-            month={month}
-            audience={audience}
-            contentType={contentType}
-            satisfaction={satisfaction}
-            location={location}
-          />
         </div>
       </main>
     </div>
