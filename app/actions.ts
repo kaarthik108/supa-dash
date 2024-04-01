@@ -264,7 +264,6 @@ export async function fetchContentData(
   revalidatePath("/dashboard");
   return contentData;
 }
-
 export async function fetchAudienceData(
   month: string,
   audience?: string | null,
@@ -272,47 +271,73 @@ export async function fetchAudienceData(
   satisfaction?: string | null
 ) {
   const supabase = supabaseServer();
-  const query = supabase
+
+  // Fetch campaign data
+  const campaignQuery = supabase
     .from("campaign")
-    .select("AudienceType, ContentType, Revenue, StartDate")
+    .select("AudienceType, ContentType, Revenue, StartDate, CampaignID")
     .order("Revenue", { ascending: false });
 
   if (audience) {
-    query.eq("AudienceType", audience);
+    campaignQuery.eq("AudienceType", audience);
   }
 
   if (contentType) {
-    query.eq("ContentType", contentType);
+    campaignQuery.eq("ContentType", contentType);
   }
 
-  const { data, error } = await query;
+  const { data: campaignData, error: campaignError } = await campaignQuery;
 
-  if (error) {
-    console.error("Error fetching content data:", error);
+  if (campaignError) {
+    console.error("Error fetching campaign data:", campaignError);
+    return [];
+  }
+
+  // Fetch subscriber data
+  const subscriberQuery = supabase.from("subscriber").select("*");
+
+  if (satisfaction) {
+    subscriberQuery.eq("Satisfaction", satisfaction);
+  }
+
+  const { data: subscriberData, error: subscriberError } =
+    await subscriberQuery;
+
+  if (subscriberError) {
+    console.error("Error fetching subscriber data:", subscriberError);
     return [];
   }
 
   const contentData: BarListContentData[] = [];
 
-  data.forEach((item) => {
-    const audienceTypeValue = item.AudienceType || "";
-    const revenue = item.Revenue || 0;
+  campaignData.forEach((campaign) => {
+    const audienceTypeValue = campaign.AudienceType || "";
+    const revenue = campaign.Revenue || 0;
 
     if (
       month === "all" ||
-      (item.StartDate &&
-        new Date(item.StartDate).toLocaleString("default", {
+      (campaign.StartDate &&
+        new Date(campaign.StartDate).toLocaleString("default", {
           month: "short",
         }) === month)
     ) {
-      const existingAudienceType = contentData.find(
-        (c) => c.name === audienceTypeValue
+      // Check if the campaign has subscribers with the specified satisfaction level
+      const hasMatchingSubscribers = subscriberData.some(
+        (subscriber) =>
+          subscriber.CampaignID === campaign.CampaignID &&
+          subscriber.Satisfaction === satisfaction
       );
 
-      if (existingAudienceType) {
-        existingAudienceType.value += revenue;
-      } else {
-        contentData.push({ name: audienceTypeValue, value: revenue });
+      if (!satisfaction || hasMatchingSubscribers) {
+        const existingAudienceType = contentData.find(
+          (c) => c.name === audienceTypeValue
+        );
+
+        if (existingAudienceType) {
+          existingAudienceType.value += revenue;
+        } else {
+          contentData.push({ name: audienceTypeValue, value: revenue });
+        }
       }
     }
   });

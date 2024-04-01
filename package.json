@@ -39,7 +39,6 @@
     "react-dom": "^18",
     "react-simple-maps": "^3.0.0",
     "react-social-icons": "^6.15.0",
-    "react-world-map": "^2.4.0",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7"
   },

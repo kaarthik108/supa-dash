@@ -5,6 +5,7 @@ export type SearchParams = {
   month: string | "all";
   audience?: string | null;
   contentType?: string | null;
+  satisfaction?: string | null;
 };
 
 export const runtime = "edge";
@@ -17,6 +18,7 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
           month={searchParams.month || "all"}
           audience={searchParams.audience}
           contentType={searchParams.contentType}
+          satisfaction={searchParams.satisfaction}
         />
       </Suspense>
     </div>
