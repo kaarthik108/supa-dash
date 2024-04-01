@@ -1,4 +1,5 @@
 import { fetchSubscribersByLocation } from "@/app/actions";
+import { SearchParams } from "@/app/dashboard/page";
 import { MapChart } from "./charts/MapChart";
 
 const regionToCountryIdMap: { [key: string]: string[] } = {
@@ -191,8 +192,18 @@ const regionToCountryIdMap: { [key: string]: string[] } = {
   ],
 };
 
-export async function MapChartContainer() {
-  const subscribersByLocation = await fetchSubscribersByLocation();
+export async function MapChartContainer({
+  month,
+  audience,
+  contentType,
+  satisfaction,
+}: SearchParams) {
+  const subscribersByLocation = await fetchSubscribersByLocation(
+    month,
+    audience,
+    contentType,
+    satisfaction
+  );
   console.log(subscribersByLocation);
 
   // Map the data to the format expected by the MapChart component
