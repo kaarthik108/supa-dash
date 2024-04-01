@@ -4,34 +4,56 @@ import { MapChart } from "./charts/MapChart";
 const regionToCountryIdMap: { [key: string]: string[] } = {
   asia: [
     "AFG",
+    "ARM",
+    "AZE",
+    "BHR",
     "BGD",
     "BTN",
     "BRN",
     "KHM",
     "CHN",
+    "CYP",
+    "GEO",
     "HKG",
+    "IND",
     "IDN",
+    "IRN",
+    "IRQ",
+    "ISR",
     "JPN",
+    "JOR",
     "KAZ",
+    "KWT",
     "KGZ",
     "LAO",
+    "LBN",
     "MAC",
-    "MAS",
+    "MYS",
     "MDV",
+    "MNG",
     "MMR",
     "NPL",
     "PRK",
-    "KOR",
+    "OMN",
+    "PAK",
+    "PSE",
     "PHL",
+    "QAT",
+    "SAU",
     "SGP",
+    "KOR",
     "LKA",
+    "SYR",
     "TWN",
     "TJK",
     "THA",
     "TLS",
+    "TUR",
     "TKM",
+    "ARE",
     "UZB",
     "VNM",
+    "YEM",
   ],
   north_america: ["CAN", "USA", "MEX"],
   south_america: [
@@ -172,21 +194,20 @@ const regionToCountryIdMap: { [key: string]: string[] } = {
 export async function MapChartContainer() {
   const subscribersByLocation = await fetchSubscribersByLocation();
   console.log(subscribersByLocation);
+
   // Map the data to the format expected by the MapChart component
   const data = Object.entries(subscribersByLocation).flatMap(
     ([region, count]) => {
       const countryIds = regionToCountryIdMap[region.toLowerCase()];
       if (countryIds) {
-        return countryIds.map((id) => ({
-          id,
-          value: count,
-        }));
+        return countryIds.map((id) => ({ id, value: count }));
       }
       return [];
     }
   );
 
   console.log(data);
+
   return (
     <>
       <MapChart data={data} />

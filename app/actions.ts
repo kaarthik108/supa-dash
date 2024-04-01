@@ -330,42 +330,130 @@ export async function fetchEngagementData(
   revalidatePath("/dashboard");
   return engagementData;
 }
-
-export async function fetchSubscribersByLocation() {
+export async function fetchSubscribersByLocation(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null
+) {
   const supabase = supabaseServer();
-  const query = supabase.from("subscriber").select("Location");
+  let query = supabase.from("subscriber").select("Location, SubscriptionDate");
+
+  if (audience) {
+    query = query.eq("AudienceType", audience);
+  }
+
+  if (contentType) {
+    query = query.eq("ContentType", contentType);
+  }
+
+  if (satisfaction) {
+    query = query.eq("Satisfaction", satisfaction);
+  }
 
   const { data, error } = await query;
+
   if (error) {
     console.error("Error fetching subscribers by location:", error);
     return {};
   }
 
   const subscribersByLocation: { [key: string]: number } = {
-    asia: 0,
-    north_america: 0,
-    south_america: 0,
-    europe: 0,
-    oceania: 0,
-    africa: 0,
+    Asia: 0,
+    "North America": 0,
+    "South America": 0,
+    Europe: 0,
+    Oceania: 0,
+    Africa: 0,
   };
 
   const regionMapping: { [key: string]: string } = {
-    Asia: "asia",
-    "North America": "north_america",
-    "South America": "south_america",
-    Europe: "europe",
-    Oceania: "oceania",
-    Africa: "africa",
+    Asia: "Asia",
+    "North America": "North America",
+    "South America": "South America",
+    Europe: "Europe",
+    Oceania: "Oceania",
+    Africa: "Africa",
   };
 
   data.forEach((item) => {
     const location = item.Location;
-    if (location) {
+    const subscriptionDate = item.SubscriptionDate;
+
+    if (
+      location &&
+      (month === "all" ||
+        (subscriptionDate &&
+          new Date(subscriptionDate).toLocaleString("default", {
+            month: "short",
+          }) === month))
+    ) {
       const region = regionMapping[location] || "unknown";
       subscribersByLocation[region]++;
     }
   });
 
   return subscribersByLocation;
+}
+
+export async function fetchAgeDistributionByLocation(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null
+): Promise<{ [key: string]: number }> {
+  const supabase = supabaseServer();
+  let query = supabase
+    .from("subscriber")
+    .select("Location, Age, SubscriptionDate");
+
+  if (audience) {
+    query = query.eq("AudienceType", audience);
+  }
+
+  if (contentType) {
+    query = query.eq("ContentType", contentType);
+  }
+
+  if (satisfaction) {
+    query = query.eq("Satisfaction", satisfaction);
+  }
+
+  if (location) {
+    query = query.eq("Location", location);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching age distribution data:", error);
+    return {};
+  }
+
+  const ageDistribution: { [key: string]: number } = {};
+
+  data.forEach((subscriber) => {
+    const age = subscriber.Age;
+    const locationKey = subscriber.Location || "Unknown";
+    const subscriptionDate = subscriber.SubscriptionDate;
+
+    if (
+      age !== null &&
+      (month === "all" ||
+        (subscriptionDate &&
+          new Date(subscriptionDate).toLocaleString("default", {
+            month: "short",
+          }) === month))
+    ) {
+      const ageGroup = `${Math.floor(age / 10) * 10}-${
+        Math.floor(age / 10) * 10 + 9
+      }`;
+      ageDistribution[ageGroup] = (ageDistribution[ageGroup] || 0) + 1;
+    }
+  });
+
+  revalidatePath("/dashboard");
+
+  return ageDistribution;
 }

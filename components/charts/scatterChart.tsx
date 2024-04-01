@@ -67,10 +67,6 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
       size="viewingTime"
       autoMinXValue
       autoMinYValue
-      // minXValue={minXValue}
-      // minYValue={minYValue}
-      // maxXValue={maxXValue}
-      // maxYValue={maxYValue}
       showOpacity={true}
       valueFormatter={{
         x: (rate) => `${rate.toFixed(2)}%`,

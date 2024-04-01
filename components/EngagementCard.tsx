@@ -16,7 +16,7 @@ export async function EngagementCard({
 
   return (
     <Card>
-      <p className="text-lg text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+      <p className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
         Engagement Rate vs. Satisfaction
       </p>
       <EngagementScatterChart data={engagementData} />

@@ -6,6 +6,7 @@ export type SearchParams = {
   audience?: string | null;
   contentType?: string | null;
   satisfaction?: string | null;
+  location?: string | null;
 };
 
 export const runtime = "edge";
@@ -19,6 +20,7 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
           audience={searchParams.audience}
           contentType={searchParams.contentType}
           satisfaction={searchParams.satisfaction}
+          location={searchParams.location}
         />
       </Suspense>
     </div>

@@ -4,6 +4,7 @@ import { AudienceCard } from "./AudienceCard";
 import Chat from "./Chat";
 import { ContentCard } from "./ContentCard";
 import { EngagementCard } from "./EngagementCard";
+import { LocationDonutCharts } from "./LocationDonut";
 import { MapChartContainer } from "./MapCard";
 import { PlatformCard } from "./PlatformCard";
 import { BudgetCard } from "./kpi/BudgetCard";
@@ -16,6 +17,7 @@ export function Dashboard({
   audience,
   contentType,
   satisfaction,
+  location,
 }: SearchParams) {
   return (
     <div className="flex h-full w-full flex-col">
@@ -63,7 +65,11 @@ export function Dashboard({
               </CardContent>
             </Card>
             <Card className="h-full w-full shadow-md">
-              <MapChartContainer />
+              <EngagementCard
+                month={month}
+                audience={audience}
+                contentType={contentType}
+              />
             </Card>
           </div>
           <div className="grid grid-cols-1 gap-8">
@@ -84,11 +90,13 @@ export function Dashboard({
             <Chat />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-4">
-          <EngagementCard
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <LocationDonutCharts
             month={month}
             audience={audience}
             contentType={contentType}
+            satisfaction={satisfaction}
+            location={location}
           />
         </div>
       </main>
