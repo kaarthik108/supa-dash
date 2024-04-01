@@ -12,8 +12,14 @@ export async function PlatformCard({
   month,
   audience,
   contentType,
+  satisfaction,
 }: SearchParams) {
-  const platformData = await fetchPlatformData(month, audience, contentType);
+  const platformData = await fetchPlatformData(
+    month,
+    audience,
+    contentType,
+    satisfaction
+  );
   return (
     <div
       className="h-72 overflow-x-auto custom-scrollbar pt-2 animate-fade-right"

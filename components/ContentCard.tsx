@@ -13,8 +13,14 @@ export async function ContentCard({
   month,
   audience,
   contentType,
+  satisfaction,
 }: SearchParams) {
-  const contentData = await fetchContentData(month, audience, contentType);
+  const contentData = await fetchContentData(
+    month,
+    audience,
+    contentType,
+    satisfaction
+  );
   contentData.sort((a, b) => b.value - a.value);
 
   return (

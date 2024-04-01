@@ -7,8 +7,16 @@ import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const getImpressionData = cache(
-  async (audience: string | null, contentType: string | null) => {
-    const budgetData = await fetchImpressionData(audience, contentType);
+  async (
+    audience: string | null,
+    contentType: string | null,
+    satisfaction: string | null
+  ) => {
+    const budgetData = await fetchImpressionData(
+      audience,
+      contentType,
+      satisfaction
+    );
     const formattedData = budgetData
       ? groupByField(budgetData, "StartDate", "Impressions")
       : [];
@@ -20,12 +28,14 @@ export async function ImpressionCard({
   month,
   audience,
   contentType,
+  satisfaction,
 }: SearchParams) {
   const selectedMonth = month;
 
   const formattedData = await getImpressionData(
     audience || null,
-    contentType || null
+    contentType || null,
+    satisfaction || null
   );
 
   const filteredData =

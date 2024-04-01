@@ -58,6 +58,7 @@ export function Dashboard({
                   month={month}
                   audience={audience}
                   contentType={contentType}
+                  satisfaction={satisfaction}
                 />
               </CardContent>
             </Card>
@@ -77,6 +78,7 @@ export function Dashboard({
                 month={month}
                 audience={audience}
                 contentType={contentType}
+                satisfaction={satisfaction}
               />
             </div>
             <Chat />
