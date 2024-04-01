@@ -26,7 +26,6 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [clickedData, setClickedData] = useState<EngagementData | null>(null);
-
   useEffect(() => {
     const currentFilter = searchParams.get("satisfaction");
     if (currentFilter) {
@@ -66,10 +65,12 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
       x="engagementRate"
       y="subscribers"
       size="viewingTime"
-      minXValue={2.96}
-      minYValue={189}
-      maxXValue={3.04}
-      maxYValue={217}
+      autoMinXValue
+      autoMinYValue
+      // minXValue={minXValue}
+      // minYValue={minYValue}
+      // maxXValue={maxXValue}
+      // maxYValue={maxYValue}
       showOpacity={true}
       valueFormatter={{
         x: (rate) => `${rate.toFixed(2)}%`,

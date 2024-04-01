@@ -1,4 +1,4 @@
-import { fetchBudgetData } from "@/app/actions";
+import { fetchBudgetData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
 import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
