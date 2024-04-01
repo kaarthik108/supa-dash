@@ -3,8 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AudienceCard } from "./AudienceCard";
 import Chat from "./Chat";
 import { ContentCard } from "./ContentCard";
+import { EngagementCard } from "./EngagementCard";
+import { MapChartContainer } from "./MapCard";
 import { PlatformCard } from "./PlatformCard";
-import { MyResponsiveChoropleth } from "./charts/MapChart";
 import { BudgetCard } from "./kpi/BudgetCard";
 import { ClicksCard } from "./kpi/ClicksCard";
 import { ImpressionCard } from "./kpi/ImpressionCard";
@@ -52,7 +53,7 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
               </CardContent>
             </Card>
             <Card className="h-full w-full shadow-md">
-              <MyResponsiveChoropleth />
+              <MapChartContainer />
             </Card>
           </div>
           <div className="grid grid-cols-1 gap-8">
@@ -70,6 +71,13 @@ export function Dashboard({ month, audience, contentType }: SearchParams) {
             </div>
             <Chat />
           </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-4">
+          <EngagementCard
+            month={month}
+            audience={audience}
+            contentType={contentType}
+          />
         </div>
       </main>
     </div>
