@@ -2,6 +2,7 @@ import { fetchPlatformData } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
 import React, { cache } from "react";
 import { PlatformTable } from "./charts/TableChart";
+import { Card, CardContent } from "./ui/card";
 
 // const getData = cache(async (month: string) => {
 //   const data = await fetchPlatformData(month);
@@ -21,11 +22,13 @@ export async function PlatformCard({
     satisfaction
   );
   return (
-    <div
+    <Card
       className="h-72 overflow-x-auto custom-scrollbar pt-2 animate-fade-right"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
-      <PlatformTable data={platformData} />
-    </div>
+      <CardContent className="h-full overflow-x-auto custom-scrollbar pl-0">
+        <PlatformTable data={platformData} />
+      </CardContent>
+    </Card>
   );
 }

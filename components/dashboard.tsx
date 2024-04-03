@@ -1,7 +1,7 @@
 import { SearchParams } from "@/app/dashboard/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { AudienceCard } from "./AudienceCard";
-import Chat from "./Chat";
+import { Chat } from "./Chat";
 import { ContentCard } from "./ContentCard";
 import { EngagementCard } from "./EngagementCard";
 import { LocationDonutCharts } from "./LocationDonut";
@@ -21,7 +21,7 @@ export function Dashboard({
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
           {/* // kpi cards */}
           <RevenueCard
             month={month}
@@ -48,21 +48,16 @@ export function Dashboard({
             satisfaction={satisfaction}
           />
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-4">
-          <div className="grid grid-cols-1 gap-8">
-            <Card
-              className="h-72 animate-fade-up shadow-md"
-              style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
-            >
-              <CardContent className="h-full overflow-x-auto custom-scrollbar pl-0">
-                <PlatformCard
-                  month={month}
-                  audience={audience}
-                  contentType={contentType}
-                  satisfaction={satisfaction}
-                />
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
+          <div className="flex flex-col gap-8">
+            <div className="h-72 sm:h-auto">
+              <PlatformCard
+                month={month}
+                audience={audience}
+                contentType={contentType}
+                satisfaction={satisfaction}
+              />
+            </div>
             <div className="h-full w-full shadow-md rounded-md">
               <EngagementCard
                 month={month}
@@ -70,16 +65,18 @@ export function Dashboard({
                 contentType={contentType}
               />
             </div>
-            <LocationDonutCharts
-              month={month}
-              audience={audience}
-              contentType={contentType}
-              satisfaction={satisfaction}
-              location={location}
-            />
+            <div className="h-full">
+              <LocationDonutCharts
+                month={month}
+                audience={audience}
+                contentType={contentType}
+                satisfaction={satisfaction}
+                location={location}
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-8">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 h-72">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <AudienceCard
                 month={month}
                 audience={audience}

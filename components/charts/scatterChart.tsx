@@ -58,7 +58,7 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
 
   return (
     <ScatterChart
-      className="mt-6 h-80"
+      className="mt-6 h-96"
       yAxisWidth={60}
       data={data}
       category="satisfaction"

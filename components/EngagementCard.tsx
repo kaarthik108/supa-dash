@@ -1,7 +1,7 @@
 import { fetchEngagementData } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
-import { Card } from "@tremor/react";
 import { EngagementScatterChart } from "./charts/scatterChart";
+import { Card, CardContent, CardHeader } from "./ui/card";
 
 export async function EngagementCard({
   month,
@@ -15,11 +15,13 @@ export async function EngagementCard({
   );
 
   return (
-    <Card>
-      <p className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+    <Card className="h-full">
+      <CardHeader className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
         Engagement Rate vs. Satisfaction
-      </p>
-      <EngagementScatterChart data={engagementData} />
+      </CardHeader>
+      <CardContent>
+        <EngagementScatterChart data={engagementData} />
+      </CardContent>
     </Card>
   );
 }

@@ -10,58 +10,46 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Input } from "./ui/input";
-import { ScrollArea } from "./ui/scroll-area";
 
-function Chat() {
+export function Chat() {
   const messages = [
-    {
-      id: 1,
-      role: "assistant",
-      content: "Hello! How can I help you today?",
-    },
-    {
-      id: 2,
-      role: "user",
-      content: "I need help",
-    },
+    { id: 1, role: "assistant", content: "Hello! How can I help you today?" },
+    { id: 2, role: "user", content: "I need help" },
   ];
 
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-md flex flex-col h-full">
       <CardHeader>
-        <CardTitle> Chat</CardTitle>
+        <CardTitle>Chat</CardTitle>
         <CardDescription>
           Chat with our AI assistant to get help on your queries
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[600px] w-full pr-4">
-          {messages.map((message) => {
-            return (
-              <div key={message.id} className="flex gap-3 text-sm mb-4">
-                {message.role === "user" && (
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                )}
-                {message.role === "assistant" && (
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                )}
-
-                <p className="w-full text-primary">
-                  <span className="block font-bold">
-                    {message.role === "user" ? "User" : "Bot"}
-                  </span>
-                  {message.content}
-                </p>
-              </div>
-            );
-          })}
-        </ScrollArea>
+      <CardContent className="flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-4 pr-4">
+          {messages.map((message) => (
+            <div key={message.id} className="flex gap-3 text-sm">
+              {message.role === "user" && (
+                <Avatar>
+                  <AvatarImage src="" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              )}
+              {message.role === "assistant" && (
+                <Avatar>
+                  <AvatarImage src="" />
+                  <AvatarFallback>AI</AvatarFallback>
+                </Avatar>
+              )}
+              <p className="w-full text-primary">
+                <span className="block font-bold">
+                  {message.role === "user" ? "User" : "Bot"}
+                </span>
+                {message.content}
+              </p>
+            </div>
+          ))}
+        </div>
       </CardContent>
       <CardFooter>
         <form className="w-full flex gap-2">
@@ -76,5 +64,3 @@ function Chat() {
     </Card>
   );
 }
-
-export default Chat;

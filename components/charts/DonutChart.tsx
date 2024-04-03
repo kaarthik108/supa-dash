@@ -62,7 +62,7 @@ export const DonutChartComponent = ({
   );
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
+    <div className="flex flex-col items-center justify-center w-full h-full">
       <DonutChart
         data={data}
         variant={variant}
