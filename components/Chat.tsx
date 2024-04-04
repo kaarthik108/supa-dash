@@ -51,15 +51,25 @@ export function Chat() {
   }, [inputRef]);
 
   return (
-    <Card className="shadow-md flex flex-col h-full max-h-[845px]">
+    <Card className="shadow-md flex flex-col h-full">
       <CardHeader>
-        <CardTitle>Chat</CardTitle>
+        <div className="flex justify-between items-start">
+          <CardTitle>Chat</CardTitle>
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              setMessages([]);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
         <CardDescription>
           Chat with our AI assistant to get help on your queries
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-1 overflow-y-auto">
-        <div className="overflow-y-auto">
+      <CardContent className="flex-grow overflow-hidden">
+        <div className="h-full max-h-[calc(100vh-520px)] overflow-y-auto">
           {messages.length ? (
             <ChatList messages={messages} />
           ) : (
@@ -117,8 +127,8 @@ export function Chat() {
             ref={inputRef}
             tabIndex={0}
             onKeyDown={onKeyDown}
-            placeholder="Send a message."
-            className="flex-1 min-h-[44px] resize-none rounded-md border border-gray-300 bg-white px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary sm:text-sm"
+            placeholder="Send a message..."
+            className="flex-1 min-h-[44px] resize-none rounded-md border border-gray-300 bg-white px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
             autoFocus
             spellCheck={false}
             autoComplete="off"

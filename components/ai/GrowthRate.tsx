@@ -7,12 +7,11 @@ import { LineChartHero } from "../charts/LineChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export async function GrowthRateChartCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
+  month = "all",
+  audience = null,
+  contentType = null,
+  satisfaction = null,
 }: SearchParams) {
-  // Fetch subscriptions data first
   const subscriptionsData = await fetchSubscriptionsOverTime(
     audience || null,
     contentType || null,
@@ -20,16 +19,20 @@ export async function GrowthRateChartCard({
     satisfaction || null
   );
 
-  // Calculate growth rate based on that data
   const growthRateData = await calculateGrowthRateForChart(subscriptionsData);
   const chartData = growthRateData.map((data) => ({
     Month: data.Month,
-    Value: data.GrowthRate, // Map GrowthRate to Value for the chart
+    Value: data.GrowthRate,
   }));
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Growth Rate Over Time</CardTitle>
+        <p className="text-sm text-gray-500 mt-1">
+          The monthly percentage change in new subscriptions compared to the
+          previous month.
+        </p>
       </CardHeader>
       <CardContent>
         <LineChartHero chartData={chartData} title="Growth Rate" />

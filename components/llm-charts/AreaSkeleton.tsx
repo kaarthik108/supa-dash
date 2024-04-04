@@ -1,14 +1,14 @@
 "use client";
 import { Card } from "@tremor/react";
 import React from "react";
-import { SystemMessage } from "../message";
+import { BotMessage, SystemMessage } from "../message";
 import { Skeleton } from "../ui/skeleton";
 
 export default function AreaSkeleton() {
   return (
     <>
-      <SystemMessage>
-        <Card>
+      <BotMessage>
+        <Card className="w-full">
           <div className="space-y-2">
             <Skeleton className="h-6 w-3/4" />
             <Skeleton className="h-80" />
@@ -18,7 +18,7 @@ export default function AreaSkeleton() {
             </div>
           </div>
         </Card>
-      </SystemMessage>
+      </BotMessage>
     </>
   );
 }

@@ -27,6 +27,7 @@ export function LineChartHero({ chartData, title }: LineChartHeroProps) {
       categories={[title]}
       colors={["indigo"]}
       yAxisWidth={60}
+      valueFormatter={(value) => `${value.toFixed(2)}%`}
     />
   );
 }

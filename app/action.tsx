@@ -3,6 +3,7 @@ import "server-only";
 import { createAI, createStreamableUI, getMutableAIState } from "ai/rsc";
 import OpenAI from "openai";
 
+import { GrowthRateChartCard } from "@/components/ai/GrowthRate";
 import { Chart } from "@/components/llm-charts";
 import AreaSkeleton from "@/components/llm-charts/AreaSkeleton";
 import { BotCard, BotMessage } from "@/components/message";
@@ -97,11 +98,14 @@ create table
 
 You can only read data and make analysis, you cannot write or update data at any cost.
 
+if they ask about "Show me Subscribers growth over time?" then call the function \`growth_card\` to show the growth rate over time.
 
 Messages inside [] means that it's a UI element or a user event. For example:
 - "[Showing Subscribers growth over time card- using line chart]" means that the UI is showing a card with the title "Subscribers growth over time".
 - "[Showing number of subscribers over time (monthly) card- using line chart]" means that the UI is showing a card with the title "Number of subscribers over time".
 - "[Results for query: query with format: format and title: title and description: description. with data" means that a chart/table/number card is shown to that user.
+
+
 `,
       },
       ...aiState.get().map((info: any) => ({
@@ -117,6 +121,14 @@ Messages inside [] means that it's a UI element or a user event. For example:
           "Query the data from the snowflake database and return the results.",
         parameters: FQueryResponse,
       },
+      {
+        name: "growth_card",
+        description:
+          "Show the growth rate of subscribers over time using a line chart.",
+        parameters: z.object({
+          month: z.string().optional(),
+        }),
+      },
     ],
     temperature: 0,
   });
@@ -131,14 +143,16 @@ Messages inside [] means that it's a UI element or a user event. For example:
     }
   });
 
-  completion.onFunctionCall("show_products", async ({ products }) => {
-    console.log(products);
-    reply.update(<BotCard>Loading products...</BotCard>);
+  completion.onFunctionCall("growth_card", async () => {
+    reply.update(
+      <BotMessage>
+        <AreaSkeleton />
+      </BotMessage>
+    );
 
     reply.done(
       <BotCard>
-        {/* <Products products={products} /> */}
-        <div>Products: {products}</div>
+        <GrowthRateChartCard month="all" />
       </BotCard>
     );
 
@@ -147,7 +161,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
       {
         role: "function",
         name: "show_products",
-        content: JSON.stringify(products),
+        content: `[Snowflake query results for code: Showing Subscribers growth over time card- using line chart]`,
       },
     ]);
   });
@@ -156,7 +170,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
     "query_data",
     async (input: OpenAIQueryResponse) => {
       reply.update(
-        <BotMessage className="">
+        <BotMessage>
           <AreaSkeleton />
         </BotMessage>
       );

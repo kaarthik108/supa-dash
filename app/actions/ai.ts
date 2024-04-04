@@ -152,9 +152,11 @@ export async function calculateGrowthRateForChart(
           ? 0
           : ((currentSubscriptions - prevSubscriptions) / prevSubscriptions) *
             100;
-      return { Month: data.Month, GrowthRate: growthRate };
+      return {
+        Month: data.Month,
+        GrowthRate: parseFloat(growthRate.toFixed(2)),
+      }; // Round to 2 decimal places
     }
   );
-
   return growthData;
 }
