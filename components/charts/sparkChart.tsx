@@ -2,7 +2,7 @@
 import { AreaChart } from "@tremor/react";
 
 type RevenueOverTimeProps = {
-  chartData: { month: string; revenue: number | null }[];
+  chartData: { month: string; value: number | null }[];
 };
 
 export function RevenueOverTime({ chartData }: RevenueOverTimeProps) {
@@ -16,7 +16,7 @@ export function RevenueOverTime({ chartData }: RevenueOverTimeProps) {
     <div className="flex justify-center">
       <AreaChart
         data={chartData}
-        categories={["revenue"]}
+        categories={["value"]}
         index="month"
         colors={["blue"]}
         className="h-20 w-72"

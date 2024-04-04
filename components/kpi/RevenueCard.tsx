@@ -10,12 +10,14 @@ const getRevenueData = cache(
   async (
     audience: string | null,
     contentType: string | null,
-    satisfaction: string | null
+    satisfaction: string | null,
+    month: string | null
   ) => {
     const revenueData = await fetchRevenueData(
       audience,
       contentType,
-      satisfaction
+      satisfaction,
+      month
     );
     const formattedData = revenueData
       ? groupByField(revenueData, "StartDate", "Revenue")
@@ -30,23 +32,15 @@ export async function RevenueCard({
   contentType,
   satisfaction,
 }: SearchParams) {
-  const selectedMonth = month;
   const formattedData = await getRevenueData(
     audience || null,
     contentType || null,
-    satisfaction || null
+    satisfaction || null,
+    month
   );
-  const filteredData =
-    selectedMonth === "all"
-      ? formattedData
-      : formattedData.filter(
-          (item) => item.month.slice(0, 3) === selectedMonth
-        );
 
-  console.log(filteredData);
-
-  const totalRevenue = filteredData.reduce(
-    (sum, item) => sum + item.revenue!,
+  const totalRevenue = formattedData.reduce(
+    (sum, item) => sum + (item.value || 0),
     0
   );
 
@@ -58,6 +52,7 @@ export async function RevenueCard({
   });
 
   const formattedTotalRevenue = formatter.format(totalRevenue);
+
   return (
     <Card
       className="animate-fade-up shadow-md"
@@ -71,7 +66,7 @@ export async function RevenueCard({
         <div className="text-md font-bold pb-2">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
         <Suspense fallback={<div>Loading...</div>}>
-          <RevenueOverTime chartData={filteredData} />
+          <RevenueOverTime chartData={formattedData} />
         </Suspense>
       </CardContent>
     </Card>

@@ -1,68 +1,65 @@
-import { fetchImpressionData } from "@/app/actions/kpi";
+import { fetchSubscribersData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
 import { groupByField } from "@/lib/utils";
-import { DollarSign } from "lucide-react";
+import { Users } from "lucide-react";
 import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getImpressionData = cache(
+const getSubscribersData = cache(
   async (
-    audience: string | null,
-    contentType: string | null,
     satisfaction: string | null,
-    month: string | null
+    month: string | null,
+    audience: string | null,
+    contentType: string | null
   ) => {
-    const budgetData = await fetchImpressionData(
-      audience,
-      contentType,
+    const subscribersData = await fetchSubscribersData(
       satisfaction,
-      month
+      month,
+      audience,
+      contentType
     );
-    const formattedData = budgetData
-      ? groupByField(budgetData, "StartDate", "Impressions")
+    const formattedData = subscribersData
+      ? groupByField(subscribersData, "SubscriptionDate", "CampaignID")
       : [];
     return formattedData;
   }
 );
 
-export async function ImpressionCard({
+export async function SubscriberCard({
   month,
+  satisfaction,
   audience,
   contentType,
-  satisfaction,
 }: SearchParams) {
-  const formattedData = await getImpressionData(
-    audience || null,
-    contentType || null,
+  const formattedData = await getSubscribersData(
     satisfaction || null,
-    month
+    month,
+    audience || null,
+    contentType || null
   );
 
-  const totalRevenue = formattedData.reduce(
+  const totalSubscribers = formattedData.reduce(
     (sum, item) => sum + item.value!,
     0
   );
-
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 
-  const formattedTotalRevenue = formatter.format(totalRevenue);
-
+  const formattedTotalSubs = formatter.format(totalSubscribers);
   return (
     <Card
       className="animate-fade-up shadow-md"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium">Total Impressions</CardTitle>
-        <DollarSign className="h-3 w-3 text-muted-foreground" />
+        <CardTitle className="text-xs font-medium">Total Subscribers</CardTitle>
+        <Users className="h-3 w-3 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="text-md font-bold">{formattedTotalRevenue}</div>
-        {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
+      <CardContent className="pb-0">
+        <div className="text-md font-bold pb-2">{formattedTotalSubs}</div>
         <Suspense fallback={<div>Loading...</div>}>
           <RevenueOverTime chartData={formattedData} />
         </Suspense>
