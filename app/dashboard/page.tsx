@@ -9,7 +9,7 @@ export type SearchParams = {
   location?: string | null;
 };
 
-// export const runtime = "edge";
+export const runtime = "edge";
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
