@@ -15,13 +15,7 @@ export function TopHeader() {
           <span className="sr-only">Acme Inc</span>
         </Link>
         <Link
-          href="#"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Chat
-        </Link>
-        <Link
-          href="#"
+          href="/about"
           className="text-muted-foreground transition-colors hover:text-foreground"
         >
           About

@@ -11,7 +11,7 @@ const getRevenueData = cache(
     audience: string | null,
     contentType: string | null,
     satisfaction: string | null,
-    month: string | null
+    month: string
   ) => {
     const revenueData = await fetchRevenueData(
       audience,

@@ -15,7 +15,6 @@ export function LineChartComponent({
 }) {
   const dataFormatter = (number: number) =>
     `$${Intl.NumberFormat("us").format(number).toString()}`;
-  console.log(queryResult);
   const filteredData = queryResult.data.map((entry) => {
     const filteredEntry: { [key: string]: string | number } = {};
 
@@ -33,7 +32,6 @@ export function LineChartComponent({
 
     return filteredEntry;
   });
-  console.log(filteredData);
   return (
     <>
       <Card>

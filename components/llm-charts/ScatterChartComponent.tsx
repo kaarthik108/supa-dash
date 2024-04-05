@@ -40,11 +40,11 @@ export function ScatterChartComponent({
 
     return filteredEntry;
   });
-  console.log("index is", index);
-  console.log("category is", category);
-  console.log("yaxis is", yaxis);
-  console.log("size is", size);
-  console.log("filteredData is", filteredData);
+  // console.log("index is", index);
+  // console.log("category is", category);
+  // console.log("yaxis is", yaxis);
+  // console.log("size is", size);
+  // console.log("filteredData is", filteredData);
 
   return (
     <>

@@ -11,6 +11,11 @@ type PlatformData = {
   clicks: number;
 };
 
+function preprocessDate(dateString: string): string {
+  const [day, month, year] = dateString.split(".");
+  return `${year}-${month}-${day}`;
+}
+
 export async function fetchPlatformData(
   month: string,
   audience?: string | null,
@@ -25,9 +30,9 @@ export async function fetchPlatformData(
       "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
     );
 
-  if (audience) {
-    campaignQuery.eq("AudienceType", audience);
-  }
+  // if (audience) {
+  //   campaignQuery.eq("AudienceType", audience);
+  // }
 
   if (contentType) {
     campaignQuery.eq("ContentType", contentType);
@@ -45,7 +50,9 @@ export async function fetchPlatformData(
   if (satisfaction) {
     subscriberQuery.eq("Satisfaction", satisfaction);
   }
-
+  if (audience) {
+    subscriberQuery.eq("AudienceType", audience);
+  }
   const { data: subscriberData, error: subscriberError } =
     await subscriberQuery;
 
@@ -62,13 +69,13 @@ export async function fetchPlatformData(
     const impressions = item.Impressions || 0;
     const subscriptions = item.NewSubscriptions || 0;
     const clicks = item.Clicks || 0;
+    const startDate = preprocessDate(item.StartDate || "");
+    const formattedMonth = new Date(startDate).toLocaleString("default", {
+      month: "short",
+    });
 
     if (
-      (month === "all" ||
-        (item.StartDate &&
-          new Date(item.StartDate).toLocaleString("default", {
-            month: "short",
-          }) === month)) &&
+      (month === "all" || (item.StartDate && formattedMonth === month)) &&
       (!satisfaction ||
         subscriberData.some(
           (subscriber) =>
@@ -79,6 +86,7 @@ export async function fetchPlatformData(
       const existingPlatform = platformData.find(
         (p) => p.platform === platform
       );
+
       if (existingPlatform) {
         existingPlatform.revenue += revenue;
         existingPlatform.impressions += impressions;
@@ -114,9 +122,9 @@ export async function fetchContentData(
     .select("ContentType, AudienceType, Revenue, StartDate, CampaignID")
     .order("Revenue", { ascending: false });
 
-  if (audience) {
-    campaignQuery.eq("AudienceType", audience);
-  }
+  // if (audience) {
+  //   campaignQuery.eq("AudienceType", audience);
+  // }
 
   if (contentType) {
     campaignQuery.eq("ContentType", contentType);
@@ -134,6 +142,9 @@ export async function fetchContentData(
   if (satisfaction) {
     subscriberQuery.eq("Satisfaction", satisfaction);
   }
+  if (audience) {
+    subscriberQuery.eq("AudienceType", audience);
+  }
 
   const { data: subscriberData, error: subscriberError } =
     await subscriberQuery;
@@ -148,13 +159,13 @@ export async function fetchContentData(
   campaignData.forEach((item) => {
     const contentTypeValue = item.ContentType || "";
     const revenue = item.Revenue || 0;
+    const startDate = preprocessDate(item.StartDate || "");
+    const formattedMonth = new Date(startDate).toLocaleString("default", {
+      month: "short",
+    });
 
     if (
-      (month === "all" ||
-        (item.StartDate &&
-          new Date(item.StartDate).toLocaleString("default", {
-            month: "short",
-          }) === month)) &&
+      (month === "all" || (item.StartDate && formattedMonth === month)) &&
       (!satisfaction ||
         subscriberData.some(
           (subscriber) =>
@@ -191,9 +202,9 @@ export async function fetchAudienceData(
     .select("AudienceType, ContentType, Revenue, StartDate, CampaignID")
     .order("Revenue", { ascending: false });
 
-  if (audience) {
-    campaignQuery.eq("AudienceType", audience);
-  }
+  // if (audience) {
+  //   campaignQuery.eq("AudienceType", audience);
+  // }
 
   if (contentType) {
     campaignQuery.eq("ContentType", contentType);
@@ -212,6 +223,9 @@ export async function fetchAudienceData(
   if (satisfaction) {
     subscriberQuery.eq("Satisfaction", satisfaction);
   }
+  if (audience) {
+    subscriberQuery.eq("AudienceType", audience);
+  }
 
   const { data: subscriberData, error: subscriberError } =
     await subscriberQuery;
@@ -226,14 +240,12 @@ export async function fetchAudienceData(
   campaignData.forEach((campaign) => {
     const audienceTypeValue = campaign.AudienceType || "";
     const revenue = campaign.Revenue || 0;
+    const startDate = preprocessDate(campaign.StartDate || "");
+    const formattedMonth = new Date(startDate).toLocaleString("default", {
+      month: "short",
+    });
 
-    if (
-      month === "all" ||
-      (campaign.StartDate &&
-        new Date(campaign.StartDate).toLocaleString("default", {
-          month: "short",
-        }) === month)
-    ) {
+    if (month === "all" || (campaign.StartDate && formattedMonth === month)) {
       // Check if the campaign has subscribers with the specified satisfaction level
       const hasMatchingSubscribers = subscriberData.some(
         (subscriber) =>
@@ -295,13 +307,17 @@ export async function fetchEngagementData(
     const satisfaction = item.Satisfaction || "";
     const engagementRate = item.EngagementRate || 0;
     const viewingTime = item.ViewingTime || 0;
+    const subscriptionDate = item.SubscriptionDate;
+    const formattedMonth = new Date(subscriptionDate!).toLocaleString(
+      "default",
+      {
+        month: "short",
+      }
+    );
 
     if (
       month === "all" ||
-      (item.SubscriptionDate &&
-        new Date(item.SubscriptionDate).toLocaleString("default", {
-          month: "short",
-        }) === month)
+      (item.SubscriptionDate && formattedMonth === month)
     ) {
       const existingData = engagementData.find(
         (d) => d.satisfaction === satisfaction
@@ -330,6 +346,7 @@ export async function fetchEngagementData(
   revalidatePath("/dashboard");
   return engagementData;
 }
+
 export async function fetchSubscribersByLocation(
   month: string,
   audience?: string | null,
@@ -337,18 +354,20 @@ export async function fetchSubscribersByLocation(
   satisfaction?: string | null
 ) {
   const supabase = supabaseServer();
-  let query = supabase.from("subscriber").select("Location, SubscriptionDate");
+  let query = supabase
+    .from("subscriber")
+    .select("Location, SubscriptionDate, AudienceType ");
 
   if (audience) {
     query = query.eq("AudienceType", audience);
   }
 
-  if (contentType) {
-    query = query.eq("ContentType", contentType);
-  }
-
   if (satisfaction) {
     query = query.eq("Satisfaction", satisfaction);
+  }
+
+  if (contentType) {
+    query = query.eq("ContentType", contentType);
   }
 
   const { data, error } = await query;
@@ -363,7 +382,7 @@ export async function fetchSubscribersByLocation(
     "North America": 0,
     "South America": 0,
     Europe: 0,
-    Oceania: 0,
+    Australia: 0,
     Africa: 0,
   };
 
@@ -372,21 +391,22 @@ export async function fetchSubscribersByLocation(
     "North America": "North America",
     "South America": "South America",
     Europe: "Europe",
-    Oceania: "Oceania",
+    Australia: "Australia",
     Africa: "Africa",
   };
 
   data.forEach((item) => {
     const location = item.Location;
-    const subscriptionDate = item.SubscriptionDate;
-
+    const subscriptionDate = item.SubscriptionDate!;
+    const formattedmonth = new Date(subscriptionDate).toLocaleString(
+      "default",
+      {
+        month: "short",
+      }
+    );
     if (
       location &&
-      (month === "all" ||
-        (subscriptionDate &&
-          new Date(subscriptionDate).toLocaleString("default", {
-            month: "short",
-          }) === month))
+      (month === "all" || (subscriptionDate && formattedmonth === month))
     ) {
       const region = regionMapping[location] || "unknown";
       subscribersByLocation[region]++;
@@ -437,14 +457,16 @@ export async function fetchAgeDistributionByLocation(
     const age = subscriber.Age;
     const locationKey = subscriber.Location || "Unknown";
     const subscriptionDate = subscriber.SubscriptionDate;
+    const formattedMonth = new Date(subscriptionDate!).toLocaleString(
+      "default",
+      {
+        month: "short",
+      }
+    );
 
     if (
       age !== null &&
-      (month === "all" ||
-        (subscriptionDate &&
-          new Date(subscriptionDate).toLocaleString("default", {
-            month: "short",
-          }) === month))
+      (month === "all" || (subscriptionDate && formattedMonth === month))
     ) {
       const ageGroup = `${Math.floor(age / 10) * 10}-${
         Math.floor(age / 10) * 10 + 9

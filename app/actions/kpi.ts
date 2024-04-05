@@ -17,115 +17,97 @@ export type CampaignData = {
 
 export type SubscriberData = {
   CampaignID: number;
+  SubscriberID: string;
   Satisfaction: string;
   SubscriptionDate: string;
 };
 
+function preprocessDate(dateString: string): string {
+  const [day, month, year] = dateString.split(".");
+  return `${year}-${month}-${day}`;
+}
+
 function isCampaignInMonth(
-  startDate: string | null,
+  dateString: string | null,
   month: string | null
 ): boolean {
-  if (!startDate || month === "all") return true;
-  const [day, monthIndex, year] = startDate.split(".").map(Number);
-  const campaignDate = new Date(year, monthIndex - 1, day);
-  const desiredMonthIndex = new Date(`${month} 1, ${year}`).getMonth();
-  return campaignDate.getMonth() === desiredMonthIndex;
+  if (!dateString || month === null || month === "all") return true;
+
+  const formattedDate = preprocessDate(dateString);
+  const campaignMonth = new Date(formattedDate).toLocaleString("default", {
+    month: "short",
+  });
+
+  return campaignMonth === month;
 }
 
 export async function fetchCampaignData(
-  audience: string | null,
   contentType: string | null,
   select: string,
   month: string | null = null
 ): Promise<CampaignData[]> {
   const supabase = supabaseServer();
 
-  let query = supabase
-    .from("campaign")
-    .select(`${select}, CampaignID, StartDate`)
-    .order("StartDate", { ascending: true });
+  let query = supabase.from("campaign").select(select);
 
-  if (audience) query = query.eq("AudienceType", audience);
-  if (contentType) query = query.eq("ContentType", contentType);
+  // if (audience) {
+  //   query = query.eq("AudienceType", audience);
+  // }
 
-  const { data, error } = await query;
+  if (contentType) {
+    query = query.eq("ContentType", contentType);
+  }
 
-  if (error) {
-    console.error("Error fetching campaign data:", error);
+  const { data: campaignData, error: campaignError } = await query;
+
+  if (campaignError) {
+    console.error("Error fetching campaign data:", campaignError);
     return [];
   }
 
-  const campaigns = data as unknown as CampaignData[];
-
-  const filteredData = campaigns.filter((item) =>
+  const filteredData = campaignData.filter((item: any) =>
     isCampaignInMonth(item.StartDate, month)
   );
 
-  return filteredData;
+  return filteredData as unknown as CampaignData[];
 }
 
 export async function fetchSubscriberData(
-  satisfaction: string | null
+  satisfaction: string | null,
+  audience: string | null,
+  month?: string | null
 ): Promise<SubscriberData[]> {
   const supabase = supabaseServer();
 
   let query = supabase
     .from("subscriber")
-    .select("CampaignID, Satisfaction, SubscriptionDate");
+    .select("SubscriberID, CampaignID, Satisfaction, SubscriptionDate");
 
-  if (satisfaction !== null) {
+  if (satisfaction) {
     query = query.eq("Satisfaction", satisfaction);
   }
 
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching subscriber data:", error);
-    throw error;
+  if (audience) {
+    query = query.eq("AudienceType", audience);
   }
 
-  const subscribers = data as unknown as SubscriberData[];
+  const { data: subscriberData, error: subscriberError } = await query;
 
-  return subscribers;
-}
+  if (subscriberError) {
+    console.error("Error fetching subscriber data:", subscriberError);
+    return [];
+  }
 
-export async function filterCampaignData(
-  campaignData: CampaignData[],
-  subscriberData: SubscriberData[],
-  satisfaction: string | null,
-  month: string | null = null
-): Promise<CampaignData[]> {
-  return campaignData.filter((campaign) => {
-    if (!satisfaction) return true;
-    return subscriberData.some(
-      (subscriber) =>
-        subscriber.CampaignID === campaign.CampaignID &&
-        subscriber.Satisfaction === satisfaction
+  if (month) {
+    const filteredData = subscriberData.filter((item) =>
+      isCampaignInMonth(item.SubscriptionDate, month)
     );
-  });
+    return filteredData as unknown as SubscriberData[];
+  } else {
+    return subscriberData as unknown as SubscriberData[];
+  }
 }
 
-export async function filterSubscriberData(
-  subscriberData: SubscriberData[],
-  campaignData: CampaignData[],
-  satisfaction: string | null,
-  month: string | null,
-  audience: string | null,
-  contentType: string | null
-): Promise<SubscriberData[]> {
-  return subscriberData.filter((subscriber) => {
-    const campaign = campaignData.find(
-      (campaign) => campaign.CampaignID === subscriber.CampaignID
-    );
-    if (!campaign) return false;
-    if (satisfaction && subscriber.Satisfaction !== satisfaction) return false;
-    if (month && !isCampaignInMonth(subscriber.SubscriptionDate, month))
-      return false;
-    if (audience && campaign.AudienceType !== audience) return false;
-    if (contentType && campaign.ContentType !== contentType) return false;
-    return true;
-  });
-}
 export async function fetchRevenueData(
   audience: string | null,
   contentType: string | null,
@@ -133,17 +115,24 @@ export async function fetchRevenueData(
   month: string | null
 ): Promise<CampaignData[]> {
   const campaignData = await fetchCampaignData(
-    audience,
     contentType,
     "Revenue, StartDate, AudienceType",
     month
   );
-  const subscriberData = await fetchSubscriberData(satisfaction);
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction
+  const subscriberData = await fetchSubscriberData(
+    satisfaction,
+    audience,
+    month
   );
+
+  const filteredData = campaignData.filter((campaign) => {
+    if (!satisfaction) return true;
+    return subscriberData.some(
+      (subscriber) =>
+        subscriber.CampaignID === campaign.CampaignID &&
+        subscriber.Satisfaction === satisfaction
+    );
+  });
 
   revalidatePath("/dashboard");
   return filteredData;
@@ -156,17 +145,24 @@ export async function fetchBudgetData(
   month: string | null
 ): Promise<CampaignData[]> {
   const campaignData = await fetchCampaignData(
-    audience,
     contentType,
     "Budget, StartDate, AudienceType, ContentType",
     month
   );
-  const subscriberData = await fetchSubscriberData(satisfaction);
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction
+  const subscriberData = await fetchSubscriberData(
+    satisfaction,
+    audience,
+    month
   );
+
+  const filteredData = campaignData.filter((campaign) => {
+    if (!satisfaction) return true;
+    return subscriberData.some(
+      (subscriber) =>
+        subscriber.CampaignID === campaign.CampaignID &&
+        subscriber.Satisfaction === satisfaction
+    );
+  });
 
   revalidatePath("/dashboard");
   return filteredData;
@@ -179,21 +175,29 @@ export async function fetchImpressionData(
   month: string | null
 ): Promise<CampaignData[]> {
   const campaignData = await fetchCampaignData(
-    audience,
     contentType,
     "Impressions, StartDate",
     month
   );
-  const subscriberData = await fetchSubscriberData(satisfaction);
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction
+  const subscriberData = await fetchSubscriberData(
+    satisfaction,
+    audience,
+    month
   );
+
+  const filteredData = campaignData.filter((campaign) => {
+    if (!satisfaction) return true;
+    return subscriberData.some(
+      (subscriber) =>
+        subscriber.CampaignID === campaign.CampaignID &&
+        subscriber.Satisfaction === satisfaction
+    );
+  });
 
   revalidatePath("/dashboard");
   return filteredData;
 }
+
 export async function fetchClicksData(
   audience: string | null,
   contentType: string | null,
@@ -201,17 +205,24 @@ export async function fetchClicksData(
   month: string | null
 ): Promise<CampaignData[]> {
   const campaignData = await fetchCampaignData(
-    audience,
     contentType,
     "Clicks, StartDate",
     month
   );
-  const subscriberData = await fetchSubscriberData(satisfaction);
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction
+  const subscriberData = await fetchSubscriberData(
+    satisfaction,
+    audience,
+    month
   );
+
+  const filteredData = campaignData.filter((campaign) => {
+    if (!satisfaction) return true;
+    return subscriberData.some(
+      (subscriber) =>
+        subscriber.CampaignID === campaign.CampaignID &&
+        subscriber.Satisfaction === satisfaction
+    );
+  });
 
   revalidatePath("/dashboard");
   return filteredData;
@@ -219,25 +230,208 @@ export async function fetchClicksData(
 
 export async function fetchSubscribersData(
   satisfaction: string | null,
-  month: string | null = null,
-  audience: string | null = null,
-  contentType: string | null = null
+  month: string | null,
+  audience: string | null,
+  contentType: string | null
 ): Promise<SubscriberData[]> {
-  const subscriberData = await fetchSubscriberData(satisfaction);
+  // First, fetch and filter campaign data based on audience and contentType.
   const campaignData = await fetchCampaignData(
-    audience,
     contentType,
     "CampaignID, AudienceType, ContentType",
     month
   );
-  const filteredData = await filterSubscriberData(
-    subscriberData,
-    campaignData,
-    satisfaction,
-    month,
-    audience,
-    contentType
+
+  // Extract CampaignIDs from the filtered campaign data.
+  const validCampaignIds = campaignData.map((campaign) => campaign.CampaignID);
+
+  // Fetch subscriber data potentially for all campaigns.
+  let subscriberData = await fetchSubscriberData(satisfaction, audience, month);
+
+  // Filter subscribers by CampaignID to include only those in validCampaignIds.
+  subscriberData = subscriberData.filter((subscriber) =>
+    validCampaignIds.includes(subscriber.CampaignID)
   );
+
+  return subscriberData;
+}
+
+type PlatformData = {
+  platform: string;
+  revenue: number;
+  impressions: number;
+  subscriptions: number;
+  clicks: number;
+};
+
+export async function fetchPlatformData(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null
+) {
+  const supabase = supabaseServer();
+
+  let campaignQuery = supabase
+    .from("campaign")
+    .select(
+      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
+    );
+
+  // if (audience) {
+  //   campaignQuery = campaignQuery.eq("AudienceType", audience);
+  // }
+
+  if (contentType) {
+    campaignQuery = campaignQuery.eq("ContentType", contentType);
+  }
+
+  const { data: campaignData, error: campaignError } = await campaignQuery;
+
+  if (campaignError) {
+    console.error("Error fetching campaign data:", campaignError);
+    return [];
+  }
+
+  let subscriberQuery = supabase.from("subscriber").select("*");
+
+  if (satisfaction) {
+    subscriberQuery = subscriberQuery.eq("Satisfaction", satisfaction);
+  }
+  if (audience) {
+    subscriberQuery = subscriberQuery.eq("AudienceType", audience);
+  }
+  const { data: subscriberData, error: subscriberError } =
+    await subscriberQuery;
+
+  if (subscriberError) {
+    console.error("Error fetching subscriber data:", subscriberError);
+    return [];
+  }
+
+  const platformData: PlatformData[] = [];
+
+  campaignData.forEach((item) => {
+    const platform = item.Platform || "";
+    const revenue = item.Revenue || 0;
+    const impressions = item.Impressions || 0;
+    const subscriptions = item.NewSubscriptions || 0;
+    const clicks = item.Clicks || 0;
+    const startDate = preprocessDate(item.StartDate || "");
+    const formattedMonth = new Date(startDate).toLocaleString("default", {
+      month: "short",
+    });
+
+    if (
+      (month === "all" || (item.StartDate && formattedMonth === month)) &&
+      (!satisfaction ||
+        subscriberData.some(
+          (subscriber) =>
+            subscriber.CampaignID === item.CampaignID &&
+            subscriber.Satisfaction === satisfaction
+        ))
+    ) {
+      const existingPlatform = platformData.find(
+        (p) => p.platform === platform
+      );
+
+      if (existingPlatform) {
+        existingPlatform.revenue += revenue;
+        existingPlatform.impressions += impressions;
+        existingPlatform.subscriptions += subscriptions;
+        existingPlatform.clicks += clicks;
+      } else {
+        platformData.push({
+          platform,
+          revenue,
+          impressions,
+          subscriptions,
+          clicks,
+        });
+      }
+    }
+  });
+
   revalidatePath("/dashboard");
-  return filteredData;
+  return platformData;
+}
+
+type BarListContentData = { name: string; value: number };
+
+export async function fetchContentData(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null
+) {
+  const supabase = supabaseServer();
+
+  let campaignQuery = supabase
+    .from("campaign")
+    .select("ContentType, AudienceType, Revenue, StartDate, CampaignID")
+    .order("Revenue", { ascending: false });
+
+  // if (audience) {
+  //   campaignQuery = campaignQuery.eq("AudienceType", audience);
+  // }
+
+  if (contentType) {
+    campaignQuery = campaignQuery.eq("ContentType", contentType);
+  }
+
+  const { data: campaignData, error: campaignError } = await campaignQuery;
+
+  if (campaignError) {
+    console.error("Error fetching campaign data:", campaignError);
+    return [];
+  }
+
+  let subscriberQuery = supabase.from("subscriber").select("*");
+
+  if (satisfaction) {
+    subscriberQuery = subscriberQuery.eq("Satisfaction", satisfaction);
+  }
+  if (audience) {
+    subscriberQuery = subscriberQuery.eq("AudienceType", audience);
+  }
+  const { data: subscriberData, error: subscriberError } =
+    await subscriberQuery;
+
+  if (subscriberError) {
+    console.error("Error fetching subscriber data:", subscriberError);
+    return [];
+  }
+
+  const contentData: BarListContentData[] = [];
+
+  campaignData.forEach((item) => {
+    const contentTypeValue = item.ContentType || "";
+    const revenue = item.Revenue || 0;
+    const startDate = preprocessDate(item.StartDate || "");
+    const formattedMonth = new Date(startDate).toLocaleString("default", {
+      month: "short",
+    });
+
+    if (
+      (month === "all" || (item.StartDate && formattedMonth === month)) &&
+      (!satisfaction ||
+        subscriberData.some(
+          (subscriber) =>
+            subscriber.CampaignID === item.CampaignID &&
+            subscriber.Satisfaction === satisfaction
+        ))
+    ) {
+      const existingContentType = contentData.find(
+        (c) => c.name === contentTypeValue
+      );
+
+      if (existingContentType) {
+        existingContentType.value += revenue;
+      } else {
+        contentData.push({ name: contentTypeValue, value: revenue });
+      }
+    }
+  });
+
+  revalidatePath("/dashboard");
+  return contentData;
 }

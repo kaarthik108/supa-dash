@@ -31,7 +31,7 @@ export function Dashboard({
         </div>
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
           <div className="flex flex-col gap-8">
-            <div className="h-auto">
+            <div className="h-auto shadow-md">
               <PlatformCard
                 {...{ month, audience, contentType, satisfaction }}
               />

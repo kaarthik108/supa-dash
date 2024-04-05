@@ -97,13 +97,37 @@ export type Database = {
           SubscriptionDays?: number | null;
           ViewingTime?: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "public_subscriber_CampaignID_fkey";
+            columns: ["CampaignID"];
+            isOneToOne: false;
+            referencedRelation: "campaign";
+            referencedColumns: ["CampaignID"];
+          }
+        ];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      hnswhandler: {
+        Args: {
+          "": unknown;
+        };
+        Returns: unknown;
+      };
+      ivfflathandler: {
+        Args: {
+          "": unknown;
+        };
+        Returns: unknown;
+      };
+      requesting_user_id: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
       vector_avg: {
         Args: {
           "": number[];

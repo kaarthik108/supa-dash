@@ -111,9 +111,12 @@ export async function fetchSubscriptionsOverTime(
   month: string | null = null,
   satisfaction: string | null
 ): Promise<SubscriptionsOverTimeData[]> {
-  const subscriberData = await fetchSubscriberData(satisfaction || null);
-  const campaignData = await fetchCampaignData(
+  const subscriberData = await fetchSubscriberData(
+    satisfaction || null,
     audience,
+    month
+  );
+  const campaignData = await fetchCampaignData(
     contentType,
     "Revenue, Budget, Impressions, Clicks",
     month

@@ -15,7 +15,6 @@ export async function AudienceCard({
   contentType,
   satisfaction,
 }: SearchParams) {
-  console.log("satisfaction", satisfaction);
   const AudienceData = await fetchAudienceData(
     month,
     audience,
@@ -23,7 +22,6 @@ export async function AudienceCard({
     satisfaction
   );
   AudienceData.sort((a, b) => b.value - a.value);
-  console.log(AudienceData);
 
   return (
     <Card

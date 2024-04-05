@@ -32,7 +32,6 @@ export async function LocationDonutCharts({
     satisfaction,
     location
   );
-
   const subscribersData: LocationData[] = Object.entries(subscribersByLocation)
     .filter(([_, count]) => !isNaN(count))
     .map(([locationName, count]) => ({

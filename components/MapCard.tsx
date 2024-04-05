@@ -204,7 +204,6 @@ export async function MapChartContainer({
     contentType,
     satisfaction
   );
-  console.log(subscribersByLocation);
 
   // Map the data to the format expected by the MapChart component
   const data = Object.entries(subscribersByLocation).flatMap(
@@ -216,8 +215,6 @@ export async function MapChartContainer({
       return [];
     }
   );
-
-  console.log(data);
 
   return (
     <>
