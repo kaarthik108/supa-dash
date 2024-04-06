@@ -34,10 +34,12 @@ export function BarListChart({ data, filterType }: BarListChartProps) {
       const currentFilter = params.get(filterType);
       if (currentFilter === payload.name) {
         params.delete(filterType);
+        router.refresh();
       } else {
         params.set(filterType, payload.name);
       }
       router.push(`/dashboard?${params.toString()}`, { scroll: false });
+      router.refresh();
     },
     [router, searchParams, filterType]
   );

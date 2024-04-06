@@ -40,9 +40,7 @@ function groupSubscribersByMonth(
   const allMonths = new Set<string>();
 
   subscriberData.forEach((subscriber) => {
-    const [day, monthNumber, year] =
-      subscriber.SubscriptionDate.split(".").map(Number);
-    const subscriptionDate = new Date(year, monthNumber - 1, day);
+    const subscriptionDate = new Date(subscriber.SubscriptionDate);
     const formattedMonth = format(subscriptionDate, "yyyy-MM");
     allMonths.add(formattedMonth);
     if (!result[formattedMonth]) {
@@ -69,7 +67,6 @@ function groupSubscribersByMonth(
       GrowthRate: 0, // Placeholder, will be calculated next
     }));
 }
-
 // function calculateGrowthRate(monthlySubscribers: SubscriberOverTimeData[]) {
 //   for (let i = 1; i < monthlySubscribers.length; i++) {
 //     const prevCount = monthlySubscribers[i - 1].NewSubscriptions;

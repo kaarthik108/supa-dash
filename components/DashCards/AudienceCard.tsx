@@ -14,13 +14,17 @@ const AudienceCache = cache(
     month: string,
     audience: string | null,
     contentType: string | null,
-    satisfaction: string | null
+    satisfaction: string | null,
+    Location: string | null
+    // age: string | null
   ) => {
     const AudienceData = await fetchAudienceData(
       month,
       audience,
       contentType,
-      satisfaction
+      satisfaction,
+      Location
+      // age
     );
     return AudienceData;
   }
@@ -31,12 +35,16 @@ export async function AudienceCard({
   audience,
   contentType,
   satisfaction,
-}: SearchParams) {
+  location,
+}: // age,
+SearchParams) {
   const AudienceData = await AudienceCache(
     month,
     audience || null,
     contentType || null,
-    satisfaction || null
+    satisfaction || null,
+    location || null
+    // age || null
   );
   AudienceData.sort((a, b) => b.value - a.value);
 

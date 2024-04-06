@@ -2,18 +2,20 @@ import { SearchParams } from "@/app/dashboard/page";
 import { Suspense } from "react";
 import { Chat } from "./Chat";
 import {
-  AudienceComp,
-  ContentComp,
-  EngagementComp,
-  LocationComp,
-  PlatformComp,
+  AudienceCard,
+  CardSkeleton,
+  ContentCard,
+  EngagementCard,
+  LocationCard,
+  PlatformCard,
 } from "./DashCards";
+
 import {
-  BudgetComp,
-  ClicksComp,
-  ImpressionComp,
-  RevenueComp,
-  SubscriberComp,
+  BudgetCard,
+  ClicksCard,
+  ImpressionCard,
+  RevenueCard,
+  SubscriberCard,
 } from "./kpi";
 
 export function Dashboard({
@@ -22,27 +24,29 @@ export function Dashboard({
   contentType,
   satisfaction,
   location,
+  age,
 }: SearchParams) {
+  console.log("Dashboard", age);
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
-          <Suspense fallback>
-            <RevenueComp {...{ month, audience, contentType, satisfaction }} />
+          <Suspense fallback={<CardSkeleton />}>
+            <RevenueCard {...{ month, audience, contentType, satisfaction }} />
           </Suspense>
-          <Suspense fallback>
-            <BudgetComp {...{ month, audience, contentType, satisfaction }} />
+          <Suspense fallback={<CardSkeleton />}>
+            <BudgetCard {...{ month, audience, contentType, satisfaction }} />
           </Suspense>
-          <Suspense fallback>
-            <ImpressionComp
+          <Suspense fallback={<CardSkeleton />}>
+            <ImpressionCard
               {...{ month, audience, contentType, satisfaction }}
             />
           </Suspense>
-          <Suspense fallback>
-            <ClicksComp {...{ month, audience, contentType, satisfaction }} />
+          <Suspense fallback={<CardSkeleton />}>
+            <ClicksCard {...{ month, audience, contentType, satisfaction }} />
           </Suspense>
-          <Suspense fallback>
-            <SubscriberComp
+          <Suspense fallback={<CardSkeleton />}>
+            <SubscriberCard
               {...{ month, audience, contentType, satisfaction }}
             />
           </Suspense>
@@ -50,34 +54,41 @@ export function Dashboard({
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
           <div className="flex flex-col gap-8">
             <div className="h-auto shadow-md">
-              <Suspense fallback>
-                <PlatformComp
+              <Suspense fallback={<CardSkeleton />}>
+                <PlatformCard
                   {...{ month, audience, contentType, satisfaction }}
                 />
               </Suspense>
             </div>
             <div className="shadow-md rounded-md">
-              <Suspense fallback>
-                <EngagementComp
+              <Suspense fallback={<CardSkeleton />}>
+                <EngagementCard
                   {...{ month, audience, contentType, satisfaction }}
                 />
               </Suspense>
             </div>
-            <Suspense fallback>
-              <LocationComp
+            <Suspense fallback={<CardSkeleton />}>
+              <LocationCard
                 {...{ month, audience, contentType, satisfaction, location }}
               />
             </Suspense>
           </div>
           <div className="flex flex-col gap-8">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-              <Suspense fallback>
-                <AudienceComp
-                  {...{ month, audience, contentType, satisfaction }}
+              <Suspense fallback={<CardSkeleton />}>
+                <AudienceCard
+                  {...{
+                    month,
+                    audience,
+                    contentType,
+                    satisfaction,
+                    location,
+                    age,
+                  }}
                 />
               </Suspense>
-              <Suspense fallback>
-                <ContentComp
+              <Suspense fallback={<CardSkeleton />}>
+                <ContentCard
                   {...{ month, audience, contentType, satisfaction }}
                 />
               </Suspense>

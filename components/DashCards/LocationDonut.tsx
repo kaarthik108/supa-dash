@@ -48,7 +48,7 @@ const AgeDistributionCache = cache(
   }
 );
 
-export async function LocationDonutCharts({
+export async function LocationCard({
   month,
   audience,
   contentType,

@@ -5,13 +5,30 @@ import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
+const SubscriberCache = cache(
+  async (
+    satisfaction: string | null,
+    month: string,
+    audience: string | null,
+    contentType: string | null
+  ) => {
+    const subscribersData = await fetchSubscribersData(
+      satisfaction,
+      month,
+      audience,
+      contentType
+    );
+    return subscribersData;
+  }
+);
+
 export async function SubscriberCard({
   month,
   satisfaction,
   audience,
   contentType,
 }: SearchParams) {
-  const subscribersData = await fetchSubscribersData(
+  const subscribersData = await SubscriberCache(
     satisfaction || null,
     month,
     audience || null,
