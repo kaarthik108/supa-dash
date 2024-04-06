@@ -9,13 +9,17 @@ const EngagementCache = cache(
     month: string,
     audience: string | null,
     contentType: string | null,
+    satisfaction: string | null,
     location: string | null,
     age: string | null
   ) => {
+    console.log(age);
+
     const engagementData = await fetchEngagementData(
       month,
       audience,
       contentType,
+      satisfaction,
       location,
       age
     );
@@ -27,13 +31,17 @@ export async function EngagementCard({
   month,
   audience,
   contentType,
+  satisfaction,
   location,
   age,
 }: SearchParams) {
+  console.log(age);
+
   const engagementData = await EngagementCache(
     month,
     audience || null,
     contentType || null,
+    satisfaction || null,
     location || null,
     age || null
   );

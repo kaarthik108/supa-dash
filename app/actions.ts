@@ -81,7 +81,6 @@ export async function fetchSubscriberData(
   }
   if (Age) {
     const { startAge, endAge } = helperAge(Age);
-    console.log(startAge, endAge);
     subscriberQuery.gte("Age", startAge);
     subscriberQuery.lte("Age", endAge);
   }
@@ -278,7 +277,7 @@ export async function fetchEngagementData(
   contentType?: string | null,
   satisfaction?: string | null,
   Location?: string | null,
-  Age?: string | null
+  age?: string | null
 ) {
   const campaignData = await fetchCampaignData(contentType);
   const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
@@ -287,9 +286,8 @@ export async function fetchEngagementData(
     satisfaction,
     campaignIds,
     Location,
-    Age
+    age
   );
-
   const engagementData: {
     satisfaction: string;
     engagementRate: number;
@@ -350,7 +348,6 @@ export async function fetchSubscribersByLocation(
   location?: string | null,
   age?: string | null
 ) {
-  console.log(age);
   const campaignData = await fetchCampaignData(contentType);
   const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
   const subscriberData = await fetchSubscriberData(

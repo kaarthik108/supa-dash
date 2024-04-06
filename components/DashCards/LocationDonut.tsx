@@ -3,7 +3,6 @@ import {
   fetchSubscribersByLocation,
 } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
-import { cache } from "react";
 import { DonutChartComponent } from "../charts/DonutChart";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
@@ -11,45 +10,6 @@ type LocationData = {
   name: string;
   value: number;
 };
-
-const LocationCache = cache(
-  async (
-    month: string,
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    age: string | null
-  ) => {
-    const locationData = await fetchSubscribersByLocation(
-      month,
-      audience,
-      contentType,
-      satisfaction,
-      null,
-      age
-    );
-    return locationData;
-  }
-);
-
-const AgeDistributionCache = cache(
-  async (
-    month: string,
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    location: string
-  ) => {
-    const ageDistributionData = await fetchAgeDistributionByLocation(
-      month,
-      audience,
-      contentType,
-      satisfaction,
-      location
-    );
-    return ageDistributionData;
-  }
-);
 
 export async function LocationCard({
   month,
@@ -59,22 +19,21 @@ export async function LocationCard({
   location,
   age,
 }: SearchParams) {
-  const [subscribersByLocation, ageDistributionByLocation] = await Promise.all([
-    LocationCache(
-      month,
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      age || null
-    ),
-    AgeDistributionCache(
-      month,
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location ? location : ""
-    ),
-  ]);
+  const subscribersByLocation = await fetchSubscribersByLocation(
+    month,
+    audience,
+    contentType,
+    satisfaction,
+    null,
+    age
+  );
+  const ageDistributionByLocation = await fetchAgeDistributionByLocation(
+    month,
+    audience,
+    contentType,
+    satisfaction,
+    location
+  );
 
   const subscribersData: LocationData[] = Object.entries(subscribersByLocation)
     .filter(([_, count]) => !isNaN(count))
