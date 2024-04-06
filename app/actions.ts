@@ -127,7 +127,7 @@ export async function fetchPlatformData(
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return platformData;
 }
 
@@ -176,7 +176,7 @@ export async function fetchContentData(
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return contentData;
 }
 
@@ -225,7 +225,7 @@ export async function fetchAudienceData(
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return contentData;
 }
 
@@ -286,7 +286,7 @@ export async function fetchEngagementData(
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return engagementData;
 }
 
@@ -384,6 +384,6 @@ export async function fetchAgeDistributionByLocation(
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return ageDistribution;
 }

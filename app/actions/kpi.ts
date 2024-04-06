@@ -306,7 +306,7 @@ const fetchPlatformData = async (
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return platformData;
 };
 
@@ -361,7 +361,7 @@ const fetchContentData = async (
     }
   });
 
-  revalidatePath("/dashboard");
+  // revalidatePath("/dashboard");
   return contentData;
 };
 
