@@ -1,13 +1,30 @@
 import { fetchAudienceData } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
-import { Suspense } from "react";
-import { BarListChart } from "./charts/BarListChart";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Suspense, cache } from "react";
+import { BarListChart } from "../charts/BarListChart";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 type BarListContentData = {
   name: string;
   value: number;
 };
+
+const AudienceCache = cache(
+  async (
+    month: string,
+    audience: string | null,
+    contentType: string | null,
+    satisfaction: string | null
+  ) => {
+    const AudienceData = await fetchAudienceData(
+      month,
+      audience,
+      contentType,
+      satisfaction
+    );
+    return AudienceData;
+  }
+);
 
 export async function AudienceCard({
   month,
@@ -15,11 +32,11 @@ export async function AudienceCard({
   contentType,
   satisfaction,
 }: SearchParams) {
-  const AudienceData = await fetchAudienceData(
+  const AudienceData = await AudienceCache(
     month,
-    audience,
-    contentType,
-    satisfaction
+    audience || null,
+    contentType || null,
+    satisfaction || null
   );
   AudienceData.sort((a, b) => b.value - a.value);
 
@@ -36,12 +53,10 @@ export async function AudienceCard({
         </p>
       </CardHeader>
       <CardContent className="overflow-x-auto w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <BarListChart
-            data={AudienceData as BarListContentData[]}
-            filterType="audience"
-          />
-        </Suspense>
+        <BarListChart
+          data={AudienceData as BarListContentData[]}
+          filterType="audience"
+        />
       </CardContent>
     </Card>
   );

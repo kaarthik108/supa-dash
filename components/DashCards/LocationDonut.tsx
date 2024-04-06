@@ -3,14 +3,50 @@ import {
   fetchSubscribersByLocation,
 } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
-import { Suspense } from "react";
-import { DonutChartComponent } from "./charts/DonutChart";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { cache } from "react";
+import { DonutChartComponent } from "../charts/DonutChart";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 type LocationData = {
   name: string;
   value: number;
 };
+
+const LocationCache = cache(
+  async (
+    month: string,
+    audience: string | null,
+    contentType: string | null,
+    satisfaction: string | null
+  ) => {
+    const locationData = await fetchSubscribersByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction
+    );
+    return locationData;
+  }
+);
+
+const AgeDistributionCache = cache(
+  async (
+    month: string,
+    audience: string | null,
+    contentType: string | null,
+    satisfaction: string | null,
+    location: string
+  ) => {
+    const ageDistributionData = await fetchAgeDistributionByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location
+    );
+    return ageDistributionData;
+  }
+);
 
 export async function LocationDonutCharts({
   month,
@@ -19,18 +55,18 @@ export async function LocationDonutCharts({
   satisfaction,
   location,
 }: SearchParams) {
-  const subscribersByLocation = await fetchSubscribersByLocation(
+  const subscribersByLocation = await LocationCache(
     month,
-    audience,
-    contentType,
-    satisfaction
+    audience || null,
+    contentType || null,
+    satisfaction || null
   );
-  const ageDistributionByLocation = await fetchAgeDistributionByLocation(
+  const ageDistributionByLocation = await AgeDistributionCache(
     month,
-    audience,
-    contentType,
-    satisfaction,
-    location
+    audience || null,
+    contentType || null,
+    satisfaction || null,
+    location ? location : ""
   );
   const subscribersData: LocationData[] = Object.entries(subscribersByLocation)
     .filter(([_, count]) => !isNaN(count))
@@ -58,14 +94,12 @@ export async function LocationDonutCharts({
           Subscribers by Location
         </CardHeader>
         <CardContent className="flex items-center justify-center">
-          <Suspense fallback={<div>Loading...</div>}>
-            <DonutChartComponent
-              data={subscribersData}
-              variant="donut"
-              filterType="location"
-              selectedFilter={location}
-            />
-          </Suspense>
+          <DonutChartComponent
+            data={subscribersData}
+            variant="donut"
+            filterType="location"
+            selectedFilter={location}
+          />
         </CardContent>
       </Card>
       <Card
@@ -76,13 +110,11 @@ export async function LocationDonutCharts({
           Age Distribution
         </CardHeader>
         <CardContent className="flex items-center justify-center">
-          <Suspense fallback={<div>Loading...</div>}>
-            <DonutChartComponent
-              data={ageDistributionData}
-              variant="pie"
-              filterType="age"
-            />
-          </Suspense>
+          <DonutChartComponent
+            data={ageDistributionData}
+            variant="pie"
+            filterType="age"
+          />
         </CardContent>
       </Card>
     </div>

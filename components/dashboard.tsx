@@ -1,16 +1,20 @@
 import { SearchParams } from "@/app/dashboard/page";
-import { AudienceCard } from "./AudienceCard";
+import { Suspense } from "react";
 import { Chat } from "./Chat";
-import { ContentCard } from "./ContentCard";
-import { EngagementCard } from "./EngagementCard";
-import { LocationDonutCharts } from "./LocationDonut";
-import { PlatformCard } from "./PlatformCard";
-import { SubsOverTimeCard } from "./ai/SubsOverTime";
-import { BudgetCard } from "./kpi/BudgetCard";
-import { ClicksCard } from "./kpi/ClicksCard";
-import { ImpressionCard } from "./kpi/ImpressionCard";
-import { RevenueCard } from "./kpi/RevenueCard";
-import { SubscriberCard } from "./kpi/SubscriberCard";
+import {
+  AudienceComp,
+  ContentComp,
+  EngagementComp,
+  LocationComp,
+  PlatformComp,
+} from "./DashCards";
+import {
+  BudgetComp,
+  ClicksComp,
+  ImpressionComp,
+  RevenueComp,
+  SubscriberComp,
+} from "./kpi";
 
 export function Dashboard({
   month,
@@ -23,39 +27,65 @@ export function Dashboard({
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
-          <RevenueCard {...{ month, audience, contentType, satisfaction }} />
-          <BudgetCard {...{ month, audience, contentType, satisfaction }} />
-          <ImpressionCard {...{ month, audience, contentType, satisfaction }} />
-          <ClicksCard {...{ month, audience, contentType, satisfaction }} />
-          <SubscriberCard {...{ month, audience, contentType, satisfaction }} />
+          <Suspense fallback>
+            <RevenueComp {...{ month, audience, contentType, satisfaction }} />
+          </Suspense>
+          <Suspense fallback>
+            <BudgetComp {...{ month, audience, contentType, satisfaction }} />
+          </Suspense>
+          <Suspense fallback>
+            <ImpressionComp
+              {...{ month, audience, contentType, satisfaction }}
+            />
+          </Suspense>
+          <Suspense fallback>
+            <ClicksComp {...{ month, audience, contentType, satisfaction }} />
+          </Suspense>
+          <Suspense fallback>
+            <SubscriberComp
+              {...{ month, audience, contentType, satisfaction }}
+            />
+          </Suspense>
         </div>
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
           <div className="flex flex-col gap-8">
             <div className="h-auto shadow-md">
-              <PlatformCard
-                {...{ month, audience, contentType, satisfaction }}
-              />
+              <Suspense fallback>
+                <PlatformComp
+                  {...{ month, audience, contentType, satisfaction }}
+                />
+              </Suspense>
             </div>
             <div className="shadow-md rounded-md">
-              <EngagementCard
-                {...{ month, audience, contentType, satisfaction }}
-              />
+              <Suspense fallback>
+                <EngagementComp
+                  {...{ month, audience, contentType, satisfaction }}
+                />
+              </Suspense>
             </div>
-            <LocationDonutCharts
-              {...{ month, audience, contentType, satisfaction, location }}
-            />
+            <Suspense fallback>
+              <LocationComp
+                {...{ month, audience, contentType, satisfaction, location }}
+              />
+            </Suspense>
           </div>
           <div className="flex flex-col gap-8">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-              <AudienceCard
-                {...{ month, audience, contentType, satisfaction }}
-              />
-              <ContentCard
-                {...{ month, audience, contentType, satisfaction }}
-              />
+              <Suspense fallback>
+                <AudienceComp
+                  {...{ month, audience, contentType, satisfaction }}
+                />
+              </Suspense>
+              <Suspense fallback>
+                <ContentComp
+                  {...{ month, audience, contentType, satisfaction }}
+                />
+              </Suspense>
             </div>
             <div className="flex-1 min-h-[840px]">
-              <Chat />
+              <Suspense fallback>
+                <Chat />
+              </Suspense>
             </div>
           </div>
         </div>

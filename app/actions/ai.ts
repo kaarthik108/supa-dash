@@ -118,6 +118,7 @@ export async function fetchSubscriptionsOverTime(
   );
   const campaignData = await fetchCampaignData(
     contentType,
+    null,
     "Revenue, Budget, Impressions, Clicks",
     month
   );

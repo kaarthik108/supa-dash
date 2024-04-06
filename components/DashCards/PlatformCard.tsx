@@ -1,13 +1,25 @@
 import { fetchPlatformData } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
 import React, { cache } from "react";
-import { PlatformTable } from "./charts/TableChart";
-import { Card, CardContent } from "./ui/card";
+import { PlatformTable } from "../charts/TableChart";
+import { Card, CardContent } from "../ui/card";
 
-// const getData = cache(async (month: string) => {
-//   const data = await fetchPlatformData(month);
-//   return data;
-// });
+const PlatformCache = cache(
+  async (
+    month: string,
+    audience: string | null,
+    contentType: string | null,
+    satisfaction: string | null
+  ) => {
+    const platformData = await fetchPlatformData(
+      month,
+      audience,
+      contentType,
+      satisfaction
+    );
+    return platformData;
+  }
+);
 
 export async function PlatformCard({
   month,
@@ -15,11 +27,11 @@ export async function PlatformCard({
   contentType,
   satisfaction,
 }: SearchParams) {
-  const platformData = await fetchPlatformData(
+  const platformData = await PlatformCache(
     month,
-    audience,
-    contentType,
-    satisfaction
+    audience || null,
+    contentType || null,
+    satisfaction || null
   );
   return (
     <Card

@@ -42,9 +42,7 @@ export async function SubscriberCard({
       </CardHeader>
       <CardContent className="pb-0">
         <div className="text-md font-bold pb-2">{formattedTotalSubs}</div>
-        <Suspense fallback={<div>Loading...</div>}>
-          <RevenueOverTime chartData={formattedData} />
-        </Suspense>
+        <RevenueOverTime chartData={formattedData} />
       </CardContent>
     </Card>
   );

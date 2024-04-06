@@ -41,7 +41,8 @@ export function MonthFilter() {
     (value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set("month", value);
-      router.push(`/dashboard?${params.toString()}`);
+      router.push(`/dashboard?${params.toString()}`, { scroll: false });
+      router.refresh();
       setOpen(false);
     },
     [router, searchParams]

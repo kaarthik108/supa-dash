@@ -14,7 +14,7 @@ export const runtime = "edge";
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div className="flex w-full">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<DashSkeleton />}>
         <Dashboard
           month={searchParams.month || "all"}
           audience={searchParams.audience}
@@ -23,6 +23,16 @@ export default function Home({ searchParams }: { searchParams: SearchParams }) {
           location={searchParams.location}
         />
       </Suspense>
+    </div>
+  );
+}
+
+async function DashSkeleton() {
+  return (
+    <div className="flex items-center justify-center w-full h-screen">
+      <div className="flex flex-col h-full w-full items-center justify-center">
+        Hold on...
+      </div>
     </div>
   );
 }

@@ -10,18 +10,14 @@ type PlatformData = {
   subscriptions: number;
   clicks: number;
 };
+type BarListContentData = { name: string; value: number };
 
 function preprocessDate(dateString: string): string {
   const [day, month, year] = dateString.split(".");
   return `${year}-${month}-${day}`;
 }
 
-export async function fetchPlatformData(
-  month: string,
-  audience?: string | null,
-  contentType?: string | null,
-  satisfaction?: string | null
-) {
+export async function fetchCampaignData(contentType?: string | null) {
   const supabase = supabaseServer();
 
   const campaignQuery = supabase
@@ -29,10 +25,6 @@ export async function fetchPlatformData(
     .select(
       "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
     );
-
-  // if (audience) {
-  //   campaignQuery.eq("AudienceType", audience);
-  // }
 
   if (contentType) {
     campaignQuery.eq("ContentType", contentType);
@@ -45,6 +37,16 @@ export async function fetchPlatformData(
     return [];
   }
 
+  return campaignData;
+}
+
+export async function fetchSubscriberData(
+  audience?: string | null,
+  satisfaction?: string | null,
+  campaignIds?: number[]
+) {
+  const supabase = supabaseServer();
+
   const subscriberQuery = supabase.from("subscriber").select("*");
 
   if (satisfaction) {
@@ -53,6 +55,10 @@ export async function fetchPlatformData(
   if (audience) {
     subscriberQuery.eq("AudienceType", audience);
   }
+  if (campaignIds) {
+    subscriberQuery.in("CampaignID", campaignIds);
+  }
+
   const { data: subscriberData, error: subscriberError } =
     await subscriberQuery;
 
@@ -60,6 +66,23 @@ export async function fetchPlatformData(
     console.error("Error fetching subscriber data:", subscriberError);
     return [];
   }
+
+  return subscriberData;
+}
+
+export async function fetchPlatformData(
+  month: string,
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null
+) {
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(
+    audience,
+    satisfaction,
+    campaignIds
+  );
 
   const platformData: PlatformData[] = [];
 
@@ -107,7 +130,6 @@ export async function fetchPlatformData(
   revalidatePath("/dashboard");
   return platformData;
 }
-type BarListContentData = { name: string; value: number };
 
 export async function fetchContentData(
   month: string,
@@ -115,44 +137,13 @@ export async function fetchContentData(
   contentType?: string | null,
   satisfaction?: string | null
 ) {
-  const supabase = supabaseServer();
-
-  const campaignQuery = supabase
-    .from("campaign")
-    .select("ContentType, AudienceType, Revenue, StartDate, CampaignID")
-    .order("Revenue", { ascending: false });
-
-  // if (audience) {
-  //   campaignQuery.eq("AudienceType", audience);
-  // }
-
-  if (contentType) {
-    campaignQuery.eq("ContentType", contentType);
-  }
-
-  const { data: campaignData, error: campaignError } = await campaignQuery;
-
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
-    return [];
-  }
-
-  const subscriberQuery = supabase.from("subscriber").select("*");
-
-  if (satisfaction) {
-    subscriberQuery.eq("Satisfaction", satisfaction);
-  }
-  if (audience) {
-    subscriberQuery.eq("AudienceType", audience);
-  }
-
-  const { data: subscriberData, error: subscriberError } =
-    await subscriberQuery;
-
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
-  }
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(
+    audience,
+    satisfaction,
+    campaignIds
+  );
 
   const contentData: BarListContentData[] = [];
 
@@ -188,52 +179,20 @@ export async function fetchContentData(
   revalidatePath("/dashboard");
   return contentData;
 }
+
 export async function fetchAudienceData(
   month: string,
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null
 ) {
-  const supabase = supabaseServer();
-
-  // Fetch campaign data
-  const campaignQuery = supabase
-    .from("campaign")
-    .select("AudienceType, ContentType, Revenue, StartDate, CampaignID")
-    .order("Revenue", { ascending: false });
-
-  // if (audience) {
-  //   campaignQuery.eq("AudienceType", audience);
-  // }
-
-  if (contentType) {
-    campaignQuery.eq("ContentType", contentType);
-  }
-
-  const { data: campaignData, error: campaignError } = await campaignQuery;
-
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
-    return [];
-  }
-
-  // Fetch subscriber data
-  const subscriberQuery = supabase.from("subscriber").select("*");
-
-  if (satisfaction) {
-    subscriberQuery.eq("Satisfaction", satisfaction);
-  }
-  if (audience) {
-    subscriberQuery.eq("AudienceType", audience);
-  }
-
-  const { data: subscriberData, error: subscriberError } =
-    await subscriberQuery;
-
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
-  }
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(
+    audience,
+    satisfaction,
+    campaignIds
+  );
 
   const contentData: BarListContentData[] = [];
 
@@ -246,7 +205,6 @@ export async function fetchAudienceData(
     });
 
     if (month === "all" || (campaign.StartDate && formattedMonth === month)) {
-      // Check if the campaign has subscribers with the specified satisfaction level
       const hasMatchingSubscribers = subscriberData.some(
         (subscriber) =>
           subscriber.CampaignID === campaign.CampaignID &&
@@ -276,25 +234,9 @@ export async function fetchEngagementData(
   audience?: string | null,
   contentType?: string | null
 ) {
-  const supabase = supabaseServer();
-  const query = supabase
-    .from("subscriber")
-    .select("Satisfaction, EngagementRate, SubscriptionDate, ViewingTime");
-
-  if (audience) {
-    query.eq("AudienceType", audience);
-  }
-
-  if (contentType) {
-    query.eq("ContentType", contentType);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching engagement data:", error);
-    return [];
-  }
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(audience, null, campaignIds);
 
   const engagementData: {
     satisfaction: string;
@@ -303,7 +245,7 @@ export async function fetchEngagementData(
     viewingTime: number;
   }[] = [];
 
-  data.forEach((item) => {
+  subscriberData.forEach((item) => {
     const satisfaction = item.Satisfaction || "";
     const engagementRate = item.EngagementRate || 0;
     const viewingTime = item.ViewingTime || 0;
@@ -343,6 +285,7 @@ export async function fetchEngagementData(
       }
     }
   });
+
   revalidatePath("/dashboard");
   return engagementData;
 }
@@ -353,29 +296,13 @@ export async function fetchSubscribersByLocation(
   contentType?: string | null,
   satisfaction?: string | null
 ) {
-  const supabase = supabaseServer();
-  let query = supabase
-    .from("subscriber")
-    .select("Location, SubscriptionDate, AudienceType ");
-
-  if (audience) {
-    query = query.eq("AudienceType", audience);
-  }
-
-  if (satisfaction) {
-    query = query.eq("Satisfaction", satisfaction);
-  }
-
-  if (contentType) {
-    query = query.eq("ContentType", contentType);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching subscribers by location:", error);
-    return {};
-  }
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(
+    audience,
+    satisfaction,
+    campaignIds
+  );
 
   const subscribersByLocation: { [key: string]: number } = {
     Asia: 0,
@@ -395,7 +322,7 @@ export async function fetchSubscribersByLocation(
     Africa: "Africa",
   };
 
-  data.forEach((item) => {
+  subscriberData.forEach((item) => {
     const location = item.Location;
     const subscriptionDate = item.SubscriptionDate!;
     const formattedmonth = new Date(subscriptionDate).toLocaleString(
@@ -404,6 +331,7 @@ export async function fetchSubscribersByLocation(
         month: "short",
       }
     );
+
     if (
       location &&
       (month === "all" || (subscriptionDate && formattedmonth === month))
@@ -423,37 +351,17 @@ export async function fetchAgeDistributionByLocation(
   satisfaction?: string | null,
   location?: string | null
 ): Promise<{ [key: string]: number }> {
-  const supabase = supabaseServer();
-  let query = supabase
-    .from("subscriber")
-    .select("Location, Age, SubscriptionDate");
-
-  if (audience) {
-    query = query.eq("AudienceType", audience);
-  }
-
-  if (contentType) {
-    query = query.eq("ContentType", contentType);
-  }
-
-  if (satisfaction) {
-    query = query.eq("Satisfaction", satisfaction);
-  }
-
-  if (location) {
-    query = query.eq("Location", location);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error fetching age distribution data:", error);
-    return {};
-  }
+  const campaignData = await fetchCampaignData(contentType);
+  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+  const subscriberData = await fetchSubscriberData(
+    audience,
+    satisfaction,
+    campaignIds
+  );
 
   const ageDistribution: { [key: string]: number } = {};
 
-  data.forEach((subscriber) => {
+  subscriberData.forEach((subscriber) => {
     const age = subscriber.Age;
     const locationKey = subscriber.Location || "Unknown";
     const subscriptionDate = subscriber.SubscriptionDate;
@@ -466,7 +374,8 @@ export async function fetchAgeDistributionByLocation(
 
     if (
       age !== null &&
-      (month === "all" || (subscriptionDate && formattedMonth === month))
+      (month === "all" || (subscriptionDate && formattedMonth === month)) &&
+      (!location || locationKey === location)
     ) {
       const ageGroup = `${Math.floor(age / 10) * 10}-${
         Math.floor(age / 10) * 10 + 9
@@ -476,6 +385,5 @@ export async function fetchAgeDistributionByLocation(
   });
 
   revalidatePath("/dashboard");
-
   return ageDistribution;
 }

@@ -13,6 +13,7 @@ export type CampaignData = {
   ContentType: string | null;
   CampaignID: number;
   Platform: string | null;
+  NewSubscriptions: number | null;
 };
 
 export type SubscriberData = {
@@ -22,103 +23,113 @@ export type SubscriberData = {
   SubscriptionDate: string;
 };
 
-function preprocessDate(dateString: string): string {
+const preprocessDate = (dateString: string): string => {
   const [day, month, year] = dateString.split(".");
   return `${year}-${month}-${day}`;
-}
+};
 
-function isCampaignInMonth(
+const isCampaignInMonth = (
   dateString: string | null,
   month: string | null
-): boolean {
-  if (!dateString || month === null || month === "all") return true;
+): boolean => {
+  if (!dateString || !month || month === "all") return true;
 
   const formattedDate = preprocessDate(dateString);
-  const campaignMonth = new Date(formattedDate).toLocaleString("default", {
-    month: "short",
-  });
+  const campaignMonth = new Date(formattedDate).getMonth();
+  const targetMonth = new Date(`2000-${month}-01`).getMonth();
 
-  return campaignMonth === month;
-}
+  return campaignMonth === targetMonth;
+};
 
-export async function fetchCampaignData(
-  contentType: string | null,
+const fetchData = async <T>(
+  table: "campaign" | "subscriber",
+  filters: Record<string, any>,
   select: string,
-  month: string | null = null
-): Promise<CampaignData[]> {
+  month?: string | null
+): Promise<T[]> => {
   const supabase = supabaseServer();
 
-  let query = supabase.from("campaign").select(select);
+  let query = supabase.from(table).select(select);
+  Object.entries(filters).forEach(([key, value]) => {
+    query = query.eq(key, value);
+  });
 
-  // if (audience) {
-  //   query = query.eq("AudienceType", audience);
-  // }
+  const { data, error } = await query;
 
-  if (contentType) {
-    query = query.eq("ContentType", contentType);
-  }
-
-  const { data: campaignData, error: campaignError } = await query;
-
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
+  if (error) {
+    console.error(`Error fetching ${table} data:`, error);
     return [];
   }
 
-  const filteredData = campaignData.filter((item: any) =>
-    isCampaignInMonth(item.StartDate, month)
-  );
+  const filteredData = month
+    ? data.filter((item: any) =>
+        isCampaignInMonth(item.StartDate || item.SubscriptionDate, month)
+      )
+    : data;
 
-  return filteredData as unknown as CampaignData[];
-}
+  return filteredData as T[];
+};
 
-export async function fetchSubscriberData(
+const fetchCampaignData = async (
+  contentType: string | null,
+  audienceType: string | null,
+  select: string,
+  month: string | null = null
+): Promise<CampaignData[]> => {
+  const filters: Record<string, string> = {};
+
+  if (contentType !== null) {
+    filters.ContentType = contentType;
+  }
+
+  if (audienceType !== null) {
+    filters.AudienceType = audienceType;
+  }
+
+  return fetchData<CampaignData>("campaign", filters, select, month);
+};
+
+const fetchSubscriberData = async (
   satisfaction: string | null,
   audience: string | null,
   month?: string | null
-): Promise<SubscriberData[]> {
-  const supabase = supabaseServer();
-
-  let query = supabase
-    .from("subscriber")
-    .select("SubscriberID, CampaignID, Satisfaction, SubscriptionDate");
+): Promise<SubscriberData[]> => {
+  const filters: Record<string, any> = {};
 
   if (satisfaction) {
-    query = query.eq("Satisfaction", satisfaction);
+    filters.Satisfaction = satisfaction;
   }
 
   if (audience) {
-    query = query.eq("AudienceType", audience);
+    filters.AudienceType = audience;
   }
 
-  const { data: subscriberData, error: subscriberError } = await query;
+  return fetchData<SubscriberData>("subscriber", filters, "*", month);
+};
 
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
+// Revalidate path once per request, regardless of how many times it's called.
+let pathRevalidated = false;
+const revalidateDashboardPath = () => {
+  if (!pathRevalidated) {
+    revalidatePath("/dashboard");
+    pathRevalidated = true;
   }
+};
 
-  if (month) {
-    const filteredData = subscriberData.filter((item) =>
-      isCampaignInMonth(item.SubscriptionDate, month)
-    );
-    return filteredData as unknown as SubscriberData[];
-  } else {
-    return subscriberData as unknown as SubscriberData[];
-  }
-}
-
-export async function fetchRevenueData(
+const fetchFilteredData = async <T extends CampaignData>(
+  getData: (
+    contentType: string | null,
+    AudienceType: string | null,
+    select: string,
+    month: string | null
+  ) => Promise<T[]>,
   audience: string | null,
   contentType: string | null,
   satisfaction: string | null,
-  month: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Revenue, StartDate, AudienceType",
-    month
-  );
+  month: string | null,
+  select: string
+): Promise<T[]> => {
+  const campaignData = await getData(contentType, audience, select, month);
   const subscriberData = await fetchSubscriberData(
     satisfaction,
     audience,
@@ -134,126 +145,97 @@ export async function fetchRevenueData(
     );
   });
 
-  revalidatePath("/dashboard");
+  revalidateDashboardPath();
   return filteredData;
-}
+};
 
-export async function fetchBudgetData(
+const fetchRevenueData = async (
   audience: string | null,
   contentType: string | null,
   satisfaction: string | null,
   month: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Budget, StartDate, AudienceType, ContentType",
-    month
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
+): Promise<CampaignData[]> => {
+  return fetchFilteredData(
+    fetchCampaignData,
     audience,
-    month
+    contentType,
+    satisfaction,
+    month,
+    "Revenue, StartDate, AudienceType"
   );
+};
 
-  const filteredData = campaignData.filter((campaign) => {
-    if (!satisfaction) return true;
-    return subscriberData.some(
-      (subscriber) =>
-        subscriber.CampaignID === campaign.CampaignID &&
-        subscriber.Satisfaction === satisfaction
-    );
-  });
-
-  revalidatePath("/dashboard");
-  return filteredData;
-}
-
-export async function fetchImpressionData(
+const fetchBudgetData = async (
   audience: string | null,
   contentType: string | null,
   satisfaction: string | null,
   month: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Impressions, StartDate",
-    month
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
+): Promise<CampaignData[]> => {
+  return fetchFilteredData(
+    fetchCampaignData,
     audience,
-    month
+    contentType,
+    satisfaction,
+    month,
+    "Budget, StartDate, AudienceType, ContentType"
   );
+};
 
-  const filteredData = campaignData.filter((campaign) => {
-    if (!satisfaction) return true;
-    return subscriberData.some(
-      (subscriber) =>
-        subscriber.CampaignID === campaign.CampaignID &&
-        subscriber.Satisfaction === satisfaction
-    );
-  });
-
-  revalidatePath("/dashboard");
-  return filteredData;
-}
-
-export async function fetchClicksData(
+const fetchImpressionData = async (
   audience: string | null,
   contentType: string | null,
   satisfaction: string | null,
   month: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Clicks, StartDate",
-    month
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
+): Promise<CampaignData[]> => {
+  return fetchFilteredData(
+    fetchCampaignData,
     audience,
-    month
+    contentType,
+    satisfaction,
+    month,
+    "Impressions, StartDate"
   );
+};
 
-  const filteredData = campaignData.filter((campaign) => {
-    if (!satisfaction) return true;
-    return subscriberData.some(
-      (subscriber) =>
-        subscriber.CampaignID === campaign.CampaignID &&
-        subscriber.Satisfaction === satisfaction
-    );
-  });
+const fetchClicksData = async (
+  audience: string | null,
+  contentType: string | null,
+  satisfaction: string | null,
+  month: string | null
+): Promise<CampaignData[]> => {
+  return fetchFilteredData(
+    fetchCampaignData,
+    audience,
+    contentType,
+    satisfaction,
+    month,
+    "Clicks, StartDate"
+  );
+};
 
-  revalidatePath("/dashboard");
-  return filteredData;
-}
-
-export async function fetchSubscribersData(
+const fetchSubscribersData = async (
   satisfaction: string | null,
   month: string | null,
   audience: string | null,
   contentType: string | null
-): Promise<SubscriberData[]> {
-  // First, fetch and filter campaign data based on audience and contentType.
+): Promise<SubscriberData[]> => {
   const campaignData = await fetchCampaignData(
     contentType,
+    null,
     "CampaignID, AudienceType, ContentType",
     month
   );
 
-  // Extract CampaignIDs from the filtered campaign data.
   const validCampaignIds = campaignData.map((campaign) => campaign.CampaignID);
 
-  // Fetch subscriber data potentially for all campaigns.
   let subscriberData = await fetchSubscriberData(satisfaction, audience, month);
 
-  // Filter subscribers by CampaignID to include only those in validCampaignIds.
   subscriberData = subscriberData.filter((subscriber) =>
     validCampaignIds.includes(subscriber.CampaignID)
   );
 
   return subscriberData;
-}
+};
 
 type PlatformData = {
   platform: string;
@@ -263,50 +245,23 @@ type PlatformData = {
   clicks: number;
 };
 
-export async function fetchPlatformData(
+const fetchPlatformData = async (
   month: string,
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null
-) {
-  const supabase = supabaseServer();
-
-  let campaignQuery = supabase
-    .from("campaign")
-    .select(
-      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
-    );
-
-  // if (audience) {
-  //   campaignQuery = campaignQuery.eq("AudienceType", audience);
-  // }
-
-  if (contentType) {
-    campaignQuery = campaignQuery.eq("ContentType", contentType);
-  }
-
-  const { data: campaignData, error: campaignError } = await campaignQuery;
-
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
-    return [];
-  }
-
-  let subscriberQuery = supabase.from("subscriber").select("*");
-
-  if (satisfaction) {
-    subscriberQuery = subscriberQuery.eq("Satisfaction", satisfaction);
-  }
-  if (audience) {
-    subscriberQuery = subscriberQuery.eq("AudienceType", audience);
-  }
-  const { data: subscriberData, error: subscriberError } =
-    await subscriberQuery;
-
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
-  }
+) => {
+  const campaignData = await fetchCampaignData(
+    contentType || null,
+    null,
+    "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID",
+    month
+  );
+  const subscriberData = await fetchSubscriberData(
+    satisfaction || null,
+    audience || null,
+    month
+  );
 
   const platformData: PlatformData[] = [];
 
@@ -353,53 +308,27 @@ export async function fetchPlatformData(
 
   revalidatePath("/dashboard");
   return platformData;
-}
+};
 
 type BarListContentData = { name: string; value: number };
 
-export async function fetchContentData(
+const fetchContentData = async (
   month: string,
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null
-) {
-  const supabase = supabaseServer();
-
-  let campaignQuery = supabase
-    .from("campaign")
-    .select("ContentType, AudienceType, Revenue, StartDate, CampaignID")
-    .order("Revenue", { ascending: false });
-
-  // if (audience) {
-  //   campaignQuery = campaignQuery.eq("AudienceType", audience);
-  // }
-
-  if (contentType) {
-    campaignQuery = campaignQuery.eq("ContentType", contentType);
-  }
-
-  const { data: campaignData, error: campaignError } = await campaignQuery;
-
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
-    return [];
-  }
-
-  let subscriberQuery = supabase.from("subscriber").select("*");
-
-  if (satisfaction) {
-    subscriberQuery = subscriberQuery.eq("Satisfaction", satisfaction);
-  }
-  if (audience) {
-    subscriberQuery = subscriberQuery.eq("AudienceType", audience);
-  }
-  const { data: subscriberData, error: subscriberError } =
-    await subscriberQuery;
-
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
-  }
+) => {
+  const campaignData = await fetchCampaignData(
+    contentType || null,
+    null,
+    "ContentType, AudienceType, Revenue, StartDate, CampaignID",
+    month
+  );
+  const subscriberData = await fetchSubscriberData(
+    satisfaction || null,
+    audience || null,
+    month
+  );
 
   const contentData: BarListContentData[] = [];
 
@@ -434,4 +363,16 @@ export async function fetchContentData(
 
   revalidatePath("/dashboard");
   return contentData;
-}
+};
+
+export {
+  fetchBudgetData,
+  fetchCampaignData,
+  fetchClicksData,
+  fetchContentData,
+  fetchImpressionData,
+  fetchPlatformData,
+  fetchRevenueData,
+  fetchSubscriberData,
+  fetchSubscribersData,
+};

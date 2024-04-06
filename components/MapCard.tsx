@@ -192,33 +192,33 @@ const regionToCountryIdMap: { [key: string]: string[] } = {
   ],
 };
 
-export async function MapChartContainer({
-  month,
-  audience,
-  contentType,
-  satisfaction,
-}: SearchParams) {
-  const subscribersByLocation = await fetchSubscribersByLocation(
-    month,
-    audience,
-    contentType,
-    satisfaction
-  );
+// export async function MapChartContainer({
+//   month,
+//   audience,
+//   contentType,
+//   satisfaction,
+// }: SearchParams) {
+//   const subscribersByLocation = await fetchSubscribersByLocation(
+//     month,
+//     audience,
+//     contentType,
+//     satisfaction
+//   );
 
-  // Map the data to the format expected by the MapChart component
-  const data = Object.entries(subscribersByLocation).flatMap(
-    ([region, count]) => {
-      const countryIds = regionToCountryIdMap[region.toLowerCase()];
-      if (countryIds) {
-        return countryIds.map((id) => ({ id, value: count }));
-      }
-      return [];
-    }
-  );
+//   // Map the data to the format expected by the MapChart component
+//   const data = Object.entries(subscribersByLocation).flatMap(
+//     ([region, count]) => {
+//       const countryIds = regionToCountryIdMap[region.toLowerCase()];
+//       if (countryIds) {
+//         return countryIds.map((id) => ({ id, value: count }));
+//       }
+//       return [];
+//     }
+//   );
 
-  return (
-    <>
-      <MapChart data={data} />
-    </>
-  );
-}
+//   return (
+//     <>
+//       <MapChart data={data} />
+//     </>
+//   );
+// }

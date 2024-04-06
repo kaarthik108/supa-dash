@@ -57,6 +57,7 @@ export const DonutChartComponent = ({
         setClickedData(null);
       }
       router.push(`/dashboard?${params.toString()}`, { scroll: false });
+      router.refresh();
     },
     [router, searchParams, clickedData, filterType]
   );

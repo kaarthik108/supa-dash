@@ -1,17 +1,33 @@
 import { fetchEngagementData } from "@/app/actions";
 import { SearchParams } from "@/app/dashboard/page";
-import { EngagementScatterChart } from "./charts/scatterChart";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { cache } from "react";
+import { EngagementScatterChart } from "../charts/scatterChart";
+import { Card, CardContent, CardHeader } from "../ui/card";
+
+const EngagementCache = cache(
+  async (
+    month: string,
+    audience: string | null,
+    contentType: string | null
+  ) => {
+    const engagementData = await fetchEngagementData(
+      month,
+      audience,
+      contentType
+    );
+    return engagementData;
+  }
+);
 
 export async function EngagementCard({
   month,
   audience,
   contentType,
 }: SearchParams) {
-  const engagementData = await fetchEngagementData(
+  const engagementData = await EngagementCache(
     month,
-    audience,
-    contentType
+    audience || null,
+    contentType || null
   );
 
   return (
