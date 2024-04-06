@@ -57,6 +57,132 @@ export type Database = {
         };
         Relationships: [];
       };
+      chats: {
+        Row: {
+          id: string;
+          payload: Json | null;
+          user_id: string;
+        };
+        Insert: {
+          id: string;
+          payload?: Json | null;
+          user_id?: string;
+        };
+        Update: {
+          id?: string;
+          payload?: Json | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      documents: {
+        Row: {
+          content: string | null;
+          embedding: string | null;
+          id: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          content?: string | null;
+          embedding?: string | null;
+          id: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
+      ex_documents: {
+        Row: {
+          content: string | null;
+          embedding: string | null;
+          id: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          content?: string | null;
+          embedding?: string | null;
+          id: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
+      k1_documents: {
+        Row: {
+          content: string | null;
+          embedding: string | null;
+          id: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
+      pdf_documents: {
+        Row: {
+          content: string | null;
+          created_at: string;
+          embedding: string | null;
+          id: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          content?: string | null;
+          created_at?: string;
+          embedding?: string | null;
+          id: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          content?: string | null;
+          created_at?: string;
+          embedding?: string | null;
+          id?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
+      search_documents: {
+        Row: {
+          content: string | null;
+          embedding: string | null;
+          id: number;
+          metadata: Json | null;
+        };
+        Insert: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: number;
+          metadata?: Json | null;
+        };
+        Update: {
+          content?: string | null;
+          embedding?: string | null;
+          id?: number;
+          metadata?: Json | null;
+        };
+        Relationships: [];
+      };
       subscriber: {
         Row: {
           Age: number | null;
@@ -109,9 +235,49 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      subscriber_aggregated_data: {
+        Row: {
+          Age: number | null;
+          AudienceType: string | null;
+          CampaignID: number | null;
+          Clicks: number | null;
+          ContentType: string | null;
+          EngagementRate: number | null;
+          Impressions: number | null;
+          Location: string | null;
+          NewSubscriptions: number | null;
+          Platform: string | null;
+          Revenue: number | null;
+          Satisfaction: string | null;
+          SubscriptionDate: string | null;
+          ViewingTime: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "public_subscriber_CampaignID_fkey";
+            columns: ["CampaignID"];
+            isOneToOne: false;
+            referencedRelation: "campaign";
+            referencedColumns: ["CampaignID"];
+          }
+        ];
+      };
     };
     Functions: {
+      f_search_documents: {
+        Args: {
+          query_embedding: string;
+          match_count?: number;
+          filter?: Json;
+        };
+        Returns: {
+          id: number;
+          content: string;
+          metadata: Json;
+          embedding: Json;
+          similarity: number;
+        }[];
+      };
       hnswhandler: {
         Args: {
           "": unknown;
@@ -124,9 +290,71 @@ export type Database = {
         };
         Returns: unknown;
       };
+      k1_match_documents: {
+        Args: {
+          query_embedding: string;
+          filter?: Json;
+        };
+        Returns: {
+          id: string;
+          content: string;
+          metadata: Json;
+          similarity: number;
+        }[];
+      };
+      match_documents: {
+        Args: {
+          query_embedding: string;
+          match_count: number;
+        };
+        Returns: {
+          id: string;
+          content: string;
+          metadata: Json;
+          embedding: string;
+          similarity: number;
+        }[];
+      };
+      match_ex_documents: {
+        Args: {
+          query_embedding: string;
+          match_count: number;
+        };
+        Returns: {
+          id: string;
+          content: string;
+          metadata: Json;
+          embedding: string;
+          similarity: number;
+        }[];
+      };
+      pdf_match_documents: {
+        Args: {
+          query_embedding: string;
+          filter?: Json;
+        };
+        Returns: {
+          id: string;
+          content: string;
+          metadata: Json;
+          similarity: number;
+        }[];
+      };
       requesting_user_id: {
         Args: Record<PropertyKey, never>;
         Returns: string;
+      };
+      v_match_documents: {
+        Args: {
+          query_embedding: string;
+          filter?: Json;
+        };
+        Returns: {
+          id: string;
+          content: string;
+          metadata: Json;
+          similarity: number;
+        }[];
       };
       vector_avg: {
         Args: {

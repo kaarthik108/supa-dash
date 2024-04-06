@@ -1,6 +1,5 @@
 import { fetchRevenueData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
-import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
@@ -12,19 +11,26 @@ const getRevenueData = cache(
     contentType: string | null,
     satisfaction: string | null,
     location: string | null,
-    age: string | null
+    age: string | null,
+    month: string | null
   ) => {
-    const revenueData = await fetchRevenueData(
+    const rawData = (await fetchRevenueData(
       audience,
       contentType,
       satisfaction,
       location,
-      age
-    );
-    const formattedData = revenueData
-      ? groupByField(revenueData, "StartDate", "Revenue")
-      : [];
-    return formattedData;
+      age,
+      month
+    )) as {
+      CampaignMonth: string;
+      Revenue: string;
+    }[];
+    const revenueData = rawData.map((item) => ({
+      month: item.CampaignMonth || ("" as string),
+      value: item.Revenue ? parseInt(item.Revenue, 10) : null,
+    }));
+
+    return revenueData;
   }
 );
 
@@ -36,23 +42,19 @@ export async function RevenueCard({
   location,
   age,
 }: SearchParams) {
-  const formattedData = await getRevenueData(
+  const revenueData = await getRevenueData(
     audience || null,
     contentType || null,
     satisfaction || null,
     location || null,
-    age || null
+    age || null,
+    month || null
   );
 
-  const totalRevenue = formattedData.reduce(
-    (sum, item) => sum + (item.value || 0),
+  const totalRevenue = revenueData.reduce(
+    (sum, item) => sum + ((item.value as number) || 0),
     0
   );
-
-  const filteredData =
-    month === "all"
-      ? formattedData
-      : formattedData.filter((item) => item.month.slice(0, 3) === month);
 
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -75,7 +77,7 @@ export async function RevenueCard({
       <CardContent className="pb-0">
         <div className="text-md font-bold pb-2">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={filteredData} />
+        <RevenueOverTime chartData={revenueData} />
       </CardContent>
     </Card>
   );

@@ -12,21 +12,27 @@ const getBudgetData = cache(
     contentType: string | null,
     satisfaction: string | null,
     location: string | null,
-    age: string | null
-    // month: string | null
+    age: string | null,
+    month: string | null
   ) => {
-    const budgetData = await fetchBudgetData(
+    const rawData = (await fetchBudgetData(
       audience,
       contentType,
       satisfaction,
       location,
-      age
-      // month
-    );
-    const formattedData = budgetData
-      ? groupByField(budgetData, "StartDate", "Budget")
-      : [];
-    return formattedData;
+      age,
+      month
+    )) as {
+      CampaignMonth: string;
+      Budget: string;
+    }[];
+
+    const BudgetData = rawData.map((item) => ({
+      month: item.CampaignMonth || ("" as string),
+      value: item.Budget ? parseInt(item.Budget, 10) : null,
+    }));
+
+    return BudgetData;
   }
 );
 
@@ -38,23 +44,20 @@ export async function BudgetCard({
   location,
   age,
 }: SearchParams) {
-  const formattedData = await getBudgetData(
+  const BudgetData = await getBudgetData(
     audience || null,
     contentType || null,
     satisfaction || null,
     location || null,
-    age || null
-    // month
+    age || null,
+    month || null
   );
 
-  const totalRevenue = formattedData.reduce(
-    (sum, item) => sum + item.value!,
+  const totalRevenue = BudgetData.reduce(
+    (sum, item) => sum + ((item.value as number) || 0),
     0
   );
-  const filteredData =
-    month === "all"
-      ? formattedData
-      : formattedData.filter((item) => item.month.slice(0, 3) === month);
+
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -63,7 +66,6 @@ export async function BudgetCard({
   });
 
   const formattedTotalRevenue = formatter.format(totalRevenue);
-
   return (
     <Card
       className="animate-fade-up shadow-md"
@@ -76,7 +78,7 @@ export async function BudgetCard({
       <CardContent>
         <div className="text-md font-bold">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={filteredData} />
+        <RevenueOverTime chartData={BudgetData} />
       </CardContent>
     </Card>
   );

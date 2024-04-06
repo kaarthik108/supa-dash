@@ -1,6 +1,5 @@
 import { fetchImpressionData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
-import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
@@ -12,19 +11,27 @@ const getImpressionData = cache(
     contentType: string | null,
     satisfaction: string | null,
     location: string | null,
-    age: string | null
+    age: string | null,
+    month: string | null
   ) => {
-    const budgetData = await fetchImpressionData(
+    const rawData = (await fetchImpressionData(
       audience,
       contentType,
       satisfaction,
       location,
-      age
-    );
-    const formattedData = budgetData
-      ? groupByField(budgetData, "StartDate", "Impressions")
-      : [];
-    return formattedData;
+      age,
+      month
+    )) as {
+      CampaignMonth: string;
+      Impressions: string;
+    }[];
+
+    const ImpressionData = rawData.map((item) => ({
+      month: item.CampaignMonth || ("" as string),
+      value: item.Impressions ? parseInt(item.Impressions, 10) : null,
+    }));
+
+    return ImpressionData;
   }
 );
 
@@ -36,22 +43,19 @@ export async function ImpressionCard({
   location,
   age,
 }: SearchParams) {
-  const formattedData = await getImpressionData(
+  const ImpressionData = await getImpressionData(
     audience || null,
     contentType || null,
     satisfaction || null,
     location || null,
-    age || null
+    age || null,
+    month || null
   );
 
-  const totalRevenue = formattedData.reduce(
-    (sum, item) => sum + item.value!,
+  const totalRevenue = ImpressionData.reduce(
+    (sum, item) => sum + ((item.value as number) || 0),
     0
   );
-  const filteredData =
-    month === "all"
-      ? formattedData
-      : formattedData.filter((item) => item.month.slice(0, 3) === month);
 
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
@@ -72,7 +76,7 @@ export async function ImpressionCard({
       <CardContent>
         <div className="text-md font-bold">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={filteredData} />
+        <RevenueOverTime chartData={ImpressionData} />
       </CardContent>
     </Card>
   );

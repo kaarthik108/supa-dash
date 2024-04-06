@@ -1,6 +1,5 @@
 import { fetchClicksData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
-import { groupByField } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
 import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
@@ -12,19 +11,27 @@ const getClicksData = cache(
     contentType: string | null,
     satisfaction: string | null,
     location: string | null,
-    age: string | null
+    age: string | null,
+    month: string | null
   ) => {
-    const ClicksData = await fetchClicksData(
+    const rawData = (await fetchClicksData(
       audience,
       contentType,
       satisfaction,
       location,
-      age
-    );
-    const formattedData = ClicksData
-      ? groupByField(ClicksData, "StartDate", "Clicks")
-      : [];
-    return formattedData;
+      age,
+      month
+    )) as {
+      CampaignMonth: string;
+      Clicks: string;
+    }[];
+
+    const ClicksData = rawData.map((item) => ({
+      month: item.CampaignMonth || ("" as string),
+      value: item.Clicks ? parseInt(item.Clicks, 10) : null,
+    }));
+
+    return ClicksData;
   }
 );
 
@@ -36,22 +43,19 @@ export async function ClicksCard({
   location,
   age,
 }: SearchParams) {
-  const formattedData = await getClicksData(
+  const ClicksData = await getClicksData(
     audience || null,
     contentType || null,
     satisfaction || null,
     location || null,
-    age || null
+    age || null,
+    month || null
   );
 
-  const totalRevenue = formattedData.reduce(
-    (sum, item) => sum + item.value!,
+  const totalRevenue = ClicksData.reduce(
+    (sum, item) => sum + ((item.value as number) || 0),
     0
   );
-  const filteredData =
-    month === "all"
-      ? formattedData
-      : formattedData.filter((item) => item.month.slice(0, 3) === month);
 
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
@@ -59,7 +63,6 @@ export async function ClicksCard({
   });
 
   const formattedTotalRevenue = formatter.format(totalRevenue);
-
   return (
     <Card
       className="animate-fade-up shadow-md"
@@ -72,7 +75,7 @@ export async function ClicksCard({
       <CardContent>
         <div className="text-md font-bold">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={filteredData} />
+        <RevenueOverTime chartData={ClicksData} />
       </CardContent>
     </Card>
   );

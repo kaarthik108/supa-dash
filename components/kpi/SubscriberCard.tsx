@@ -6,41 +6,33 @@ import { cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const SubscriberCache = cache(
+const getSubsData = cache(
   async (
     audience: string | null,
     contentType: string | null,
     satisfaction: string | null,
     location: string | null,
-    age: string | null
+    age: string | null,
+    month: string | null
   ) => {
-    const subscribersData = await fetchSubsData(
+    const rawData = (await fetchSubsData(
       audience,
       contentType,
       satisfaction,
       location,
-      age
-    );
-    const formattedData = subscribersData.reduce((acc, subscriber) => {
-      const subscriptionDate = new Date(subscriber.SubscriptionDate);
-      const month = subscriptionDate.toLocaleString("default", {
-        month: "short",
-      });
-      const year = subscriptionDate.getFullYear().toString().slice(-2);
-      const formattedMonth = `${month} ${year}`;
+      age,
+      month
+    )) as {
+      CampaignMonth: string;
+      NewSubscriptions: string;
+    }[];
 
-      const existingEntry = acc.find((entry) => entry.month === formattedMonth);
+    const SubsData = rawData.map((item) => ({
+      month: item.CampaignMonth || ("" as string),
+      value: item.NewSubscriptions ? parseInt(item.NewSubscriptions, 10) : null,
+    }));
 
-      if (existingEntry) {
-        existingEntry.value++;
-      } else {
-        acc.push({ month: formattedMonth, value: 1 });
-      }
-
-      return acc;
-    }, [] as { month: string; value: number }[]);
-
-    return formattedData;
+    return SubsData;
   }
 );
 
@@ -52,29 +44,26 @@ export async function SubscriberCard({
   location,
   age,
 }: SearchParams) {
-  const subscribersData = await SubscriberCache(
+  const SubsData = await getSubsData(
     audience || null,
     contentType || null,
     satisfaction || null,
     location || null,
-    age || null
+    age || null,
+    month || null
   );
 
-  const filteredData =
-    month === "all"
-      ? subscribersData
-      : subscribersData.filter((item) => item.month.slice(0, 3) === month);
-
-  const uniqueSubscribers = filteredData.reduce((acc, item) => {
-    return acc + (item.value ?? 0);
-  }, 0);
+  const totalRevenue = SubsData.reduce(
+    (sum, item) => sum + ((item.value as number) || 0),
+    0
+  );
 
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 
-  const formattedTotalSubs = formatter.format(uniqueSubscribers);
+  const formattedTotalSubs = formatter.format(totalRevenue);
 
   return (
     <Card
@@ -87,7 +76,7 @@ export async function SubscriberCard({
       </CardHeader>
       <CardContent className="pb-0">
         <div className="text-md font-bold pb-2">{formattedTotalSubs}</div>
-        <RevenueOverTime chartData={filteredData} />
+        <RevenueOverTime chartData={SubsData} />
       </CardContent>
     </Card>
   );

@@ -1,5 +1,6 @@
 "use server";
 
+import { runQuery } from "@/lib/db";
 import { supabaseServer } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -26,10 +27,6 @@ export type SubscriberData = {
   Location: string;
   Age: number;
 };
-const preprocessDate = (dateString: string): string => {
-  const [day, month, year] = dateString.split(".");
-  return `${year}-${month}-${day}`;
-};
 function helperAge(age: string) {
   const [startAge, endAge] = age.split("-").map(Number);
   if (!isNaN(startAge) && !isNaN(endAge)) {
@@ -37,18 +34,6 @@ function helperAge(age: string) {
   }
   return { startAge: 0, endAge: 100 };
 }
-const isCampaignInMonth = (
-  dateString: string | null,
-  month: string | null
-): boolean => {
-  if (!dateString || !month || month === "all") return true;
-
-  const formattedDate = preprocessDate(dateString);
-  const campaignMonth = new Date(formattedDate).getMonth();
-  const targetMonth = new Date(`2000-${month}-01`).getMonth();
-
-  return campaignMonth === targetMonth;
-};
 
 export async function fetchCampaignData(
   contentType: string | null,
@@ -120,64 +105,67 @@ export async function fetchSubscriberData(
   return data as unknown as SubscriberData[];
 }
 
-async function filterCampaignData(
-  campaignData: CampaignData[],
-  subscriberData: SubscriberData[],
-  satisfaction: string | null,
-  audience: string | null,
-  location: string | null,
-  age: string | null
-): Promise<CampaignData[]> {
-  const { startAge, endAge } = helperAge(age || "");
-
-  const filteredCampaignIds = new Set(
-    subscriberData
-      .filter((subscriber) => {
-        return (
-          (!satisfaction || subscriber.Satisfaction === satisfaction) &&
-          (!audience || subscriber.AudienceType === audience) &&
-          (!location || subscriber.Location === location) &&
-          (!age || (subscriber.Age >= startAge && subscriber.Age <= endAge))
-        );
-      })
-      .map((subscriber) => subscriber.CampaignID)
-  );
-
-  return campaignData.filter((campaign) => {
-    return filteredCampaignIds.has(campaign.CampaignID);
-  });
-}
-
 export async function fetchRevenueData(
   audience: string | null,
   contentType: string | null,
   satisfaction: string | null,
   location: string | null,
-  age: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Revenue, StartDate, AudienceType, ContentType"
-  );
+  age: string | null,
+  month: string | null
+) {
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
 
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
-    audience,
-    location,
-    age
-  );
+  const conditions = [];
 
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction,
-    audience,
-    location,
-    age
-  );
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month && month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+      SUM("Revenue") AS "Revenue"
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    group by "CampaignMonth";
+  `;
+  const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return filteredData;
+  return result.data;
 }
 
 export async function fetchBudgetData(
@@ -185,29 +173,62 @@ export async function fetchBudgetData(
   contentType: string | null,
   satisfaction: string | null,
   location: string | null,
-  age: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Budget, StartDate, AudienceType, ContentType"
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
-    audience,
-    location,
-    age
-  );
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction,
-    audience,
-    location,
-    age
-  );
+  age: string | null,
+  month: string | null
+) {
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
+
+  const conditions = [];
+
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month && month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+      SUM("Budget") AS "Budget"
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    group by "CampaignMonth";
+  `;
+
+  const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return filteredData;
+  return result.data;
 }
 
 export async function fetchImpressionData(
@@ -215,29 +236,62 @@ export async function fetchImpressionData(
   contentType: string | null,
   satisfaction: string | null,
   location: string | null,
-  age: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Impressions, StartDate"
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
-    audience,
-    location,
-    age
-  );
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction,
-    audience,
-    location,
-    age
-  );
+  age: string | null,
+  month: string | null
+) {
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
+
+  const conditions = [];
+
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month && month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+      SUM("Impressions") AS "Impressions"
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    group by "CampaignMonth";
+  `;
+
+  const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return filteredData;
+  return result.data;
 }
 
 export async function fetchClicksData(
@@ -245,29 +299,62 @@ export async function fetchClicksData(
   contentType: string | null,
   satisfaction: string | null,
   location: string | null,
-  age: string | null
-): Promise<CampaignData[]> {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "Clicks, StartDate"
-  );
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
-    audience,
-    location,
-    age
-  );
-  const filteredData = await filterCampaignData(
-    campaignData,
-    subscriberData,
-    satisfaction,
-    audience,
-    location,
-    age
-  );
+  age: string | null,
+  month: string | null
+) {
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
+
+  const conditions = [];
+
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month && month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+      SUM("Clicks") AS "Clicks"
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    group by "CampaignMonth";
+  `;
+
+  const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return filteredData;
+  return result.data;
 }
 
 export async function fetchSubsData(
@@ -275,30 +362,61 @@ export async function fetchSubsData(
   contentType: string | null,
   satisfaction: string | null,
   location: string | null,
-  age: string | null
+  age: string | null,
+  month: string | null
 ) {
-  const campaignData = await fetchCampaignData(
-    contentType,
-    "NewSubscriptions, StartDate"
-  );
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    satisfaction,
-    audience,
-    location,
-    age,
-    null,
-    campaignIds
-  );
-  // const filteredData = await filterCampaignData(
-  //   campaignData,
-  //   subscriberData,
-  //   satisfaction,
-  //   audience,
-  //   location,
-  //   age
-  // );
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
+
+  const conditions = [];
+
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month && month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+      SUM("NewSubscriptions") AS "NewSubscriptions"
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    group by "CampaignMonth";
+  `;
+  console.log(query);
+
+  const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return subscriberData;
+  return result.data;
 }

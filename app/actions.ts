@@ -1,5 +1,6 @@
 "use server";
 
+import { runQuery } from "@/lib/db";
 import { supabaseServer } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -64,34 +65,23 @@ export async function fetchSubscriberData(
 ) {
   const supabase = supabaseServer();
 
-  const subscriberQuery = supabase.from("subscriber").select("*");
+  const { startAge, endAge } = helperAge(Age || "");
 
-  if (satisfaction) {
-    subscriberQuery.eq("Satisfaction", satisfaction);
-  }
-  if (audience) {
-    subscriberQuery.eq("AudienceType", audience);
-  }
-  if (campaignIds) {
-    subscriberQuery.in("CampaignID", campaignIds);
-  }
-
-  if (Location) {
-    subscriberQuery.eq("Location", Location);
-  }
-  if (Age) {
-    const { startAge, endAge } = helperAge(Age);
-    subscriberQuery.gte("Age", startAge);
-    subscriberQuery.lte("Age", endAge);
-  }
-
-  const { data: subscriberData, error: subscriberError } =
-    await subscriberQuery;
+  const { data: subscriberData, error: subscriberError } = await supabase
+    .from("subscriber_aggregated_data")
+    .select("*")
+    .eq(audience ? '"AudienceType"' : "", audience || "")
+    .eq(satisfaction ? '"Satisfaction"' : "", satisfaction || "")
+    .in(campaignIds ? '"CampaignID"' : "", campaignIds || [])
+    .eq(Location ? '"Location"' : "", Location || "")
+    .gte(Age ? '"Age"' : "", startAge)
+    .lte(Age ? '"Age"' : "", endAge);
 
   if (subscriberError) {
     console.error("Error fetching subscriber data:", subscriberError);
     return [];
   }
+
   revalidatePath("/dashboard");
   return subscriberData;
 }
@@ -169,52 +159,72 @@ export async function fetchContentData(
   location?: string | null,
   age?: string | null
 ) {
-  const campaignData = await fetchCampaignData(contentType);
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignIds,
-    location,
-    age
-  );
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
 
-  const filteredCampaignIds = new Set(
-    subscriberData.map((sub) => sub.CampaignID)
-  );
+  const conditions = [];
 
-  const contentData: BarListContentData[] = [];
-  campaignData.forEach((item) => {
-    const contentTypeValue = item.ContentType || "";
-    const revenue = item.Revenue || 0;
-    const startDate = preprocessDate(item.StartDate || "");
-    const formattedMonth = new Date(startDate).toLocaleString("default", {
-      month: "short",
-    });
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
 
-    if (
-      (month === "all" || (item.StartDate && formattedMonth === month)) &&
-      (!satisfaction ||
-        subscriberData.some(
-          (subscriber) =>
-            subscriber.CampaignID === item.CampaignID &&
-            subscriber.Satisfaction === satisfaction
-        )) &&
-      filteredCampaignIds.has(item.CampaignID)
-    ) {
-      const existingContentType = contentData.find(
-        (c) => c.name === contentTypeValue
-      );
-      if (existingContentType) {
-        existingContentType.value += revenue;
-      } else {
-        contentData.push({ name: contentTypeValue, value: revenue });
-      }
-    }
-  });
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
 
-  // revalidatePath("/dashboard");
-  return contentData;
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      "ContentType",
+      SUM("Revenue") AS value
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+  `;
+
+  if (audience) {
+    query += `
+      AND "AudienceType" = '${audience}'
+    `;
+  }
+
+  if (contentType) {
+    query += `
+      AND "ContentType" = '${contentType}'
+    `;
+  }
+
+  query += `
+    GROUP BY "ContentType";
+  `;
+
+  const result = await runQuery(query);
+
+  // Convert the value from string to number
+  const data = result.data.map((item: any) => ({
+    name: item.ContentType,
+    value: parseFloat(item.value),
+  }));
+
+  return data;
 }
 
 export async function fetchAudienceData(
@@ -223,52 +233,68 @@ export async function fetchAudienceData(
   contentType?: string | null,
   satisfaction?: string | null,
   location?: string | null
-  // age?: string | null
 ) {
-  const campaignData = await fetchCampaignData(contentType);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignData.map((c) => c.CampaignID),
-    location
-    // age
-  );
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
 
-  const filteredCampaignIds = new Set(
-    subscriberData.map((sub) => sub.CampaignID)
-  );
+  const conditions = [];
 
-  const filteredCampaignData = campaignData.filter(
-    (campaign) =>
-      filteredCampaignIds.has(campaign.CampaignID) &&
-      (month === "all" ||
-        (campaign.StartDate &&
-          new Date(preprocessDate(campaign.StartDate)).toLocaleString(
-            "default",
-            { month: "short" }
-          ) === month))
-  );
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
 
-  const contentData: BarListContentData[] = [];
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
 
-  filteredCampaignData.forEach((campaign) => {
-    const { AudienceType: audienceTypeValue, Revenue: revenue } = campaign;
-    const revenueAmount = revenue || 0;
+  if (month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
 
-    const existingEntry = contentData.find(
-      (entry) => entry.name === audienceTypeValue
-    );
-    if (existingEntry) {
-      existingEntry.value += revenueAmount;
-    } else {
-      contentData.push({
-        name: audienceTypeValue || "Unknown",
-        value: revenueAmount,
-      });
-    }
-  });
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
 
-  return contentData;
+  query += `
+    )
+    SELECT
+      "AudienceType",
+      SUM("Revenue") AS value
+    FROM campaign
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+  `;
+
+  if (audience) {
+    query += `
+      AND "AudienceType" = '${audience}'
+    `;
+  }
+
+  if (contentType) {
+    query += `
+      AND "ContentType" = '${contentType}'
+    `;
+  }
+
+  query += `
+    GROUP BY "AudienceType";
+  `;
+
+  const result = await runQuery(query);
+
+  // Convert the value from string to number
+  const data = result.data.map((item: any) => ({
+    name: item.AudienceType,
+    value: parseFloat(item.value),
+  }));
+
+  return data;
 }
 
 export async function fetchEngagementData(
@@ -279,65 +305,69 @@ export async function fetchEngagementData(
   Location?: string | null,
   age?: string | null
 ) {
-  const campaignData = await fetchCampaignData(contentType);
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignIds,
-    Location,
-    age
-  );
-  const engagementData: {
-    satisfaction: string;
-    engagementRate: number;
-    subscribers: number;
-    viewingTime: number;
-  }[] = [];
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
 
-  subscriberData.forEach((item) => {
-    const satisfaction = item.Satisfaction || "";
-    const engagementRate = item.EngagementRate || 0;
-    const viewingTime = item.ViewingTime || 0;
-    const subscriptionDate = item.SubscriptionDate;
-    const formattedMonth = new Date(subscriptionDate!).toLocaleString(
-      "default",
-      {
-        month: "short",
-      }
-    );
+  const conditions = [];
 
-    if (
-      month === "all" ||
-      (item.SubscriptionDate && formattedMonth === month)
-    ) {
-      const existingData = engagementData.find(
-        (d) => d.satisfaction === satisfaction
-      );
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
 
-      if (existingData) {
-        existingData.engagementRate =
-          (existingData.engagementRate * existingData.subscribers +
-            engagementRate) /
-          (existingData.subscribers + 1);
-        existingData.subscribers++;
-        existingData.viewingTime =
-          (existingData.viewingTime * (existingData.subscribers - 1) +
-            viewingTime) /
-          existingData.subscribers;
-      } else {
-        engagementData.push({
-          satisfaction,
-          engagementRate,
-          subscribers: 1,
-          viewingTime,
-        });
-      }
-    }
-  });
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
 
-  // revalidatePath("/dashboard");
-  return engagementData;
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (Location) {
+    conditions.push(`"Location" = '${Location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      "Satisfaction" AS satisfaction,
+      AVG("EngagementRate") AS engagementRate,
+      COUNT(*) AS subscribers,
+      AVG("ViewingTime") AS viewingTime
+    FROM subscriber_aggregated_data
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    GROUP BY "Satisfaction";
+  `;
+
+  const result = await runQuery(query);
+
+  // Convert the values from string to number
+  const data = result.data.map((item: any) => ({
+    satisfaction: item.satisfaction,
+    engagementRate: parseFloat(item.engagementrate),
+    subscribers: parseInt(item.subscribers, 10),
+    viewingTime: parseFloat(item.viewingtime),
+  }));
+
+  return data;
 }
 
 export async function fetchSubscribersByLocation(
@@ -348,50 +378,61 @@ export async function fetchSubscribersByLocation(
   location?: string | null,
   age?: string | null
 ) {
-  const campaignData = await fetchCampaignData(contentType);
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignIds,
-    location,
-    age
-  );
-  const subscribersByLocation: { [key: string]: number } = {
-    Asia: 0,
-    "North America": 0,
-    "South America": 0,
-    Europe: 0,
-    Australia: 0,
-    Africa: 0,
-  };
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
 
-  const regionMapping: { [key: string]: string } = {
-    Asia: "Asia",
-    "North America": "North America",
-    "South America": "South America",
-    Europe: "Europe",
-    Australia: "Australia",
-    Africa: "Africa",
-  };
+  const conditions = [];
 
-  subscriberData.forEach((item) => {
-    const location = item.Location;
-    const subscriptionDate = item.SubscriptionDate!;
-    const formattedmonth = new Date(subscriptionDate).toLocaleString(
-      "default",
-      {
-        month: "short",
-      }
-    );
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
 
-    if (
-      location &&
-      (month === "all" || (subscriptionDate && formattedmonth === month))
-    ) {
-      const region = regionMapping[location] || "unknown";
-      subscribersByLocation[region]++;
-    }
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      "Location",
+      COUNT(*) AS subscribers
+    FROM subscriber_aggregated_data
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+    GROUP BY "Location";
+  `;
+
+  const result = await runQuery(query);
+
+  const subscribersByLocation: { [key: string]: number } = {};
+  result.data.forEach((item: any) => {
+    subscribersByLocation[item.Location] = parseInt(item.subscribers, 10);
   });
 
   return subscribersByLocation;
@@ -404,33 +445,56 @@ export async function fetchAgeDistributionByLocation(
   satisfaction?: string | null,
   location?: string | null
 ): Promise<{ [key: string]: number }> {
-  const campaignData = await fetchCampaignData(contentType);
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignIds,
-    location
-  );
+  let query = `
+    WITH filtered_campaigns AS (
+      SELECT DISTINCT "CampaignID"
+      FROM subscriber_aggregated_data
+      WHERE 1 = 1
+  `;
+
+  const conditions = [];
+
+  if (audience) {
+    conditions.push(`"AudienceType" = '${audience}'`);
+  }
+
+  if (contentType) {
+    conditions.push(`"ContentType" = '${contentType}'`);
+  }
+
+  if (satisfaction) {
+    conditions.push(`"Satisfaction" = '${satisfaction}'`);
+  }
+
+  if (location) {
+    conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (month !== "all") {
+    conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (conditions.length > 0) {
+    query += `
+      AND ${conditions.join(" AND ")}
+    `;
+  }
+
+  query += `
+    )
+    SELECT
+      "Age"
+    FROM subscriber_aggregated_data
+    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns);
+  `;
+
+  const result = await runQuery(query);
 
   const ageDistribution: { [key: string]: number } = {};
 
-  subscriberData.forEach((subscriber) => {
-    const age = subscriber.Age;
-    const locationKey = subscriber.Location || "Unknown";
-    const subscriptionDate = subscriber.SubscriptionDate;
-    const formattedMonth = new Date(subscriptionDate!).toLocaleString(
-      "default",
-      {
-        month: "short",
-      }
-    );
-
-    if (
-      age !== null &&
-      (month === "all" || (subscriptionDate && formattedMonth === month)) &&
-      (!location || locationKey === location)
-    ) {
+  result.data.forEach((item: any) => {
+    const age = item.Age;
+    if (age !== null) {
       const ageGroup = `${Math.floor(age / 10) * 10}-${
         Math.floor(age / 10) * 10 + 9
       }`;
@@ -438,6 +502,5 @@ export async function fetchAgeDistributionByLocation(
     }
   });
 
-  // revalidatePath("/dashboard");
   return ageDistribution;
 }
