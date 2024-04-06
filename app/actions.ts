@@ -79,10 +79,9 @@ export async function fetchSubscriberData(
   if (Location) {
     subscriberQuery.eq("Location", Location);
   }
-
   if (Age) {
-    // Parse the age range
     const { startAge, endAge } = helperAge(Age);
+    console.log(startAge, endAge);
     subscriberQuery.gte("Age", startAge);
     subscriberQuery.lte("Age", endAge);
   }
@@ -181,8 +180,11 @@ export async function fetchContentData(
     age
   );
 
-  const contentData: BarListContentData[] = [];
+  const filteredCampaignIds = new Set(
+    subscriberData.map((sub) => sub.CampaignID)
+  );
 
+  const contentData: BarListContentData[] = [];
   campaignData.forEach((item) => {
     const contentTypeValue = item.ContentType || "";
     const revenue = item.Revenue || 0;
@@ -198,12 +200,12 @@ export async function fetchContentData(
           (subscriber) =>
             subscriber.CampaignID === item.CampaignID &&
             subscriber.Satisfaction === satisfaction
-        ))
+        )) &&
+      filteredCampaignIds.has(item.CampaignID)
     ) {
       const existingContentType = contentData.find(
         (c) => c.name === contentTypeValue
       );
-
       if (existingContentType) {
         existingContentType.value += revenue;
       } else {
@@ -348,6 +350,7 @@ export async function fetchSubscribersByLocation(
   location?: string | null,
   age?: string | null
 ) {
+  console.log(age);
   const campaignData = await fetchCampaignData(contentType);
   const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
   const subscriberData = await fetchSubscriberData(
@@ -357,7 +360,6 @@ export async function fetchSubscribersByLocation(
     location,
     age
   );
-
   const subscribersByLocation: { [key: string]: number } = {
     Asia: 0,
     "North America": 0,

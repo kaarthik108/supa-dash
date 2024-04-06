@@ -4,6 +4,7 @@ import { createAI, createStreamableUI, getMutableAIState } from "ai/rsc";
 import OpenAI from "openai";
 
 import { GrowthRateChartCard } from "@/components/ai/GrowthRate";
+import { SubsOverTimeCard } from "@/components/ai/SubsOverTime";
 import { Chart } from "@/components/llm-charts";
 import AreaSkeleton from "@/components/llm-charts/AreaSkeleton";
 import { BotCard, BotMessage } from "@/components/message";
@@ -99,6 +100,8 @@ create table
 You can only read data and make analysis, you cannot write or update data at any cost.
 
 if they ask about "Show me Subscribers growth over time?" then call the function \`growth_card\` to show the growth rate over time.
+if they ask about "Give me number of subscriptions over time? using line chart" then call the function \`subs_card\` to show the number of subscribers over time.
+
 
 Messages inside [] means that it's a UI element or a user event. For example:
 - "[Showing Subscribers growth over time card- using line chart]" means that the UI is showing a card with the title "Subscribers growth over time".
@@ -125,6 +128,14 @@ Messages inside [] means that it's a UI element or a user event. For example:
         name: "growth_card",
         description:
           "Show the growth rate of subscribers over time using a line chart.",
+        parameters: z.object({
+          month: z.string().optional(),
+        }),
+      },
+      {
+        name: "subs_card",
+        description:
+          "Show the number of subscribers over time using a line chart.",
         parameters: z.object({
           month: z.string().optional(),
         }),
@@ -162,6 +173,29 @@ Messages inside [] means that it's a UI element or a user event. For example:
         role: "function",
         name: "show_products",
         content: `[Snowflake query results for code: Showing Subscribers growth over time card- using line chart]`,
+      },
+    ]);
+  });
+
+  completion.onFunctionCall("subs_card", async () => {
+    reply.update(
+      <BotMessage>
+        <AreaSkeleton />
+      </BotMessage>
+    );
+
+    reply.done(
+      <BotCard>
+        <SubsOverTimeCard month="all" />
+      </BotCard>
+    );
+
+    aiState.done([
+      ...aiState.get(),
+      {
+        role: "function",
+        name: "show_products",
+        content: `[Snowflake query results for code: Showing number of subscribers over time (monthly) card- using line chart]`,
       },
     ]);
   });

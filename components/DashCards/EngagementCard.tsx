@@ -8,12 +8,16 @@ const EngagementCache = cache(
   async (
     month: string,
     audience: string | null,
-    contentType: string | null
+    contentType: string | null,
+    location: string | null,
+    age: string | null
   ) => {
     const engagementData = await fetchEngagementData(
       month,
       audience,
-      contentType
+      contentType,
+      location,
+      age
     );
     return engagementData;
   }
@@ -23,11 +27,15 @@ export async function EngagementCard({
   month,
   audience,
   contentType,
+  location,
+  age,
 }: SearchParams) {
   const engagementData = await EngagementCache(
     month,
     audience || null,
-    contentType || null
+    contentType || null,
+    location || null,
+    age || null
   );
 
   return (

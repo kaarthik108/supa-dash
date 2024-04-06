@@ -17,13 +17,16 @@ const LocationCache = cache(
     month: string,
     audience: string | null,
     contentType: string | null,
-    satisfaction: string | null
+    satisfaction: string | null,
+    age: string | null
   ) => {
     const locationData = await fetchSubscribersByLocation(
       month,
       audience,
       contentType,
-      satisfaction
+      satisfaction,
+      null,
+      age
     );
     return locationData;
   }
@@ -54,20 +57,25 @@ export async function LocationCard({
   contentType,
   satisfaction,
   location,
+  age,
 }: SearchParams) {
-  const subscribersByLocation = await LocationCache(
-    month,
-    audience || null,
-    contentType || null,
-    satisfaction || null
-  );
-  const ageDistributionByLocation = await AgeDistributionCache(
-    month,
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location ? location : ""
-  );
+  const [subscribersByLocation, ageDistributionByLocation] = await Promise.all([
+    LocationCache(
+      month,
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      age || null
+    ),
+    AgeDistributionCache(
+      month,
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location ? location : ""
+    ),
+  ]);
+
   const subscribersData: LocationData[] = Object.entries(subscribersByLocation)
     .filter(([_, count]) => !isNaN(count))
     .map(([locationName, count]) => ({

@@ -9,13 +9,17 @@ const PlatformCache = cache(
     month: string,
     audience: string | null,
     contentType: string | null,
-    satisfaction: string | null
+    satisfaction: string | null,
+    location: string | null,
+    age: string | null
   ) => {
     const platformData = await fetchPlatformData(
       month,
       audience,
       contentType,
-      satisfaction
+      satisfaction,
+      location,
+      age
     );
     return platformData;
   }
@@ -26,12 +30,16 @@ export async function PlatformCard({
   audience,
   contentType,
   satisfaction,
+  location,
+  age,
 }: SearchParams) {
   const platformData = await PlatformCache(
     month,
     audience || null,
     contentType || null,
-    satisfaction || null
+    satisfaction || null,
+    location || null,
+    age || null
   );
   return (
     <Card

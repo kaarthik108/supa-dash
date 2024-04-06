@@ -19,6 +19,20 @@ export function LineChartHero({ chartData, title }: LineChartHeroProps) {
       compactDisplay: "short",
     }).format(value);
 
+  if (title === "Subscriptions Over Time") {
+    return (
+      <LineChart
+        className="h-80"
+        data={chartData.map((item) => ({ ...item, [title]: item.Value }))}
+        index="Month"
+        categories={[title]}
+        colors={["indigo"]}
+        yAxisWidth={60}
+        valueFormatter={(value) => formatNumber(value)}
+      />
+    );
+  }
+
   return (
     <LineChart
       className="h-80"

@@ -13,36 +13,15 @@ interface SubscriptionsOverTimeData {
   Month: string;
   NewSubscriptions: number;
 }
-
-function aggregateCampaignSubscriptions(campaignData: CampaignData[]): {
+function groupSubscribersByMonth(subscriberData: SubscriberData[]): {
   [month: string]: number;
 } {
-  const subscriptionsByMonth: { [month: string]: number } = {};
-  campaignData.forEach(({ StartDate, CampaignID }) => {
-    if (StartDate) {
-      const [day, month, year] = StartDate.split(".").map(Number);
-      const date = new Date(year, month - 1, day);
-      const monthKey = format(date, "yyyy-MM");
-      if (!subscriptionsByMonth[monthKey]) {
-        subscriptionsByMonth[monthKey] = 0;
-      }
-      subscriptionsByMonth[monthKey] += CampaignID;
-    }
-  });
-  return subscriptionsByMonth;
-}
-
-function groupSubscribersByMonth(
-  subscriberData: SubscriberData[],
-  campaignSubscriptionsByMonth: { [month: string]: number }
-) {
   const result: { [monthKey: string]: number } = {};
-  const allMonths = new Set<string>();
 
   subscriberData.forEach((subscriber) => {
     const subscriptionDate = new Date(subscriber.SubscriptionDate);
     const formattedMonth = format(subscriptionDate, "yyyy-MM");
-    allMonths.add(formattedMonth);
+
     if (!result[formattedMonth]) {
       result[formattedMonth] = 0;
     }
@@ -50,86 +29,43 @@ function groupSubscribersByMonth(
     result[formattedMonth]++;
   });
 
-  // Combine subscriber data with campaign data
-  Object.keys(campaignSubscriptionsByMonth).forEach((month) => {
-    allMonths.add(month);
-    if (!result[month]) {
-      result[month] = 0;
-    }
-    result[month] += campaignSubscriptionsByMonth[month];
-  });
-
-  return Array.from(allMonths)
-    .sort()
-    .map((month) => ({
-      Month: month,
-      NewSubscriptions: result[month],
-      GrowthRate: 0, // Placeholder, will be calculated next
-    }));
+  return result;
 }
-// function calculateGrowthRate(monthlySubscribers: SubscriberOverTimeData[]) {
-//   for (let i = 1; i < monthlySubscribers.length; i++) {
-//     const prevCount = monthlySubscribers[i - 1].NewSubscriptions;
-//     const currCount = monthlySubscribers[i].NewSubscriptions;
-//     const growthRate =
-//       prevCount === 0 ? 0 : ((currCount - prevCount) / prevCount) * 100;
-//     monthlySubscribers[i].GrowthRate = growthRate;
-//   }
-//   return monthlySubscribers;
-// }
 
-// export async function fetchSubscribersOverTime(
-//   audience: string | null,
-//   contentType: string | null,
-//   month: string | null = null,
-//   satisfaction: string | null
-// ): Promise<SubscriberOverTimeData[]> {
-//   const subscriberData = await fetchSubscriberData(satisfaction || null);
-//   const campaignData = await fetchCampaignData(
-//     audience,
-//     contentType,
-//     "Revenue, Budget, Impressions, Clicks",
-//     month
-//   );
-//   const campaignSubscriptionsByMonth =
-//     aggregateCampaignSubscriptions(campaignData);
-//   const groupedByMonth = groupSubscribersByMonth(
-//     subscriberData,
-//     campaignSubscriptionsByMonth
-//   );
-//   const withGrowthRate = calculateGrowthRate(groupedByMonth);
-
-//   revalidatePath("/dashboard");
-//   return withGrowthRate;
-// }
 export async function fetchSubscriptionsOverTime(
   audience: string | null,
   contentType: string | null,
-  month: string | null = null,
+  month: string | null = "all",
   satisfaction: string | null
 ): Promise<SubscriptionsOverTimeData[]> {
   const subscriberData = await fetchSubscriberData(
     satisfaction || null,
     audience,
-    month
-  );
-  const campaignData = await fetchCampaignData(
-    contentType,
     null,
-    "Revenue, Budget, Impressions, Clicks",
+    null,
     month
-  );
-  const campaignSubscriptionsByMonth =
-    aggregateCampaignSubscriptions(campaignData);
-  const groupedByMonth = groupSubscribersByMonth(
-    subscriberData,
-    campaignSubscriptionsByMonth
   );
 
-  return groupedByMonth.map((data) => ({
-    Month: data.Month,
-    NewSubscriptions: data.NewSubscriptions,
-  }));
+  const subscribersByMonth = groupSubscribersByMonth(subscriberData);
+
+  // Get all unique months from the subscriber data
+  const allMonths = Array.from(
+    new Set(
+      subscriberData.map((subscriber) =>
+        format(new Date(subscriber.SubscriptionDate), "yyyy-MM")
+      )
+    )
+  ).sort();
+
+  // Calculate new subscriptions for each month
+  const subscriptionsOverTime: SubscriptionsOverTimeData[] = allMonths.map(
+    (month) => ({
+      Month: month,
+      NewSubscriptions: subscribersByMonth[month] || 0,
+    })
+  );
+
+  return subscriptionsOverTime;
 }
 
 interface GrowthRateOverTimeData {

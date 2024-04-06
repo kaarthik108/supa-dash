@@ -11,13 +11,15 @@ const getClicksData = cache(
     audience: string | null,
     contentType: string | null,
     satisfaction: string | null,
-    month: string | null
+    location: string | null,
+    age: string | null
   ) => {
     const ClicksData = await fetchClicksData(
       audience,
       contentType,
       satisfaction,
-      month
+      location,
+      age
     );
     const formattedData = ClicksData
       ? groupByField(ClicksData, "StartDate", "Clicks")
@@ -31,18 +33,25 @@ export async function ClicksCard({
   audience,
   contentType,
   satisfaction,
+  location,
+  age,
 }: SearchParams) {
   const formattedData = await getClicksData(
     audience || null,
     contentType || null,
     satisfaction || null,
-    month
+    location || null,
+    age || null
   );
 
   const totalRevenue = formattedData.reduce(
     (sum, item) => sum + item.value!,
     0
   );
+  const filteredData =
+    month === "all"
+      ? formattedData
+      : formattedData.filter((item) => item.month.slice(0, 3) === month);
 
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
@@ -63,7 +72,7 @@ export async function ClicksCard({
       <CardContent>
         <div className="text-md font-bold">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={formattedData} />
+        <RevenueOverTime chartData={filteredData} />
       </CardContent>
     </Card>
   );

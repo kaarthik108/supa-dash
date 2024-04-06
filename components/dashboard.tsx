@@ -26,28 +26,33 @@ export function Dashboard({
   location,
   age,
 }: SearchParams) {
-  console.log("Dashboard", age);
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
           <Suspense fallback={<CardSkeleton />}>
-            <RevenueCard {...{ month, audience, contentType, satisfaction }} />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <BudgetCard {...{ month, audience, contentType, satisfaction }} />
-          </Suspense>
-          <Suspense fallback={<CardSkeleton />}>
-            <ImpressionCard
-              {...{ month, audience, contentType, satisfaction }}
+            <RevenueCard
+              {...{ month, audience, contentType, satisfaction, location, age }}
             />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
-            <ClicksCard {...{ month, audience, contentType, satisfaction }} />
+            <BudgetCard
+              {...{ month, audience, contentType, satisfaction, location, age }}
+            />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <ImpressionCard
+              {...{ month, audience, contentType, satisfaction, location, age }}
+            />
+          </Suspense>
+          <Suspense fallback={<CardSkeleton />}>
+            <ClicksCard
+              {...{ month, audience, contentType, satisfaction, location, age }}
+            />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
             <SubscriberCard
-              {...{ month, audience, contentType, satisfaction }}
+              {...{ month, audience, contentType, satisfaction, location, age }}
             />
           </Suspense>
         </div>
@@ -56,20 +61,41 @@ export function Dashboard({
             <div className="h-auto shadow-md">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformCard
-                  {...{ month, audience, contentType, satisfaction }}
+                  {...{
+                    month,
+                    audience,
+                    contentType,
+                    satisfaction,
+                    location,
+                    age,
+                  }}
                 />
               </Suspense>
             </div>
             <div className="shadow-md rounded-md">
               <Suspense fallback={<CardSkeleton />}>
                 <EngagementCard
-                  {...{ month, audience, contentType, satisfaction }}
+                  {...{
+                    month,
+                    audience,
+                    contentType,
+                    satisfaction,
+                    location,
+                    age,
+                  }}
                 />
               </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>
               <LocationCard
-                {...{ month, audience, contentType, satisfaction, location }}
+                {...{
+                  month,
+                  audience,
+                  contentType,
+                  satisfaction,
+                  location,
+                  age,
+                }}
               />
             </Suspense>
           </div>
@@ -89,7 +115,7 @@ export function Dashboard({
               </Suspense>
               <Suspense fallback={<CardSkeleton />}>
                 <ContentCard
-                  {...{ month, audience, contentType, satisfaction }}
+                  {...{ month, audience, contentType, satisfaction, location }}
                 />
               </Suspense>
             </div>

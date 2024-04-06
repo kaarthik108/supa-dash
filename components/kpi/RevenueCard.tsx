@@ -11,13 +11,15 @@ const getRevenueData = cache(
     audience: string | null,
     contentType: string | null,
     satisfaction: string | null,
-    month: string
+    location: string | null,
+    age: string | null
   ) => {
     const revenueData = await fetchRevenueData(
       audience,
       contentType,
       satisfaction,
-      month
+      location,
+      age
     );
     const formattedData = revenueData
       ? groupByField(revenueData, "StartDate", "Revenue")
@@ -31,18 +33,26 @@ export async function RevenueCard({
   audience,
   contentType,
   satisfaction,
+  location,
+  age,
 }: SearchParams) {
   const formattedData = await getRevenueData(
     audience || null,
     contentType || null,
     satisfaction || null,
-    month
+    location || null,
+    age || null
   );
 
   const totalRevenue = formattedData.reduce(
     (sum, item) => sum + (item.value || 0),
     0
   );
+
+  const filteredData =
+    month === "all"
+      ? formattedData
+      : formattedData.filter((item) => item.month.slice(0, 3) === month);
 
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -65,7 +75,7 @@ export async function RevenueCard({
       <CardContent className="pb-0">
         <div className="text-md font-bold pb-2">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={formattedData} />
+        <RevenueOverTime chartData={filteredData} />
       </CardContent>
     </Card>
   );

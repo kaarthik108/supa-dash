@@ -1,24 +1,46 @@
-import { fetchSubscribersData } from "@/app/actions/kpi";
+import { fetchSubsData } from "@/app/actions/kpi";
 import { SearchParams } from "@/app/dashboard/page";
+import { groupByField } from "@/lib/utils";
 import { Users } from "lucide-react";
-import { Suspense, cache } from "react";
+import { cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const SubscriberCache = cache(
   async (
-    satisfaction: string | null,
-    month: string,
     audience: string | null,
-    contentType: string | null
+    contentType: string | null,
+    satisfaction: string | null,
+    location: string | null,
+    age: string | null
   ) => {
-    const subscribersData = await fetchSubscribersData(
-      satisfaction,
-      month,
+    const subscribersData = await fetchSubsData(
       audience,
-      contentType
+      contentType,
+      satisfaction,
+      location,
+      age
     );
-    return subscribersData;
+    const formattedData = subscribersData.reduce((acc, subscriber) => {
+      const subscriptionDate = new Date(subscriber.SubscriptionDate);
+      const month = subscriptionDate.toLocaleString("default", {
+        month: "short",
+      });
+      const year = subscriptionDate.getFullYear().toString().slice(-2);
+      const formattedMonth = `${month} ${year}`;
+
+      const existingEntry = acc.find((entry) => entry.month === formattedMonth);
+
+      if (existingEntry) {
+        existingEntry.value++;
+      } else {
+        acc.push({ month: formattedMonth, value: 1 });
+      }
+
+      return acc;
+    }, [] as { month: string; value: number }[]);
+
+    return formattedData;
   }
 );
 
@@ -27,26 +49,32 @@ export async function SubscriberCard({
   satisfaction,
   audience,
   contentType,
+  location,
+  age,
 }: SearchParams) {
   const subscribersData = await SubscriberCache(
-    satisfaction || null,
-    month,
     audience || null,
-    contentType || null
+    contentType || null,
+    satisfaction || null,
+    location || null,
+    age || null
   );
-  const uniqueSubscribers = new Set(
-    subscribersData.map((item) => item.SubscriberID)
-  );
-  const totalSubscribers = uniqueSubscribers.size;
 
-  const formattedData = groupByField(subscribersData, "SubscriptionDate");
+  const filteredData =
+    month === "all"
+      ? subscribersData
+      : subscribersData.filter((item) => item.month.slice(0, 3) === month);
+
+  const uniqueSubscribers = filteredData.reduce((acc, item) => {
+    return acc + (item.value ?? 0);
+  }, 0);
 
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 
-  const formattedTotalSubs = formatter.format(totalSubscribers);
+  const formattedTotalSubs = formatter.format(uniqueSubscribers);
 
   return (
     <Card
@@ -59,64 +87,8 @@ export async function SubscriberCard({
       </CardHeader>
       <CardContent className="pb-0">
         <div className="text-md font-bold pb-2">{formattedTotalSubs}</div>
-        <RevenueOverTime chartData={formattedData} />
+        <RevenueOverTime chartData={filteredData} />
       </CardContent>
     </Card>
   );
-}
-
-export function groupByField(
-  data: any[],
-  groupField: string
-): { month: string; value: number | null }[] {
-  const groupedData: { [key: string]: Set<string> } = {};
-
-  data.forEach((item) => {
-    const groupValue = item[groupField];
-    const subscriberId = item["SubscriberID"];
-
-    if (groupValue && typeof subscriberId === "string") {
-      const formattedGroupValue = formatDate(groupValue.toString());
-
-      if (formattedGroupValue !== "Invalid Date") {
-        if (!groupedData[formattedGroupValue]) {
-          groupedData[formattedGroupValue] = new Set();
-        }
-        groupedData[formattedGroupValue].add(subscriberId);
-      }
-    }
-  });
-
-  const result = Object.entries(groupedData).map(([month, subscribers]) => ({
-    month,
-    value: subscribers.size || null,
-  }));
-
-  result.sort((a, b) => {
-    const monthA = new Date(a.month);
-    const monthB = new Date(b.month);
-    return monthA.getTime() - monthB.getTime();
-  });
-
-  return result;
-}
-
-function formatDate(dateString: string): string {
-  const dateParts = dateString.split("-");
-  if (dateParts.length !== 3) {
-    return "Invalid Date";
-  }
-
-  const [year, month, day] = dateParts;
-  const formattedDate = new Date(`${year}-${month}-${day}`);
-
-  if (isNaN(formattedDate.getTime())) {
-    return "Invalid Date";
-  }
-
-  const formattedMonth = formattedDate.toLocaleString("default", {
-    month: "short",
-  });
-  const formattedYear = formattedDate.getFullYear().toString().slice(-2);
-  return `${formattedMonth} ${formattedYear}`;
 }

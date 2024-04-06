@@ -23,7 +23,7 @@ export async function SubsOverTimeCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Subscriber Growth Over Time</CardTitle>
+        <CardTitle>Subscribers Over Time</CardTitle>
       </CardHeader>
       <CardContent>
         <LineChartHero chartData={chartData} title="Subscriptions Over Time" />

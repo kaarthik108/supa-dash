@@ -13,6 +13,7 @@ export type SearchParams = {
 export const runtime = "edge";
 
 export default function Home({ searchParams }: { searchParams: SearchParams }) {
+  console.log(searchParams.age);
   return (
     <div className="flex w-full">
       <Suspense fallback={<DashSkeleton />}>

@@ -11,13 +11,17 @@ const getBudgetData = cache(
     audience: string | null,
     contentType: string | null,
     satisfaction: string | null,
-    month: string | null
+    location: string | null,
+    age: string | null
+    // month: string | null
   ) => {
     const budgetData = await fetchBudgetData(
       audience,
       contentType,
       satisfaction,
-      month
+      location,
+      age
+      // month
     );
     const formattedData = budgetData
       ? groupByField(budgetData, "StartDate", "Budget")
@@ -31,19 +35,26 @@ export async function BudgetCard({
   audience,
   contentType,
   satisfaction,
+  location,
+  age,
 }: SearchParams) {
   const formattedData = await getBudgetData(
     audience || null,
     contentType || null,
     satisfaction || null,
-    month
+    location || null,
+    age || null
+    // month
   );
 
   const totalRevenue = formattedData.reduce(
     (sum, item) => sum + item.value!,
     0
   );
-
+  const filteredData =
+    month === "all"
+      ? formattedData
+      : formattedData.filter((item) => item.month.slice(0, 3) === month);
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -65,7 +76,7 @@ export async function BudgetCard({
       <CardContent>
         <div className="text-md font-bold">{formattedTotalRevenue}</div>
         {/* <p className="text-xs text-muted-foreground">+20.1% from last month</p> */}
-        <RevenueOverTime chartData={formattedData} />
+        <RevenueOverTime chartData={filteredData} />
       </CardContent>
     </Card>
   );
