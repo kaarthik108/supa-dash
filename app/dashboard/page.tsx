@@ -1,8 +1,21 @@
 import { Dashboard } from "@/components/dashboard";
 import { Suspense } from "react";
+import {
+  fetchAgeDistributionByLocation,
+  fetchAudienceData,
+  fetchContentData,
+  fetchSubscribersByLocation,
+} from "../actions";
+import {
+  fetchBudgetData,
+  fetchClicksData,
+  fetchImpressionData,
+  fetchRevenueData,
+  fetchSubsData,
+} from "../actions/kpi";
 
 export type SearchParams = {
-  month: string | "all";
+  month?: string | "all";
   audience?: string | null;
   contentType?: string | null;
   satisfaction?: string | null;
@@ -12,17 +25,98 @@ export type SearchParams = {
 
 export const runtime = "edge";
 
-export default function Home({ searchParams }: { searchParams: SearchParams }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { month, audience, contentType, satisfaction, location, age } =
+    searchParams;
+
+  const [
+    AudienceData,
+    ContentData,
+    subscribersByLocation,
+    ageDistributionByLocation,
+    RevenueData,
+    BudgetData,
+    ClicksData,
+    ImpressionData,
+    SubsData,
+  ] = await Promise.all([
+    fetchAudienceData(month, audience, contentType, satisfaction, location),
+    fetchContentData(month, audience, contentType, satisfaction),
+    fetchSubscribersByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      null,
+      age
+    ),
+    fetchAgeDistributionByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location
+    ),
+    fetchRevenueData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchBudgetData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchClicksData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchImpressionData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchSubsData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+  ]);
+
   return (
     <div className="flex w-full">
       <Suspense fallback={<DashSkeleton />}>
         <Dashboard
-          month={searchParams.month || "all"}
-          audience={searchParams.audience}
-          contentType={searchParams.contentType}
-          satisfaction={searchParams.satisfaction}
-          location={searchParams.location}
-          age={searchParams.age}
+          RevenueData={RevenueData}
+          BudgetData={BudgetData}
+          ImpressionData={ImpressionData}
+          ClicksData={ClicksData}
+          SubsData={SubsData}
+          AudienceData={AudienceData}
+          ContentData={ContentData}
+          subscribersByLocation={subscribersByLocation}
+          ageDistributionByLocation={ageDistributionByLocation}
+          location={location}
         />
       </Suspense>
     </div>

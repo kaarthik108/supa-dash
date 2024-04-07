@@ -1,28 +1,12 @@
-import { SearchParams } from "@/app/dashboard/page";
 import { Suspense } from "react";
 import { Chat } from "./Chat";
 import {
   AudienceCard,
   CardSkeleton,
   ContentCard,
-  EngagementCard,
   LocationCard,
-  PlatformCard,
 } from "./DashCards";
 
-import {
-  fetchAgeDistributionByLocation,
-  fetchAudienceData,
-  fetchContentData,
-  fetchSubscribersByLocation,
-} from "@/app/actions";
-import {
-  fetchBudgetData,
-  fetchClicksData,
-  fetchImpressionData,
-  fetchRevenueData,
-  fetchSubsData,
-} from "@/app/actions/kpi";
 import {
   BudgetCard,
   ClicksCard,
@@ -32,83 +16,28 @@ import {
 } from "./kpi";
 
 export async function Dashboard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
+  RevenueData,
+  BudgetData,
+  ImpressionData,
+  ClicksData,
+  SubsData,
+  AudienceData,
+  ContentData,
+  subscribersByLocation,
+  ageDistributionByLocation,
   location,
-  age,
-}: SearchParams) {
-  const [
-    AudienceData,
-    ContentData,
-    subscribersByLocation,
-    ageDistributionByLocation,
-    RevenueData,
-    BudgetData,
-    ClicksData,
-    ImpressionData,
-    SubsData,
-  ] = await Promise.all([
-    fetchAudienceData(month, audience, contentType, satisfaction, location),
-    fetchContentData(month, audience, contentType, satisfaction),
-    fetchSubscribersByLocation(
-      month,
-      audience,
-      contentType,
-      satisfaction,
-      null,
-      age
-    ),
-    fetchAgeDistributionByLocation(
-      month,
-      audience,
-      contentType,
-      satisfaction,
-      location
-    ),
-    fetchRevenueData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
-    ),
-    fetchBudgetData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
-    ),
-    fetchClicksData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
-    ),
-    fetchImpressionData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month || null
-    ),
-    fetchSubsData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month || null
-    ),
-  ]);
-
+}: {
+  RevenueData: any;
+  BudgetData: any;
+  ImpressionData: any;
+  ClicksData: any;
+  SubsData: any;
+  AudienceData: any;
+  ContentData: any;
+  subscribersByLocation: any;
+  ageDistributionByLocation: any;
+  location: any;
+}) {
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
@@ -147,16 +76,16 @@ export async function Dashboard({
             </div>
             <div className="shadow-md rounded-md">
               <Suspense fallback={<CardSkeleton />}>
-                <EngagementCard
-                  {...{
-                    month,
-                    audience,
-                    contentType,
-                    satisfaction,
-                    location,
-                    age,
-                  }}
-                />
+                {/* // <EngagementCard
+                //   {...{
+                //     month,
+                //     audience,
+                //     contentType,
+                //     satisfaction,
+                //     location,
+                //     age,
+                //   }}
+                // /> */}
               </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>

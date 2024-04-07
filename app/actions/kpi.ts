@@ -111,7 +111,7 @@ export async function fetchRevenueData(
   satisfaction: string | null,
   location: string | null,
   age: string | null,
-  month: string | null
+  month: string = "all"
 ): Promise<{ CampaignMonth: string; Revenue: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -174,7 +174,7 @@ export async function fetchBudgetData(
   satisfaction: string | null,
   location: string | null,
   age: string | null,
-  month: string | null
+  month: string = "all"
 ): Promise<{ CampaignMonth: string; Budget: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -237,7 +237,7 @@ export async function fetchImpressionData(
   satisfaction: string | null,
   location: string | null,
   age: string | null,
-  month: string | null
+  month: string = "all"
 ): Promise<{ CampaignMonth: string; Impressions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -300,7 +300,7 @@ export async function fetchClicksData(
   satisfaction: string | null,
   location: string | null,
   age: string | null,
-  month: string | null
+  month: string = "all"
 ): Promise<{ CampaignMonth: string; Clicks: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -363,7 +363,7 @@ export async function fetchSubsData(
   satisfaction: string | null,
   location: string | null,
   age: string | null,
-  month: string | null
+  month: string = "all"
 ): Promise<{ CampaignMonth: string; NewSubscriptions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (

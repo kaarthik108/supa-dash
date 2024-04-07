@@ -152,7 +152,7 @@ function helperAge(age: string) {
 // }
 
 export async function fetchContentData(
-  month: string,
+  month: string = "all",
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
@@ -228,7 +228,7 @@ export async function fetchContentData(
 }
 
 export async function fetchAudienceData(
-  month: string,
+  month: string = "all",
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
@@ -298,7 +298,7 @@ export async function fetchAudienceData(
 }
 
 export async function fetchEngagementData(
-  month: string,
+  month: string = "all",
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
@@ -371,7 +371,7 @@ export async function fetchEngagementData(
 }
 
 export async function fetchSubscribersByLocation(
-  month: string,
+  month: string = "all",
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
@@ -439,7 +439,7 @@ export async function fetchSubscribersByLocation(
 }
 
 export async function fetchAgeDistributionByLocation(
-  month: string,
+  month: string = "all",
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
