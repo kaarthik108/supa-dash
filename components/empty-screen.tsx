@@ -14,6 +14,10 @@ const exampleMessages = [
     heading: "Give me number of subscriptions over time? using line chart",
     message: "Give me number of subscriptions over time? using line chart",
   },
+  {
+    heading: "Could you count good vs bad campaigns?",
+    message: "Could you count good vs bad campaigns?",
+  },
 ];
 
 export function EmptyScreen({

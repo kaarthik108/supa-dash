@@ -3,6 +3,7 @@ import "server-only";
 import { createAI, createStreamableUI, getMutableAIState } from "ai/rsc";
 import OpenAI from "openai";
 
+import { GoodOverBad } from "@/components/ai/GoodOverBad";
 import { GrowthRateChartCard } from "@/components/ai/GrowthRate";
 import { SubsOverTimeCard } from "@/components/ai/SubsOverTime";
 import { Chart } from "@/components/llm-charts";
@@ -15,15 +16,19 @@ import { FQueryResponse } from "@/lib/validation";
 import { Code } from "bright";
 import { format as sql_format } from "sql-formatter";
 import { z } from "zod";
+import { GoodOverBadquery } from "./actions/query";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
+
 type OpenAIQueryResponse = z.infer<typeof FQueryResponse>;
+
 export interface QueryResult {
   columns: string[];
   data: Array<{ [key: string]: any }>;
 }
+
 async function submitUserMessage(content: string) {
   "use server";
 
@@ -101,7 +106,7 @@ You can only read data and make analysis, you cannot write or update data at any
 
 if they ask about "Show me Subscribers growth over time?" then call the function \`growth_card\` to show the growth rate over time.
 if they ask about "Give me number of subscriptions over time? using line chart" then call the function \`subs_card\` to show the number of subscribers over time.
-
+if they ask about "Could you count good vs bad campaigns?" then call the function \`good_vs_bad_campaign\` to show the number of good vs bad campaigns using a table.
 
 Messages inside [] means that it's a UI element or a user event. For example:
 - "[Showing Subscribers growth over time card- using line chart]" means that the UI is showing a card with the title "Subscribers growth over time".
@@ -140,6 +145,13 @@ Messages inside [] means that it's a UI element or a user event. For example:
           month: z.string().optional(),
         }),
       },
+      {
+        name: "good_vs_bad_campaign",
+        description: "Show the number of good vs bad campaigns using a table.",
+        parameters: z.object({
+          month: z.string().optional(),
+        }),
+      },
     ],
     temperature: 0,
   });
@@ -171,7 +183,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
       ...aiState.get(),
       {
         role: "function",
-        name: "show_products",
+        name: "growth_card",
         content: `[Snowflake query results for code: Showing Subscribers growth over time card- using line chart]`,
       },
     ]);
@@ -194,8 +206,31 @@ Messages inside [] means that it's a UI element or a user event. For example:
       ...aiState.get(),
       {
         role: "function",
-        name: "show_products",
+        name: "subs_card",
         content: `[Snowflake query results for code: Showing number of subscribers over time (monthly) card- using line chart]`,
+      },
+    ]);
+  });
+
+  completion.onFunctionCall("good_vs_bad_campaign", async () => {
+    reply.update(
+      <BotMessage>
+        <AreaSkeleton />
+      </BotMessage>
+    );
+
+    reply.done(
+      <BotCard>
+        <GoodOverBad />
+      </BotCard>
+    );
+
+    aiState.done([
+      ...aiState.get(),
+      {
+        role: "function",
+        name: "good_vs_bad_campaign",
+        content: `[Snowflake query results for code: Showing number of good vs bad campaigns using a table] - the sql query used was ${GoodOverBadquery} and the data is ${goodBadData}`,
       },
     ]);
   });
@@ -284,3 +319,14 @@ export const AI = createAI({
   initialUIState,
   initialAIState,
 });
+
+const goodBadData = [
+  {
+    CampaignType: "Good Campaign",
+    CampaignCount: 7,
+  },
+  {
+    CampaignType: "Bad Campaign",
+    CampaignCount: 43,
+  },
+];

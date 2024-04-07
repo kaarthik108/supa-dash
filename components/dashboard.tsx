@@ -9,6 +9,7 @@ import {
   PlatformComp,
 } from "./DashCards";
 
+import { GoodOverBad } from "./ai/GoodOverBad";
 import {
   BudgetCard,
   ClicksCard,

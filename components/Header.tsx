@@ -1,6 +1,7 @@
 import { Package2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ClearParams } from "./ClearParams";
 import { MonthFilter } from "./ui/combobox";
 
 export function TopHeader() {
@@ -12,18 +13,22 @@ export function TopHeader() {
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <Package2 className="h-6 w-6" />
-          <span className="sr-only">Acme Inc</span>
+          <span className="sr-only">Hack Dash</span>
         </Link>
         <Link
           href="/about"
           className="text-muted-foreground transition-colors hover:text-foreground"
+          prefetch
         >
           About
         </Link>
       </nav>
-      <Suspense fallback={<div>Loading...</div>}>
-        <MonthFilter />
-      </Suspense>
+      <div className="flex gap-3">
+        <ClearParams />
+        <Suspense fallback={<div>Loading...</div>}>
+          <MonthFilter />
+        </Suspense>
+      </div>
     </header>
   );
 }

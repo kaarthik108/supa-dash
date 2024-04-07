@@ -1,5 +1,6 @@
 "use server";
 
+import { runQuery } from "@/lib/db";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 import {
@@ -8,6 +9,7 @@ import {
   fetchCampaignData,
   fetchSubscriberData,
 } from "./kpi";
+import { GoodOverBadquery } from "./query";
 
 interface SubscriptionsOverTimeData {
   Month: string;
@@ -96,4 +98,9 @@ export async function calculateGrowthRateForChart(
     }
   );
   return growthData;
+}
+
+export async function GoodOverBadCampaign() {
+  const result = await runQuery(GoodOverBadquery);
+  return result;
 }
