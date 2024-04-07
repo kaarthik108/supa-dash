@@ -24,7 +24,9 @@ export function TopHeader() {
         </Link>
       </nav>
       <div className="flex gap-3">
-        <ClearParams />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ClearParams />
+        </Suspense>
         <Suspense fallback={<div>Loading...</div>}>
           <MonthFilter />
         </Suspense>
