@@ -17,6 +17,13 @@ import {
   fetchSubscribersByLocation,
 } from "@/app/actions";
 import {
+  fetchBudgetData,
+  fetchClicksData,
+  fetchImpressionData,
+  fetchRevenueData,
+  fetchSubsData,
+} from "@/app/actions/kpi";
+import {
   BudgetCard,
   ClicksCard,
   ImpressionCard,
@@ -57,34 +64,68 @@ export async function Dashboard({
     ),
   ]);
 
+  const [RevenueData, BudgetData, ClicksData, ImpressionData, SubsData] =
+    await Promise.all([
+      fetchRevenueData(
+        audience || null,
+        contentType || null,
+        satisfaction || null,
+        location || null,
+        age || null,
+        month
+      ),
+      fetchBudgetData(
+        audience || null,
+        contentType || null,
+        satisfaction || null,
+        location || null,
+        age || null,
+        month
+      ),
+      fetchClicksData(
+        audience || null,
+        contentType || null,
+        satisfaction || null,
+        location || null,
+        age || null,
+        month
+      ),
+      fetchImpressionData(
+        audience || null,
+        contentType || null,
+        satisfaction || null,
+        location || null,
+        age || null,
+        month || null
+      ),
+      fetchSubsData(
+        audience || null,
+        contentType || null,
+        satisfaction || null,
+        location || null,
+        age || null,
+        month || null
+      ),
+    ]);
+
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
           <Suspense fallback={<CardSkeleton />}>
-            <RevenueCard
-              {...{ month, audience, contentType, satisfaction, location, age }}
-            />
+            <RevenueCard rawData={RevenueData} />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
-            <BudgetCard
-              {...{ month, audience, contentType, satisfaction, location, age }}
-            />
+            <BudgetCard rawData={BudgetData} />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
-            <ImpressionCard
-              {...{ month, audience, contentType, satisfaction, location, age }}
-            />
+            <ImpressionCard rawData={ImpressionData} />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
-            <ClicksCard
-              {...{ month, audience, contentType, satisfaction, location, age }}
-            />
+            <ClicksCard rawData={ClicksData} />
           </Suspense>
           <Suspense fallback={<CardSkeleton />}>
-            <SubscriberCard
-              {...{ month, audience, contentType, satisfaction, location, age }}
-            />
+            <SubscriberCard rawData={SubsData} />
           </Suspense>
         </div>
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">

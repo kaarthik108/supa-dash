@@ -112,7 +112,7 @@ export async function fetchRevenueData(
   location: string | null,
   age: string | null,
   month: string | null
-) {
+): Promise<{ CampaignMonth: string; Revenue: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
       SELECT DISTINCT "CampaignID"
@@ -165,7 +165,7 @@ export async function fetchRevenueData(
   const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return result.data;
+  return result.data as { CampaignMonth: string; Revenue: string }[];
 }
 
 export async function fetchBudgetData(
@@ -175,7 +175,7 @@ export async function fetchBudgetData(
   location: string | null,
   age: string | null,
   month: string | null
-) {
+): Promise<{ CampaignMonth: string; Budget: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
       SELECT DISTINCT "CampaignID"
@@ -228,7 +228,7 @@ export async function fetchBudgetData(
   const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return result.data;
+  return result.data as { CampaignMonth: string; Budget: string }[];
 }
 
 export async function fetchImpressionData(
@@ -238,7 +238,7 @@ export async function fetchImpressionData(
   location: string | null,
   age: string | null,
   month: string | null
-) {
+): Promise<{ CampaignMonth: string; Impressions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
       SELECT DISTINCT "CampaignID"
@@ -291,7 +291,7 @@ export async function fetchImpressionData(
   const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return result.data;
+  return result.data as { CampaignMonth: string; Impressions: string }[];
 }
 
 export async function fetchClicksData(
@@ -301,7 +301,7 @@ export async function fetchClicksData(
   location: string | null,
   age: string | null,
   month: string | null
-) {
+): Promise<{ CampaignMonth: string; Clicks: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
       SELECT DISTINCT "CampaignID"
@@ -354,7 +354,7 @@ export async function fetchClicksData(
   const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return result.data;
+  return result.data as { CampaignMonth: string; Clicks: string }[];
 }
 
 export async function fetchSubsData(
@@ -364,7 +364,7 @@ export async function fetchSubsData(
   location: string | null,
   age: string | null,
   month: string | null
-) {
+): Promise<{ CampaignMonth: string; NewSubscriptions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
       SELECT DISTINCT "CampaignID"
@@ -417,5 +417,5 @@ export async function fetchSubsData(
   const result = await runQuery(query);
 
   revalidatePath("/dashboard");
-  return result.data;
+  return result.data as { CampaignMonth: string; NewSubscriptions: string }[];
 }

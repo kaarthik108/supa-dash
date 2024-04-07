@@ -1,55 +1,16 @@
-import { fetchRevenueData } from "@/app/actions/kpi";
-import { SearchParams } from "@/app/dashboard/page";
 import { DollarSign } from "lucide-react";
-import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getRevenueData = cache(
-  async (
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    location: string | null,
-    age: string | null,
-    month: string | null
-  ) => {
-    const rawData = (await fetchRevenueData(
-      audience,
-      contentType,
-      satisfaction,
-      location,
-      age,
-      month
-    )) as {
-      CampaignMonth: string;
-      Revenue: string;
-    }[];
-    const revenueData = rawData.map((item) => ({
-      month: item.CampaignMonth || ("" as string),
-      value: item.Revenue ? parseInt(item.Revenue, 10) : null,
-    }));
-
-    return revenueData;
-  }
-);
-
 export async function RevenueCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
-  location,
-  age,
-}: SearchParams) {
-  const revenueData = await getRevenueData(
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location || null,
-    age || null,
-    month || null
-  );
+  rawData,
+}: {
+  rawData: { CampaignMonth: string; Revenue: string }[];
+}) {
+  const revenueData = rawData.map((item) => ({
+    month: item.CampaignMonth || ("" as string),
+    value: item.Revenue ? parseInt(item.Revenue, 10) : null,
+  }));
 
   const totalRevenue = revenueData.reduce(
     (sum, item) => sum + ((item.value as number) || 0),

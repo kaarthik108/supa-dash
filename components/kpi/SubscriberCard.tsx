@@ -1,58 +1,16 @@
-import { fetchSubsData } from "@/app/actions/kpi";
-import { SearchParams } from "@/app/dashboard/page";
-import { groupByField } from "@/lib/utils";
 import { Users } from "lucide-react";
-import { cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getSubsData = cache(
-  async (
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    location: string | null,
-    age: string | null,
-    month: string | null
-  ) => {
-    const rawData = (await fetchSubsData(
-      audience,
-      contentType,
-      satisfaction,
-      location,
-      age,
-      month
-    )) as {
-      CampaignMonth: string;
-      NewSubscriptions: string;
-    }[];
-
-    const SubsData = rawData.map((item) => ({
-      month: item.CampaignMonth || ("" as string),
-      value: item.NewSubscriptions ? parseInt(item.NewSubscriptions, 10) : null,
-    }));
-
-    return SubsData;
-  }
-);
-
 export async function SubscriberCard({
-  month,
-  satisfaction,
-  audience,
-  contentType,
-  location,
-  age,
-}: SearchParams) {
-  const SubsData = await getSubsData(
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location || null,
-    age || null,
-    month || null
-  );
-
+  rawData,
+}: {
+  rawData: { CampaignMonth: string; NewSubscriptions: string }[];
+}) {
+  const SubsData = rawData.map((item) => ({
+    month: item.CampaignMonth || ("" as string),
+    value: item.NewSubscriptions ? parseInt(item.NewSubscriptions, 10) : null,
+  }));
   const totalRevenue = SubsData.reduce(
     (sum, item) => sum + ((item.value as number) || 0),
     0

@@ -1,57 +1,16 @@
-import { fetchClicksData } from "@/app/actions/kpi";
-import { SearchParams } from "@/app/dashboard/page";
 import { DollarSign } from "lucide-react";
-import { Suspense, cache } from "react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const getClicksData = cache(
-  async (
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    location: string | null,
-    age: string | null,
-    month: string | null
-  ) => {
-    const rawData = (await fetchClicksData(
-      audience,
-      contentType,
-      satisfaction,
-      location,
-      age,
-      month
-    )) as {
-      CampaignMonth: string;
-      Clicks: string;
-    }[];
-
-    const ClicksData = rawData.map((item) => ({
-      month: item.CampaignMonth || ("" as string),
-      value: item.Clicks ? parseInt(item.Clicks, 10) : null,
-    }));
-
-    return ClicksData;
-  }
-);
-
 export async function ClicksCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
-  location,
-  age,
-}: SearchParams) {
-  const ClicksData = await getClicksData(
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location || null,
-    age || null,
-    month || null
-  );
-
+  rawData,
+}: {
+  rawData: { CampaignMonth: string; Clicks: string }[];
+}) {
+  const ClicksData = rawData.map((item) => ({
+    month: item.CampaignMonth || ("" as string),
+    value: item.Clicks ? parseInt(item.Clicks, 10) : null,
+  }));
   const totalRevenue = ClicksData.reduce(
     (sum, item) => sum + ((item.value as number) || 0),
     0
