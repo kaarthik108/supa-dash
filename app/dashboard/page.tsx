@@ -23,7 +23,7 @@ export type SearchParams = {
   age?: string | null;
 };
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 export default async function Home({
   searchParams,
