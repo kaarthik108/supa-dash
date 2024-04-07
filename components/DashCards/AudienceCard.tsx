@@ -9,27 +9,6 @@ type BarListContentData = {
   value: number;
 };
 
-const AudienceCache = cache(
-  async (
-    month: string,
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null,
-    Location: string | null
-    // age: string | null
-  ) => {
-    const AudienceData = await fetchAudienceData(
-      month,
-      audience,
-      contentType,
-      satisfaction,
-      Location
-      // age
-    );
-    return AudienceData;
-  }
-);
-
 export async function AudienceCard({
   month,
   audience,
@@ -38,13 +17,13 @@ export async function AudienceCard({
   location,
 }: // age,
 SearchParams) {
-  const AudienceData = await AudienceCache(
+  const AudienceData = await fetchAudienceData(
     month,
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location || null
-    // age || null
+    audience,
+    contentType,
+    satisfaction,
+    location
+    // age
   );
   AudienceData.sort((a, b) => b.value - a.value);
 

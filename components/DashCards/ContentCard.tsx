@@ -9,36 +9,19 @@ type BarListContentData = {
   value: number;
 };
 
-const ContentCache = cache(
-  async (
-    month: string,
-    audience: string | null,
-    contentType: string | null,
-    satisfaction: string | null
-  ) => {
-    const ContentData = await fetchContentData(
-      month,
-      audience,
-      contentType,
-      satisfaction
-    );
-    return ContentData;
-  }
-);
-
 export async function ContentCard({
   month,
   audience,
   contentType,
   satisfaction,
 }: SearchParams) {
-  const contentData = await ContentCache(
+  const ContentData = await fetchContentData(
     month,
-    audience || null,
-    contentType || null,
-    satisfaction || null
+    audience,
+    contentType,
+    satisfaction
   );
-  contentData.sort((a, b) => b.value - a.value);
+  ContentData.sort((a, b) => b.value - a.value);
 
   return (
     <Card
@@ -54,7 +37,7 @@ export async function ContentCard({
       </CardHeader>
       <CardContent className="overflow-x-auto w-full">
         <BarListChart
-          data={contentData as BarListContentData[]}
+          data={ContentData as BarListContentData[]}
           filterType="contentType"
         />
       </CardContent>
