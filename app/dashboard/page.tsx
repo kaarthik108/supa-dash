@@ -4,6 +4,7 @@ import {
   fetchAgeDistributionByLocation,
   fetchAudienceData,
   fetchContentData,
+  fetchEngagementData,
   fetchSubscribersByLocation,
 } from "../actions";
 import {
@@ -43,6 +44,7 @@ export default async function Home({
     ClicksData,
     ImpressionData,
     SubsData,
+    EngagementData,
   ] = await Promise.all([
     fetchAudienceData(month, audience, contentType, satisfaction, location),
     fetchContentData(month, audience, contentType, satisfaction),
@@ -101,6 +103,14 @@ export default async function Home({
       age || null,
       month
     ),
+    fetchEngagementData(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age
+    ),
   ]);
 
   return (
@@ -116,6 +126,7 @@ export default async function Home({
           ContentData={ContentData}
           subscribersByLocation={subscribersByLocation}
           ageDistributionByLocation={ageDistributionByLocation}
+          EngagementData={EngagementData}
           location={location}
         />
       </Suspense>

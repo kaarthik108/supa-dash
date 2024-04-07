@@ -4,6 +4,7 @@ import {
   AudienceCard,
   CardSkeleton,
   ContentCard,
+  EngagementCard,
   LocationCard,
 } from "./DashCards";
 
@@ -25,6 +26,7 @@ export async function Dashboard({
   ContentData,
   subscribersByLocation,
   ageDistributionByLocation,
+  EngagementData,
   location,
 }: {
   RevenueData: any;
@@ -36,6 +38,7 @@ export async function Dashboard({
   ContentData: any;
   subscribersByLocation: any;
   ageDistributionByLocation: any;
+  EngagementData: any;
   location: any;
 }) {
   return (
@@ -76,16 +79,7 @@ export async function Dashboard({
             </div>
             <div className="shadow-md rounded-md">
               <Suspense fallback={<CardSkeleton />}>
-                {/* // <EngagementCard
-                //   {...{
-                //     month,
-                //     audience,
-                //     contentType,
-                //     satisfaction,
-                //     location,
-                //     age,
-                //   }}
-                // /> */}
+                <EngagementCard rawData={EngagementData} />
               </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>

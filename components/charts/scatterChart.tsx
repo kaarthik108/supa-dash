@@ -3,7 +3,7 @@ import { ScatterChart } from "@tremor/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-type EngagementData = {
+export type EngagementData = {
   satisfaction: string;
   engagementRate: number;
   subscribers: number;
