@@ -18,9 +18,10 @@ import {
 type PlatformData = {
   platform: string;
   revenue: number;
-  impressions: number;
-  subscriptions: number;
-  clicks: number;
+  ROI: number;
+  CPA: number;
+  CTR: number;
+  ConversionRate: number;
 };
 
 type PlatformTableProps = {
@@ -28,17 +29,6 @@ type PlatformTableProps = {
 };
 
 export const PlatformTable = ({ data }: PlatformTableProps) => {
-  const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
-  const totalImpressions = data.reduce(
-    (sum, item) => sum + item.impressions,
-    0
-  );
-  const totalSubscriptions = data.reduce(
-    (sum, item) => sum + item.subscriptions,
-    0
-  );
-  const totalClicks = data.reduce((sum, item) => sum + item.clicks, 0);
-
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       notation: "compact",
@@ -60,9 +50,6 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
                 {renderPlatformIcon(item.platform)}
               </TableHeaderCell>
             ))}
-            <TableHeaderCell className="text-center px-2">
-              Total
-            </TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody className="text-xs md:text-md">
@@ -73,42 +60,38 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
                 ${formatNumber(item.revenue)}
               </TableCell>
             ))}
-            <TableCell className="text-center px-2">
-              ${formatNumber(totalRevenue)}
-            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Impressions</TableCell>
+            <TableCell>ROI</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.impressions)}
+                {formatNumber(item.ROI)}%
               </TableCell>
             ))}
-            <TableCell className="text-center px-2">
-              {formatNumber(totalImpressions)}
-            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Subscriptions</TableCell>
+            <TableCell>CPA</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.subscriptions)}
+                {formatNumber(item.CPA)}%
               </TableCell>
             ))}
-            <TableCell className="text-center px-2">
-              {formatNumber(totalSubscriptions)}
-            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Clicks</TableCell>
+            <TableCell>CTR</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.clicks)}
+                {formatNumber(item.CTR)}%
               </TableCell>
             ))}
-            <TableCell className="text-center px-2">
-              {formatNumber(totalClicks)}
-            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>ConversionRate</TableCell>
+            {data.map((item) => (
+              <TableCell key={item.platform} className="text-center px-2">
+                {formatNumber(item.ConversionRate)}%
+              </TableCell>
+            ))}
           </TableRow>
         </TableBody>
       </Table>

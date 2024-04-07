@@ -1,7 +1,3 @@
-import {
-  fetchAgeDistributionByLocation,
-  fetchSubscribersByLocation,
-} from "@/app/actions";
 import { DonutChartComponent } from "../charts/DonutChart";
 import { Card, CardContent, CardHeader } from "../ui/card";
 

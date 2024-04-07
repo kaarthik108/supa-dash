@@ -1,6 +1,3 @@
-import { fetchContentData } from "@/app/actions";
-import { SearchParams } from "@/app/dashboard/page";
-import { Suspense, cache } from "react";
 import { BarListChart } from "../charts/BarListChart";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
@@ -18,7 +15,7 @@ export async function ContentCard({
 
   return (
     <Card
-      className="mx-auto overflow-x-auto animate-fade-up w-full h-72 shadow-md"
+      className="mx-auto overflow-x-auto animate-fade-up w-full h-80 shadow-md"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">

@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import { Chat } from "./Chat";
 import {
-  AudienceCard,
+  AudienceComp,
   CardSkeleton,
-  ContentCard,
-  EngagementCard,
-  LocationCard,
+  ContentComp,
+  EngagementComp,
+  LocationComp,
+  PlatformComp,
 } from "./DashCards";
 
 import {
@@ -28,6 +29,7 @@ export async function Dashboard({
   ageDistributionByLocation,
   EngagementData,
   location,
+  PlatformData,
 }: {
   RevenueData: any;
   BudgetData: any;
@@ -40,6 +42,7 @@ export async function Dashboard({
   ageDistributionByLocation: any;
   EngagementData: any;
   location: any;
+  PlatformData: any;
 }) {
   return (
     <div className="flex h-full w-full flex-col">
@@ -64,26 +67,17 @@ export async function Dashboard({
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
           <div className="flex flex-col gap-8">
             <div className="h-auto shadow-md">
-              {/* <Suspense fallback={<CardSkeleton />}>
-                <PlatformCard
-                  {...{
-                    month,
-                    audience,
-                    contentType,
-                    satisfaction,
-                    location,
-                    age,
-                  }}
-                />
-              </Suspense> */}
+              <Suspense fallback={<CardSkeleton />}>
+                <PlatformComp rawData={PlatformData} />
+              </Suspense>
             </div>
             <div className="shadow-md rounded-md">
               <Suspense fallback={<CardSkeleton />}>
-                <EngagementCard rawData={EngagementData} />
+                <EngagementComp rawData={EngagementData} />
               </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>
-              <LocationCard
+              <LocationComp
                 subscribersByLocation={subscribersByLocation}
                 ageDistributionByLocation={ageDistributionByLocation}
                 location={location || null}
@@ -93,10 +87,10 @@ export async function Dashboard({
           <div className="flex flex-col gap-8">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
               <Suspense fallback={<CardSkeleton />}>
-                <AudienceCard AudienceData={AudienceData} />
+                <AudienceComp AudienceData={AudienceData} />
               </Suspense>
               <Suspense fallback={<CardSkeleton />}>
-                <ContentCard ContentData={ContentData} />
+                <ContentComp ContentData={ContentData} />
               </Suspense>
             </div>
             <div className="flex-1 min-h-[840px]">
