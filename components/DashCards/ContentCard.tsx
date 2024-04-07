@@ -10,17 +10,10 @@ type BarListContentData = {
 };
 
 export async function ContentCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
-}: SearchParams) {
-  const ContentData = await fetchContentData(
-    month,
-    audience,
-    contentType,
-    satisfaction
-  );
+  ContentData,
+}: {
+  ContentData: BarListContentData[];
+}) {
   ContentData.sort((a, b) => b.value - a.value);
 
   return (

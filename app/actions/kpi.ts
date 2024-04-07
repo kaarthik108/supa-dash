@@ -413,7 +413,6 @@ export async function fetchSubsData(
     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
     group by "CampaignMonth";
   `;
-  console.log(query);
 
   const result = await runQuery(query);
 

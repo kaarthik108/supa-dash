@@ -2,7 +2,6 @@ import {
   fetchAgeDistributionByLocation,
   fetchSubscribersByLocation,
 } from "@/app/actions";
-import { SearchParams } from "@/app/dashboard/page";
 import { DonutChartComponent } from "../charts/DonutChart";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
@@ -12,29 +11,14 @@ type LocationData = {
 };
 
 export async function LocationCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
+  subscribersByLocation,
+  ageDistributionByLocation,
   location,
-  age,
-}: SearchParams) {
-  const subscribersByLocation = await fetchSubscribersByLocation(
-    month,
-    audience,
-    contentType,
-    satisfaction,
-    null,
-    age
-  );
-  const ageDistributionByLocation = await fetchAgeDistributionByLocation(
-    month,
-    audience,
-    contentType,
-    satisfaction,
-    location
-  );
-
+}: {
+  subscribersByLocation: Record<string, number>;
+  ageDistributionByLocation: Record<string, number>;
+  location: string | null;
+}) {
   const subscribersData: LocationData[] = Object.entries(subscribersByLocation)
     .filter(([_, count]) => !isNaN(count))
     .map(([locationName, count]) => ({

@@ -11,6 +11,12 @@ import {
 } from "./DashCards";
 
 import {
+  fetchAgeDistributionByLocation,
+  fetchAudienceData,
+  fetchContentData,
+  fetchSubscribersByLocation,
+} from "@/app/actions";
+import {
   BudgetCard,
   ClicksCard,
   ImpressionCard,
@@ -18,7 +24,7 @@ import {
   SubscriberCard,
 } from "./kpi";
 
-export function Dashboard({
+export async function Dashboard({
   month,
   audience,
   contentType,
@@ -26,6 +32,31 @@ export function Dashboard({
   location,
   age,
 }: SearchParams) {
+  const [
+    AudienceData,
+    ContentData,
+    subscribersByLocation,
+    ageDistributionByLocation,
+  ] = await Promise.all([
+    fetchAudienceData(month, audience, contentType, satisfaction, location),
+    fetchContentData(month, audience, contentType, satisfaction),
+    fetchSubscribersByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      null,
+      age
+    ),
+    fetchAgeDistributionByLocation(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location
+    ),
+  ]);
+
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
@@ -88,35 +119,19 @@ export function Dashboard({
             </div>
             <Suspense fallback={<CardSkeleton />}>
               <LocationCard
-                {...{
-                  month,
-                  audience,
-                  contentType,
-                  satisfaction,
-                  location,
-                  age,
-                }}
+                subscribersByLocation={subscribersByLocation}
+                ageDistributionByLocation={ageDistributionByLocation}
+                location={location || null}
               />
             </Suspense>
           </div>
           <div className="flex flex-col gap-8">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
               <Suspense fallback={<CardSkeleton />}>
-                <AudienceCard
-                  {...{
-                    month,
-                    audience,
-                    contentType,
-                    satisfaction,
-                    location,
-                    age,
-                  }}
-                />
+                <AudienceCard AudienceData={AudienceData} />
               </Suspense>
               <Suspense fallback={<CardSkeleton />}>
-                <ContentCard
-                  {...{ month, audience, contentType, satisfaction, location }}
-                />
+                <ContentCard ContentData={ContentData} />
               </Suspense>
             </div>
             <div className="flex-1 min-h-[840px]">

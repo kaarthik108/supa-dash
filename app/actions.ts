@@ -26,130 +26,130 @@ function helperAge(age: string) {
   return { startAge: 0, endAge: 100 };
 }
 
-export async function fetchCampaignData(
-  contentType?: string | null,
-  campaignID?: number | null
-) {
-  const supabase = supabaseServer();
+// export async function fetchCampaignData(
+//   contentType?: string | null,
+//   campaignID?: number | null
+// ) {
+//   const supabase = supabaseServer();
 
-  const campaignQuery = supabase
-    .from("campaign")
-    .select(
-      "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
-    );
+//   const campaignQuery = supabase
+//     .from("campaign")
+//     .select(
+//       "Platform, Revenue, Impressions, NewSubscriptions, StartDate, AudienceType, ContentType, Clicks, CampaignID"
+//     );
 
-  if (contentType) {
-    campaignQuery.eq("ContentType", contentType);
-  }
+//   if (contentType) {
+//     campaignQuery.eq("ContentType", contentType);
+//   }
 
-  if (campaignID) {
-    campaignQuery.eq("CampaignID", campaignID);
-  }
+//   if (campaignID) {
+//     campaignQuery.eq("CampaignID", campaignID);
+//   }
 
-  const { data: campaignData, error: campaignError } = await campaignQuery;
+//   const { data: campaignData, error: campaignError } = await campaignQuery;
 
-  if (campaignError) {
-    console.error("Error fetching campaign data:", campaignError);
-    return [];
-  }
+//   if (campaignError) {
+//     console.error("Error fetching campaign data:", campaignError);
+//     return [];
+//   }
 
-  return campaignData;
-}
+//   return campaignData;
+// }
 
-export async function fetchSubscriberData(
-  audience?: string | null,
-  satisfaction?: string | null,
-  campaignIds?: number[],
-  Location?: string | null,
-  Age?: string | null
-) {
-  const supabase = supabaseServer();
+// export async function fetchSubscriberData(
+//   audience?: string | null,
+//   satisfaction?: string | null,
+//   campaignIds?: number[],
+//   Location?: string | null,
+//   Age?: string | null
+// ) {
+//   const supabase = supabaseServer();
 
-  const { startAge, endAge } = helperAge(Age || "");
+//   const { startAge, endAge } = helperAge(Age || "");
 
-  const { data: subscriberData, error: subscriberError } = await supabase
-    .from("subscriber_aggregated_data")
-    .select("*")
-    .eq(audience ? '"AudienceType"' : "", audience || "")
-    .eq(satisfaction ? '"Satisfaction"' : "", satisfaction || "")
-    .in(campaignIds ? '"CampaignID"' : "", campaignIds || [])
-    .eq(Location ? '"Location"' : "", Location || "")
-    .gte(Age ? '"Age"' : "", startAge)
-    .lte(Age ? '"Age"' : "", endAge);
+//   const { data: subscriberData, error: subscriberError } = await supabase
+//     .from("subscriber_aggregated_data")
+//     .select("*")
+//     .eq(audience ? '"AudienceType"' : "", audience || "")
+//     .eq(satisfaction ? '"Satisfaction"' : "", satisfaction || "")
+//     .in(campaignIds ? '"CampaignID"' : "", campaignIds || [])
+//     .eq(Location ? '"Location"' : "", Location || "")
+//     .gte(Age ? '"Age"' : "", startAge)
+//     .lte(Age ? '"Age"' : "", endAge);
 
-  if (subscriberError) {
-    console.error("Error fetching subscriber data:", subscriberError);
-    return [];
-  }
+//   if (subscriberError) {
+//     console.error("Error fetching subscriber data:", subscriberError);
+//     return [];
+//   }
 
-  revalidatePath("/dashboard");
-  return subscriberData;
-}
+//   revalidatePath("/dashboard");
+//   return subscriberData;
+// }
 
-export async function fetchPlatformData(
-  month: string,
-  audience?: string | null,
-  contentType?: string | null,
-  satisfaction?: string | null,
-  location?: string | null,
-  age?: string | null
-) {
-  const campaignData = await fetchCampaignData(contentType);
-  const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
-  const subscriberData = await fetchSubscriberData(
-    audience,
-    satisfaction,
-    campaignIds,
-    location,
-    age
-  );
+// export async function fetchPlatformData(
+//   month: string,
+//   audience?: string | null,
+//   contentType?: string | null,
+//   satisfaction?: string | null,
+//   location?: string | null,
+//   age?: string | null
+// ) {
+//   const campaignData = await fetchCampaignData(contentType);
+//   const campaignIds = campaignData.map((campaign) => campaign.CampaignID);
+//   const subscriberData = await fetchSubscriberData(
+//     audience,
+//     satisfaction,
+//     campaignIds,
+//     location,
+//     age
+//   );
 
-  const platformData: PlatformData[] = [];
+//   const platformData: PlatformData[] = [];
 
-  campaignData.forEach((item) => {
-    const platform = item.Platform || "";
-    const revenue = item.Revenue || 0;
-    const impressions = item.Impressions || 0;
-    const subscriptions = item.NewSubscriptions || 0;
-    const clicks = item.Clicks || 0;
-    const startDate = preprocessDate(item.StartDate || "");
-    const formattedMonth = new Date(startDate).toLocaleString("default", {
-      month: "short",
-    });
+//   campaignData.forEach((item) => {
+//     const platform = item.Platform || "";
+//     const revenue = item.Revenue || 0;
+//     const impressions = item.Impressions || 0;
+//     const subscriptions = item.NewSubscriptions || 0;
+//     const clicks = item.Clicks || 0;
+//     const startDate = preprocessDate(item.StartDate || "");
+//     const formattedMonth = new Date(startDate).toLocaleString("default", {
+//       month: "short",
+//     });
 
-    if (
-      (month === "all" || (item.StartDate && formattedMonth === month)) &&
-      (!satisfaction ||
-        subscriberData.some(
-          (subscriber) =>
-            subscriber.CampaignID === item.CampaignID &&
-            subscriber.Satisfaction === satisfaction
-        ))
-    ) {
-      const existingPlatform = platformData.find(
-        (p) => p.platform === platform
-      );
+//     if (
+//       (month === "all" || (item.StartDate && formattedMonth === month)) &&
+//       (!satisfaction ||
+//         subscriberData.some(
+//           (subscriber) =>
+//             subscriber.CampaignID === item.CampaignID &&
+//             subscriber.Satisfaction === satisfaction
+//         ))
+//     ) {
+//       const existingPlatform = platformData.find(
+//         (p) => p.platform === platform
+//       );
 
-      if (existingPlatform) {
-        existingPlatform.revenue += revenue;
-        existingPlatform.impressions += impressions;
-        existingPlatform.subscriptions += subscriptions;
-        existingPlatform.clicks += clicks;
-      } else {
-        platformData.push({
-          platform,
-          revenue,
-          impressions,
-          subscriptions,
-          clicks,
-        });
-      }
-    }
-  });
+//       if (existingPlatform) {
+//         existingPlatform.revenue += revenue;
+//         existingPlatform.impressions += impressions;
+//         existingPlatform.subscriptions += subscriptions;
+//         existingPlatform.clicks += clicks;
+//       } else {
+//         platformData.push({
+//           platform,
+//           revenue,
+//           impressions,
+//           subscriptions,
+//           clicks,
+//         });
+//       }
+//     }
+//   });
 
-  // revalidatePath("/dashboard");
-  return platformData;
-}
+//   // revalidatePath("/dashboard");
+//   return platformData;
+// }
 
 export async function fetchContentData(
   month: string,

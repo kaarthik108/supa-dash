@@ -10,21 +10,10 @@ type BarListContentData = {
 };
 
 export async function AudienceCard({
-  month,
-  audience,
-  contentType,
-  satisfaction,
-  location,
-}: // age,
-SearchParams) {
-  const AudienceData = await fetchAudienceData(
-    month,
-    audience,
-    contentType,
-    satisfaction,
-    location
-    // age
-  );
+  AudienceData,
+}: {
+  AudienceData: BarListContentData[];
+}) {
   AudienceData.sort((a, b) => b.value - a.value);
 
   return (
