@@ -37,23 +37,23 @@ export async function EngagementCard({
 }: SearchParams) {
   console.log(age);
 
-  const engagementData = await EngagementCache(
-    month,
-    audience || null,
-    contentType || null,
-    satisfaction || null,
-    location || null,
-    age || null
-  );
+  // const engagementData = await EngagementCache(
+  //   month,
+  //   audience || null,
+  //   contentType || null,
+  //   satisfaction || null,
+  //   location || null,
+  //   age || null
+  // );
 
-  return (
-    <Card className="h-full">
-      <CardHeader className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
-        Engagement Rate vs. Satisfaction
-      </CardHeader>
-      <CardContent>
-        <EngagementScatterChart data={engagementData} />
-      </CardContent>
-    </Card>
-  );
+  // return (
+  //   <Card className="h-full">
+  //     <CardHeader className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+  //       Engagement Rate vs. Satisfaction
+  //     </CardHeader>
+  //     <CardContent>
+  //       <EngagementScatterChart data={engagementData} />
+  //     </CardContent>
+  //   </Card>
+  // );
 }
