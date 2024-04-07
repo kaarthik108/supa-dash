@@ -44,6 +44,11 @@ export async function Dashboard({
     ContentData,
     subscribersByLocation,
     ageDistributionByLocation,
+    RevenueData,
+    BudgetData,
+    ClicksData,
+    ImpressionData,
+    SubsData,
   ] = await Promise.all([
     fetchAudienceData(month, audience, contentType, satisfaction, location),
     fetchContentData(month, audience, contentType, satisfaction),
@@ -62,51 +67,47 @@ export async function Dashboard({
       satisfaction,
       location
     ),
+    fetchRevenueData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchBudgetData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchClicksData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month
+    ),
+    fetchImpressionData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month || null
+    ),
+    fetchSubsData(
+      audience || null,
+      contentType || null,
+      satisfaction || null,
+      location || null,
+      age || null,
+      month || null
+    ),
   ]);
-
-  const [RevenueData, BudgetData, ClicksData, ImpressionData, SubsData] =
-    await Promise.all([
-      fetchRevenueData(
-        audience || null,
-        contentType || null,
-        satisfaction || null,
-        location || null,
-        age || null,
-        month
-      ),
-      fetchBudgetData(
-        audience || null,
-        contentType || null,
-        satisfaction || null,
-        location || null,
-        age || null,
-        month
-      ),
-      fetchClicksData(
-        audience || null,
-        contentType || null,
-        satisfaction || null,
-        location || null,
-        age || null,
-        month
-      ),
-      fetchImpressionData(
-        audience || null,
-        contentType || null,
-        satisfaction || null,
-        location || null,
-        age || null,
-        month || null
-      ),
-      fetchSubsData(
-        audience || null,
-        contentType || null,
-        satisfaction || null,
-        location || null,
-        age || null,
-        month || null
-      ),
-    ]);
 
   return (
     <div className="flex h-full w-full flex-col">
