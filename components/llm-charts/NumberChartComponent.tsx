@@ -24,10 +24,10 @@ export function NumberChartComponent({
         decoration="top"
         decorationColor="indigo"
       >
-        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+        <p className="text-xs md:text-sm text-tremor-content dark:text-dark-tremor-content">
           {title}
         </p>
-        <p className="text-3xl text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+        <p className="text-md md:text-lg text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
           {isNumeric ? `$${parseFloat(value).toFixed(2)}` : value}
         </p>
       </Card>

@@ -37,7 +37,7 @@ export default function RootLayout({
             </div>
           </div>
           <main className="flex-grow p-8 bg-[#f0eee6]">
-            <div className="mb-3">
+            <div>
               <TopHeader />
             </div>
             {children}

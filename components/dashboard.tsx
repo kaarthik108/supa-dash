@@ -48,7 +48,7 @@ export async function Dashboard({
   return (
     <div className="flex h-full w-full flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 sm:p-8">
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
           <Suspense fallback={<CardSkeleton />}>
             <RevenueCard rawData={RevenueData} />
           </Suspense>
@@ -65,8 +65,8 @@ export async function Dashboard({
             <SubscriberCard rawData={SubsData} />
           </Suspense>
         </div>
-        <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
-          <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4 sm:grid lg:grid-cols-2">
+          <div className="flex flex-col gap-4">
             <div className="h-auto shadow-2xl">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformComp rawData={PlatformData} />
@@ -85,7 +85,7 @@ export async function Dashboard({
               />
             </Suspense>
           </div>
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
               <Suspense fallback={<CardSkeleton />}>
                 <AudienceComp AudienceData={AudienceData} />
@@ -94,7 +94,7 @@ export async function Dashboard({
                 <ContentComp ContentData={ContentData} />
               </Suspense>
             </div>
-            <div className="flex-1 min-h-[840px]">
+            <div className="flex h-full">
               <Suspense fallback>
                 <Chat />
               </Suspense>

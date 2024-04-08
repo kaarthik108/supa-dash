@@ -86,7 +86,7 @@ function BarListInner<T>(
                 "flex items-center rounded transition-all",
                 rowHeight,
                 // background color
-                "bg-teal-700 dark:bg-teal-500",
+                "bg-teal-600 dark:bg-teal-500",
                 onValueChange
                   ? "group-hover:bg-teal-500 group-hover:dark:bg-teal-400"
                   : "",

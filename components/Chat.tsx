@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { ScrollArea } from "./ui/scroll-area";
 
 export function Chat() {
   const [messages, setMessages] = useUIState<typeof AI>();
@@ -51,9 +52,9 @@ export function Chat() {
   }, [inputRef]);
 
   return (
-    <Card className="shadow-2xl flex flex-col h-full">
-      <CardHeader>
-        <div className="flex justify-between items-start">
+    <Card className="shadow-2xl flex flex-col h-full w-full items-center justify-center">
+      <CardHeader className="flex w-full">
+        <div className="flex justify-between items-start w-full">
           <CardTitle>Chat</CardTitle>
           <Button
             variant={"outline"}
@@ -68,33 +69,29 @@ export function Chat() {
           Chat with our AI assistant to get help on your queries
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow overflow-hidden">
-        <div className="h-full max-h-[calc(100vh-520px)] overflow-y-auto">
-          {messages.length ? (
-            <ChatList messages={messages} />
-          ) : (
-            <EmptyScreen
-              submitMessage={async (message) => {
-                setMessages((currentMessages) => [
-                  ...currentMessages,
-                  {
-                    id: Date.now(),
-                    display: <UserMessage>{message}</UserMessage>,
-                  },
-                ]);
-
-                const responseMessage = await submitUserMessage(message);
-                setMessages((currentMessages) => [
-                  ...currentMessages,
-                  responseMessage,
-                ]);
-              }}
-            />
-          )}
-          <ChatScrollAnchor trackVisibility={true} />
-        </div>
+      <CardContent className="flex-1 overflow-y-auto max-h-[745px] w-full mb-2 mt-2 justify-center">
+        {messages.length ? (
+          <ChatList messages={messages} />
+        ) : (
+          <EmptyScreen
+            submitMessage={async (message) => {
+              setMessages((currentMessages) => [
+                ...currentMessages,
+                {
+                  id: Date.now(),
+                  display: <UserMessage>{message}</UserMessage>,
+                },
+              ]);
+              const responseMessage = await submitUserMessage(message);
+              setMessages((currentMessages) => [
+                ...currentMessages,
+                responseMessage,
+              ]);
+            }}
+          />
+        )}
       </CardContent>
-      <CardFooter className="mt-auto">
+      <CardFooter className="flex w-full">
         <form
           ref={formRef}
           onSubmit={async (e) => {
@@ -102,7 +99,6 @@ export function Chat() {
             const value = inputValue.trim();
             setInputValue("");
             if (!value) return;
-
             setMessages((currentMessages) => [
               ...currentMessages,
               {
@@ -110,7 +106,6 @@ export function Chat() {
                 display: <UserMessage>{value}</UserMessage>,
               },
             ]);
-
             try {
               const responseMessage = await submitUserMessage(value);
               setMessages((currentMessages) => [

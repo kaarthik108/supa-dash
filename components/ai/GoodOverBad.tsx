@@ -7,7 +7,7 @@ export async function GoodOverBad() {
   const data = await GoodOverBadCampaign();
 
   return (
-    <Card>
+    <Card className="max-w-md sm:max-w-full w-full">
       <CardHeader>
         <CardTitle>Good Vs Bad Campaign</CardTitle>
         <p className="text-sm text-gray-500 mt-2">

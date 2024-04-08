@@ -29,7 +29,7 @@ export async function RevenueCard({
 
   return (
     <Card
-      className="animate-fade-up shadow-2xl border-none"
+      className="animate-fade-up shadow-2xl border-none "
       style={{
         animationDelay: "0.3s",
         animationFillMode: "backwards",

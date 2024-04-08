@@ -35,7 +35,7 @@ export async function LocationCard({
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card
-        className="h-full shadow-2xl animate-fade-up w-full md:col-span-2"
+        className=" shadow-2xl animate-fade-up w-full md:col-span-2"
         style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
@@ -52,7 +52,7 @@ export async function LocationCard({
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
           Age Distribution
         </CardHeader>
-        <CardContent className="h-80">
+        <CardContent className="">
           <DonutChartComponent
             data={ageDistributionData}
             variant="pie"

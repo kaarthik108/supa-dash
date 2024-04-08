@@ -7,7 +7,7 @@ export async function EngagementCard({
   rawData: EngagementData[];
 }) {
   return (
-    <Card className="h-full">
+    <Card className="">
       <CardHeader className="text-md text-tremor-content-strong dark:text-dark-tremor-content-strong">
         Engagement Rate vs. Satisfaction
       </CardHeader>

@@ -21,12 +21,19 @@ export async function SubsOverTimeCard({
   }));
 
   return (
-    <Card>
+    <Card className="max-w-md sm:max-w-full w-full">
       <CardHeader>
-        <CardTitle>Subscribers Over Time</CardTitle>
+        <CardTitle className="text-sm sm:text-xl">
+          Subscribers Over Time
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <LineChartHero chartData={chartData} title="Subscriptions Over Time" />
+        <div className="w-full overflow-x-auto">
+          <LineChartHero
+            chartData={chartData}
+            title="Subscriptions Over Time"
+          />
+        </div>
       </CardContent>
     </Card>
   );

@@ -26,16 +26,20 @@ export async function GrowthRateChartCard({
   }));
 
   return (
-    <Card>
+    <Card className="max-w-md sm:max-w-full w-full">
       <CardHeader>
-        <CardTitle>Growth Rate Over Time</CardTitle>
+        <CardTitle className="text-sm sm:text-xl">
+          Growth Rate Over Time
+        </CardTitle>
         <p className="text-sm text-gray-500 mt-1">
           The monthly percentage change in new subscriptions compared to the
           previous month.
         </p>
       </CardHeader>
       <CardContent>
-        <LineChartHero chartData={chartData} title="Growth Rate" />
+        <div className="w-full overflow-x-auto">
+          <LineChartHero chartData={chartData} title="Growth Rate" />
+        </div>
       </CardContent>
     </Card>
   );

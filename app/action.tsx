@@ -277,8 +277,10 @@ Messages inside [] means that it's a UI element or a user event. For example:
               yaxis={yaxis}
               size={size}
             />
-            <div className="py-4 whitespace-pre-line">
-              <Code lang="sql">{format_query}</Code>
+            <div className="py-4 whitespace-pre-line w-full max-w-xs lg:max-w-2xl">
+              <Code lang="sql" className="text-xs md:text-md">
+                {format_query}
+              </Code>
             </div>
           </div>
         </BotCard>
