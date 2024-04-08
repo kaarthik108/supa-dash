@@ -11,7 +11,7 @@ import AreaSkeleton from "@/components/llm-charts/AreaSkeleton";
 import { BotCard, BotMessage } from "@/components/message";
 import { spinner } from "@/components/ui/spinner";
 import { runQuery } from "@/lib/db";
-import { runOpenAICompletion, sleep } from "@/lib/utils";
+import { runOpenAICompletion } from "@/lib/utils";
 import { FQueryResponse } from "@/lib/validation";
 import { Code } from "bright";
 import { format as sql_format } from "sql-formatter";

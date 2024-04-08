@@ -70,7 +70,7 @@ export async function fetchSubscriberData(
   location: string | null,
   age: string | null,
   month?: string | null,
-  campaignIds?: number[]
+  campaignId?: number[]
 ): Promise<SubscriberData[]> {
   const supabase = supabaseServer();
 
@@ -85,8 +85,8 @@ export async function fetchSubscriberData(
   if (location !== null) {
     query = query.eq("Location", location);
   }
-  if (campaignIds) {
-    query.in("CampaignID", campaignIds);
+  if (campaignId) {
+    query = query.in("CampaignID", campaignId);
   }
 
   if (age) {
@@ -106,12 +106,14 @@ export async function fetchSubscriberData(
 }
 
 export async function fetchRevenueData(
-  audience: string | null,
-  contentType: string | null,
-  satisfaction: string | null,
-  location: string | null,
-  age: string | null,
-  month: string = "all"
+  month: string = "all",
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null,
+  age?: string | null,
+  platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ CampaignMonth: string; Revenue: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -136,6 +138,14 @@ export async function fetchRevenueData(
 
   if (location) {
     conditions.push(`"Location" = '${location}'`);
+  }
+
+  if (platform) {
+    conditions.push(`"Platform" = '${platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (age) {
@@ -169,12 +179,14 @@ export async function fetchRevenueData(
 }
 
 export async function fetchBudgetData(
-  audience: string | null,
-  contentType: string | null,
-  satisfaction: string | null,
-  location: string | null,
-  age: string | null,
-  month: string = "all"
+  month: string = "all",
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null,
+  age?: string | null,
+  platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ CampaignMonth: string; Budget: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -205,6 +217,12 @@ export async function fetchBudgetData(
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
   }
+  if (platform) {
+    conditions.push(`"Platform" = '${platform}'`);
+  }
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
+  }
 
   if (month && month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
@@ -232,12 +250,14 @@ export async function fetchBudgetData(
 }
 
 export async function fetchImpressionData(
-  audience: string | null,
-  contentType: string | null,
-  satisfaction: string | null,
-  location: string | null,
-  age: string | null,
-  month: string = "all"
+  month: string = "all",
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null,
+  age?: string | null,
+  platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ CampaignMonth: string; Impressions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -268,6 +288,12 @@ export async function fetchImpressionData(
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
   }
+  if (platform) {
+    conditions.push(`"Platform" = '${platform}'`);
+  }
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
+  }
 
   if (month && month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
@@ -295,12 +321,14 @@ export async function fetchImpressionData(
 }
 
 export async function fetchClicksData(
-  audience: string | null,
-  contentType: string | null,
-  satisfaction: string | null,
-  location: string | null,
-  age: string | null,
-  month: string = "all"
+  month: string = "all",
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null,
+  age?: string | null,
+  platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ CampaignMonth: string; Clicks: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -331,6 +359,12 @@ export async function fetchClicksData(
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
   }
+  if (platform) {
+    conditions.push(`"Platform" = '${platform}'`);
+  }
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
+  }
 
   if (month && month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
@@ -358,12 +392,14 @@ export async function fetchClicksData(
 }
 
 export async function fetchSubsData(
-  audience: string | null,
-  contentType: string | null,
-  satisfaction: string | null,
-  location: string | null,
-  age: string | null,
-  month: string = "all"
+  month: string = "all",
+  audience?: string | null,
+  contentType?: string | null,
+  satisfaction?: string | null,
+  location?: string | null,
+  age?: string | null,
+  platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ CampaignMonth: string; NewSubscriptions: string }[]> {
   let query = `
     WITH filtered_campaigns AS (
@@ -393,6 +429,12 @@ export async function fetchSubsData(
   if (age) {
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+  if (platform) {
+    conditions.push(`"Platform" = '${platform}'`);
+  }
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (month && month !== "all") {

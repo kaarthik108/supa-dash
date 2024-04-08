@@ -25,7 +25,7 @@ export async function SubscriberCard({
 
   return (
     <Card
-      className="animate-fade-up shadow-md"
+      className="animate-fade-up shadow-2xl"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

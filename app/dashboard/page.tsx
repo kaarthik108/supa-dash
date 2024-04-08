@@ -23,6 +23,8 @@ export type SearchParams = {
   satisfaction?: string | null;
   location?: string | null;
   age?: string | null;
+  platform?: string | null;
+  campaignId?: string | null;
 };
 
 // export const runtime = "edge";
@@ -32,8 +34,16 @@ export default async function Home({
 }: {
   searchParams: SearchParams;
 }) {
-  const { month, audience, contentType, satisfaction, location, age } =
-    searchParams;
+  const {
+    month,
+    audience,
+    contentType,
+    satisfaction,
+    location,
+    age,
+    platform,
+    campaignId,
+  } = searchParams;
 
   const [
     AudienceData,
@@ -48,62 +58,95 @@ export default async function Home({
     EngagementData,
     PlatformData,
   ] = await Promise.all([
-    fetchAudienceData(month, audience, contentType, satisfaction, location),
-    fetchContentData(month, audience, contentType, satisfaction),
+    fetchAudienceData(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
+    ),
+    fetchContentData(
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
+    ),
     fetchSubscribersByLocation(
       month,
       audience,
       contentType,
       satisfaction,
-      null,
-      age
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchAgeDistributionByLocation(
       month,
       audience,
       contentType,
       satisfaction,
-      location
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchRevenueData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchBudgetData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchClicksData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchImpressionData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchSubsData(
-      audience || null,
-      contentType || null,
-      satisfaction || null,
-      location || null,
-      age || null,
-      month
+      month,
+      audience,
+      contentType,
+      satisfaction,
+      location,
+      age,
+      platform,
+      campaignId
     ),
     fetchEngagementData(
       month,
@@ -111,7 +154,9 @@ export default async function Home({
       contentType,
       satisfaction,
       location,
-      age
+      age,
+      platform,
+      campaignId
     ),
     fetchPlatformData(
       month,
@@ -119,7 +164,9 @@ export default async function Home({
       contentType,
       satisfaction,
       location,
-      age
+      age,
+      platform,
+      campaignId
     ),
   ]);
 

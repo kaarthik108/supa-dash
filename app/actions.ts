@@ -16,7 +16,9 @@ export async function fetchContentData(
   contentType?: string | null,
   satisfaction?: string | null,
   location?: string | null,
-  age?: string | null
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ) {
   let query = `
     WITH filtered_campaigns AS (
@@ -42,6 +44,13 @@ export async function fetchContentData(
 
   if (month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (conditions.length > 0) {
@@ -91,7 +100,10 @@ export async function fetchAudienceData(
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
-  location?: string | null
+  location?: string | null,
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ) {
   let query = `
     WITH filtered_campaigns AS (
@@ -112,6 +124,19 @@ export async function fetchAudienceData(
 
   if (month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
+  }
+
+  if (age) {
+    const { startAge, endAge } = helperAge(age);
+    conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
   }
 
   if (conditions.length > 0) {
@@ -162,7 +187,9 @@ export async function fetchEngagementData(
   contentType?: string | null,
   satisfaction?: string | null,
   Location?: string | null,
-  age?: string | null
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ) {
   let query = `
     WITH filtered_campaigns AS (
@@ -192,6 +219,14 @@ export async function fetchEngagementData(
   if (age) {
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (month !== "all") {
@@ -235,7 +270,9 @@ export async function fetchSubscribersByLocation(
   contentType?: string | null,
   satisfaction?: string | null,
   location?: string | null,
-  age?: string | null
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ) {
   let query = `
     WITH filtered_campaigns AS (
@@ -258,8 +295,12 @@ export async function fetchSubscribersByLocation(
     conditions.push(`"Satisfaction" = '${satisfaction}'`);
   }
 
-  if (location) {
-    conditions.push(`"Location" = '${location}'`);
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (age) {
@@ -302,7 +343,10 @@ export async function fetchAgeDistributionByLocation(
   audience?: string | null,
   contentType?: string | null,
   satisfaction?: string | null,
-  location?: string | null
+  location?: string | null,
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ): Promise<{ [key: string]: number }> {
   let query = `
     WITH filtered_campaigns AS (
@@ -331,6 +375,13 @@ export async function fetchAgeDistributionByLocation(
 
   if (month !== "all") {
     conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+  }
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (conditions.length > 0) {
@@ -378,7 +429,9 @@ export async function fetchPlatformData(
   contentType?: string | null,
   satisfaction?: string | null,
   location?: string | null,
-  age?: string | null
+  age?: string | null,
+  Platform?: string | null,
+  campaignId?: string | null
 ) {
   let query = `
     WITH filtered_campaigns AS (
@@ -408,6 +461,13 @@ export async function fetchPlatformData(
   if (age) {
     const { startAge, endAge } = helperAge(age);
     conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+  }
+  if (Platform) {
+    conditions.push(`"Platform" = '${Platform}'`);
+  }
+
+  if (campaignId) {
+    conditions.push(`"CampaignID" = '${campaignId}'`);
   }
 
   if (month !== "all") {
@@ -458,4 +518,14 @@ export async function fetchPlatformData(
   }));
 
   return data;
+}
+
+export async function fetchCampaignIds() {
+  let query = `
+  SELECT DISTINCT "CampaignID" FROM campaign;
+  `;
+
+  const result = await runQuery(query);
+
+  return result.data;
 }

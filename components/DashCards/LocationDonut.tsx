@@ -34,7 +34,7 @@ export async function LocationCard({
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <Card
-        className="h-full shadow-md animate-fade-up w-full"
+        className="h-full shadow-2xl animate-fade-up w-full"
         style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
@@ -50,7 +50,7 @@ export async function LocationCard({
         </CardContent>
       </Card>
       <Card
-        className="h-full shadow-md animate-fade-up w-full"
+        className="h-full shadow-2xl animate-fade-up w-full"
         style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">

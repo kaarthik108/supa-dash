@@ -1,25 +1,27 @@
 import { TopHeader } from "@/components/Header";
+import { IconGitHub } from "@/components/ui/icons";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import { AI } from "./action";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const sans = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Hack-Dash",
-  description: "Hack-Dash is a dashboard built on top of Next.js",
+  description: "Hack-Dash is a dashboard built on top of Next.js and Supabase",
+  metadataBase: new URL("https://supa-dash.vercel.app"),
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${sans.className} flex flex-col min-h-screen`}>
         <AI>
           <div className="fixed inset-x-0 top-0 flex justify-center z-10">
             <div className="w-3/4">
@@ -31,13 +33,40 @@ export default function RootLayout({
               <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px" />
             </div>
           </div>
-          <main className="flex h-full flex-col items-center justify-between p-8">
-            <div className="flex flex-col w-full">
+          <main className="flex-grow p-8">
+            <div className="mb-8">
               <TopHeader />
             </div>
             {children}
             <Analytics />
           </main>
+          <footer className="py-4">
+            <div className="container mx-auto text-center">
+              <p className="text-sm text-gray-600">
+                Built with{" "}
+                <a
+                  href="https://nextjs.org"
+                  className="text-blue-600 hover:underline"
+                >
+                  Next.js
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://supabase.io"
+                  className="text-blue-600 hover:underline mr-1"
+                >
+                  Supabase
+                </a>{" "}
+                -{" "}
+                <a
+                  href="https://github.com/kaarthik108/subs-dash"
+                  className="text-blue-600 hover:underline"
+                >
+                  <IconGitHub className="inline-block h-3 w-3 ml-1" />
+                </a>
+              </p>
+            </div>
+          </footer>
         </AI>
       </body>
     </html>

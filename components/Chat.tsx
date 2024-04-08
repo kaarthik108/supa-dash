@@ -51,7 +51,7 @@ export function Chat() {
   }, [inputRef]);
 
   return (
-    <Card className="shadow-md flex flex-col h-full">
+    <Card className="shadow-2xl flex flex-col h-full">
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle>Chat</CardTitle>
@@ -129,7 +129,7 @@ export function Chat() {
             onKeyDown={onKeyDown}
             placeholder="Send a message..."
             className="flex-1 min-h-[44px] resize-none rounded-md border border-gray-300 bg-white px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
-            autoFocus
+            autoFocus={false}
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"

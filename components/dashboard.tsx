@@ -67,12 +67,12 @@ export async function Dashboard({
         </div>
         <div className="flex flex-col gap-8 sm:grid lg:grid-cols-2 sm:gap-8">
           <div className="flex flex-col gap-8">
-            <div className="h-auto shadow-md">
+            <div className="h-auto shadow-2xl">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformComp rawData={PlatformData} />
               </Suspense>
             </div>
-            <div className="shadow-md rounded-md">
+            <div className="shadow-2xl rounded-md">
               <Suspense fallback={<CardSkeleton />}>
                 <EngagementComp rawData={EngagementData} />
               </Suspense>

@@ -12,6 +12,27 @@ export function RevenueOverTime({ chartData }: RevenueOverTimeProps) {
       compactDisplay: "short",
     }).format(value);
   };
+
+  const monthOrder = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  chartData.sort((a, b) => {
+    const aIndex = monthOrder.indexOf(a.month);
+    const bIndex = monthOrder.indexOf(b.month);
+    return aIndex - bIndex;
+  });
+
   return (
     <div className="flex justify-center">
       <AreaChart

@@ -17,31 +17,25 @@ import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { useCallback } from "react";
+import { SocialIcon } from "react-social-icons";
 
-const months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-];
+const platforms = ["Instagram", "TikTok", "YouTube", "Facebook", "Blogs"];
 
-export function MonthFilter() {
+export function PlatformFilter() {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedMonth = searchParams.get("month") || "all";
+  const selectedPlatform = searchParams.get("platform") || null;
   const pathname = usePathname();
 
-  const handleMonthChange = useCallback(
-    (value: string) => {
+  const handlePlatformChange = useCallback(
+    (value: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("month", value);
+      if (value) {
+        params.set("platform", value);
+      } else {
+        params.delete("platform");
+      }
       router.push(`/dashboard?${params.toString()}`, { scroll: false });
       router.refresh();
       setOpen(false);
@@ -60,46 +54,31 @@ export function MonthFilter() {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedMonth === "all"
-            ? "All Months"
-            : months.find((month) => month === selectedMonth)}
+          {selectedPlatform || "Select Platform"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandInput
-            placeholder="Filter by Month"
+            placeholder="Filter by Platform"
             className="h-9 focus:outline-none focus:ring-0 border-none"
           />
-          <CommandEmpty>No Month found.</CommandEmpty>
+          <CommandEmpty>No Platform found.</CommandEmpty>
           <CommandGroup>
-            <CommandItem
-              key="all"
-              value="all"
-              onSelect={() => handleMonthChange("all")}
-              className="cursor-pointer"
-            >
-              All Months
-              <CheckIcon
-                className={cn(
-                  "ml-auto h-4 w-4",
-                  selectedMonth === "all" ? "opacity-100" : "opacity-0"
-                )}
-              />
-            </CommandItem>
-            {months.map((month) => (
+            {platforms.map((platform) => (
               <CommandItem
-                key={month}
-                value={month}
-                onSelect={() => handleMonthChange(month)}
-                className="cursor-pointer"
+                key={platform}
+                value={platform}
+                onSelect={() => handlePlatformChange(platform)}
+                className="cursor-pointer flex items-center"
               >
-                {month}
+                {renderPlatformIcon(platform)}
+                <span className="ml-2">{platform}</span>
                 <CheckIcon
                   className={cn(
                     "ml-auto h-4 w-4",
-                    selectedMonth === month ? "opacity-100" : "opacity-0"
+                    selectedPlatform === platform ? "opacity-100" : "opacity-0"
                   )}
                 />
               </CommandItem>
@@ -110,3 +89,24 @@ export function MonthFilter() {
     </Popover>
   );
 }
+
+const renderPlatformIcon = (platform: string) => {
+  switch (platform) {
+    case "Instagram":
+      return (
+        <SocialIcon network="instagram" style={{ height: 18, width: 18 }} />
+      );
+    case "TikTok":
+      return <SocialIcon network="tiktok" style={{ height: 18, width: 18 }} />;
+    case "YouTube":
+      return <SocialIcon network="youtube" style={{ height: 18, width: 18 }} />;
+    case "Facebook":
+      return (
+        <SocialIcon network="facebook" style={{ height: 18, width: 18 }} />
+      );
+    case "Blogs":
+      return <SocialIcon network="rss" style={{ height: 18, width: 18 }} />;
+    default:
+      return null;
+  }
+};

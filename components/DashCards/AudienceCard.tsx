@@ -15,7 +15,7 @@ export async function AudienceCard({
 
   return (
     <Card
-      className="mx-auto overflow-x-auto custom-scrollbar animate-fade-up w-full h-80 shadow-md"
+      className="mx-auto overflow-x-auto custom-scrollbar animate-fade-up w-full h-80 shadow-2xl"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">

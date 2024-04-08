@@ -7,6 +7,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@tremor/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { SocialIcon } from "react-social-icons";
 import {
   Tooltip,
@@ -29,12 +31,37 @@ type PlatformTableProps = {
 };
 
 export const PlatformTable = ({ data }: PlatformTableProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [clickedPlatform, setClickedPlatform] = useState<string | null>(null);
+
+  useEffect(() => {
+    const currentPlatform = searchParams.get("platform");
+    setClickedPlatform(currentPlatform);
+  }, [searchParams]);
+
   const formatNumber = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       notation: "compact",
       compactDisplay: "short",
     }).format(value);
   };
+
+  const handlePlatformClick = useCallback(
+    (platform: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (clickedPlatform === platform) {
+        params.delete("platform");
+        setClickedPlatform(null);
+      } else {
+        params.set("platform", platform);
+        setClickedPlatform(platform);
+      }
+      router.push(`/dashboard?${params.toString()}`, { scroll: false });
+      router.refresh();
+    },
+    [router, searchParams, clickedPlatform]
+  );
 
   return (
     <div className="h-full overflow-x-auto hide-scrollbar">
@@ -47,7 +74,12 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
                 key={item.platform}
                 className="text-center cursor-pointer text-xs"
               >
-                {renderPlatformIcon(item.platform)}
+                <div
+                  className="cursor-pointer"
+                  onClick={() => handlePlatformClick(item.platform)}
+                >
+                  {renderPlatformIcon(item.platform)}
+                </div>
               </TableHeaderCell>
             ))}
           </TableRow>
@@ -62,7 +94,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             ))}
           </TableRow>
           <TableRow>
-            <TableCell>ROI</TableCell>
+            <TableCell>Return on Investment (ROI)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {formatNumber(item.ROI)}%
@@ -70,7 +102,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             ))}
           </TableRow>
           <TableRow>
-            <TableCell>CPA</TableCell>
+            <TableCell>Cost per Acquisition (CPA)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {formatNumber(item.CPA)}%
@@ -78,7 +110,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             ))}
           </TableRow>
           <TableRow>
-            <TableCell>CTR</TableCell>
+            <TableCell>Click Through Rate (CTR)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {formatNumber(item.CTR)}%
