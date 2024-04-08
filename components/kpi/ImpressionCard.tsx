@@ -1,6 +1,7 @@
 import { Eye } from "lucide-react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Separator } from "../ui/separator";
 
 export async function ImpressionCard({
   rawData,
@@ -26,11 +27,14 @@ export async function ImpressionCard({
 
   return (
     <Card
-      className="animate-fade-up shadow-2xl"
+      className="animate-fade-up shadow-2xl border-none"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium">Total Impressions</CardTitle>
+        <CardTitle className="text-xs font-medium">
+          Total Impressions
+          <Separator className="bg-slate-300" />
+        </CardTitle>
         <Eye className="h-3 w-3 text-muted-foreground" />
       </CardHeader>
       <CardContent>

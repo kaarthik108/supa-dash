@@ -65,6 +65,7 @@ const config = {
             emphasis: colors.blue[700],
             inverted: colors.white,
             green: colors.green,
+            teal: colors.teal[500],
           },
           background: {
             muted: colors.gray[50],
@@ -84,6 +85,7 @@ const config = {
             emphasis: colors.gray[700],
             strong: colors.gray[900],
             inverted: colors.white,
+            teal: colors.teal[500],
           },
         },
         // dark mode

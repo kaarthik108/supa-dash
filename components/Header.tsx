@@ -5,10 +5,11 @@ import { CampaignFilter } from "./CampaignFilter";
 import { ClearParams } from "./ClearParams";
 import { PlatformFilter } from "./PlatformFilter";
 import { MonthFilter } from "./ui/combobox";
+import { Separator } from "./ui/separator";
 
 export function TopHeader() {
   return (
-    <header className="sticky top-0 flex items-center gap-4 border-b bg-background px-4 py-2 md:px-6 md:py-4 flex-wrap">
+    <header className="sticky top-0 flex items-center gap-4  px-4 py-2 md:px-6 md:py-4 flex-wrap bg-[#f0eee6]">
       <div className="flex items-center gap-3">
         <Link
           href="/"
@@ -45,6 +46,7 @@ export function TopHeader() {
           <MonthFilter />
         </Suspense>
       </div>
+      <Separator className="bg-neutral-400" />
     </header>
   );
 }

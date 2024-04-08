@@ -2,11 +2,14 @@ import { TopHeader } from "@/components/Header";
 import { IconGitHub } from "@/components/ui/icons";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { Roboto } from "next/font/google";
 import { AI } from "./action";
 import "./globals.css";
 
-const sans = Open_Sans({ subsets: ["latin"] });
+const robo = Roboto({
+  weight: ["100", "400", "700"],
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Hack-Dash",
@@ -21,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${sans.className} flex flex-col min-h-screen`}>
+      <body className={`${robo.className} flex flex-col min-h-screen`}>
         <AI>
           <div className="fixed inset-x-0 top-0 flex justify-center z-10">
             <div className="w-3/4">
@@ -33,34 +36,34 @@ export default function RootLayout({
               <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px" />
             </div>
           </div>
-          <main className="flex-grow p-8">
-            <div className="mb-8">
+          <main className="flex-grow p-8 bg-[#f0eee6]">
+            <div className="mb-3">
               <TopHeader />
             </div>
             {children}
             <Analytics />
           </main>
-          <footer className="py-4">
+          <footer className="py-4 bg-[#f0eee6]">
             <div className="container mx-auto text-center">
               <p className="text-sm text-gray-600">
                 Built with{" "}
                 <a
                   href="https://nextjs.org"
-                  className="text-blue-600 hover:underline"
+                  className="text-black hover:underline"
                 >
                   Next.js
                 </a>{" "}
                 and{" "}
                 <a
                   href="https://supabase.io"
-                  className="text-blue-600 hover:underline mr-1"
+                  className="text-black hover:underline mr-1"
                 >
                   Supabase
                 </a>{" "}
                 -{" "}
                 <a
                   href="https://github.com/kaarthik108/subs-dash"
-                  className="text-blue-600 hover:underline"
+                  className="text-black hover:underline"
                 >
                   <IconGitHub className="inline-block h-3 w-3 ml-1" />
                 </a>

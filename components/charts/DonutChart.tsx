@@ -63,19 +63,42 @@ export const DonutChartComponent = ({
   );
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
+    <div className="flex flex-col items-center justify-between w-full h-full">
       <DonutChart
         data={data}
         variant={variant}
         valueFormatter={dataFormatter}
         label={variant === "donut" ? `${totalValue} subs` : undefined}
-        className="text-tremor-content dark:text-dark-tremor-content"
+        className="text-tremor-content dark:text-dark-tremor-content mt-4 h-48"
         onValueChange={handleClick}
+        colors={[
+          "teal-900",
+          "teal-800",
+          "teal-700",
+          "teal-600",
+          "teal-500",
+          "teal-400",
+          "teal-300",
+          "teal-200",
+          "teal-100",
+        ]}
+        showAnimation
       />
       <Legend
         categories={data.map((d) => d.name)}
-        className="text-tremor-content dark:text-dark-tremor-content text-xs mt-4 w-full"
+        className="text-tremor-content dark:text-dark-tremor-content text-xs mt-6 w-full"
         color="text-tremor-content"
+        colors={[
+          "teal-900",
+          "teal-800",
+          "teal-700",
+          "teal-600",
+          "teal-500",
+          "teal-400",
+          "teal-300",
+          "teal-200",
+          "teal-100",
+        ]}
       />
     </div>
   );

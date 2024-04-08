@@ -53,7 +53,6 @@ export function BarListChart({ data, filterType }: BarListChartProps) {
     <div className="mt-2">
       <BarList
         data={filteredData}
-        // color="blue"
         showAnimation
         onValueChange={handleBarClick}
         valueFormatter={formatNumber}

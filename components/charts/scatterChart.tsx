@@ -15,11 +15,11 @@ type EngagementScatterChartProps = {
 };
 
 const satisfactionColors: Record<string, string> = {
-  "Very Unsatisfied": "red",
-  Unsatisfied: "orange",
-  Neutral: "yellow",
-  Satisfied: "green",
-  "Very Satisfied": "blue",
+  "Very Unsatisfied": "teal-800",
+  Unsatisfied: "teal-600",
+  Satisfied: "teal-400",
+  Neutral: "teal-200",
+  "Very Satisfied": "teal-100",
 };
 
 export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
@@ -59,7 +59,7 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
   return (
     <ScatterChart
       className="mt-6 h-96"
-      yAxisWidth={60}
+      yAxisWidth={30}
       data={data}
       category="satisfaction"
       x="engagementRate"
@@ -67,6 +67,7 @@ export function EngagementScatterChart({ data }: EngagementScatterChartProps) {
       size="viewingTime"
       autoMinXValue
       autoMinYValue
+      showAnimation
       showOpacity={true}
       valueFormatter={{
         x: (rate) => `${rate.toFixed(2)}%`,

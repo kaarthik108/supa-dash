@@ -1,5 +1,6 @@
+import { BarChartComponent } from "../charts/BarChart";
 import { DonutChartComponent } from "../charts/DonutChart";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 
 type LocationData = {
   name: string;
@@ -32,31 +33,26 @@ export async function LocationCard({
     }));
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card
-        className="h-full shadow-2xl animate-fade-up w-full"
+        className="h-full shadow-2xl animate-fade-up w-full md:col-span-2"
         style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
           Subscribers by Location
         </CardHeader>
         <CardContent className="flex items-center justify-center">
-          <DonutChartComponent
-            data={subscribersData}
-            variant="donut"
-            filterType="location"
-            selectedFilter={location}
-          />
+          <BarChartComponent data={subscribersData} />
         </CardContent>
       </Card>
       <Card
-        className="h-full shadow-2xl animate-fade-up w-full"
+        className="shadow-2xl animate-fade-up w-full"
         style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
           Age Distribution
         </CardHeader>
-        <CardContent className="flex items-center justify-center">
+        <CardContent className="h-80">
           <DonutChartComponent
             data={ageDistributionData}
             variant="pie"

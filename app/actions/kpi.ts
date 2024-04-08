@@ -173,7 +173,6 @@ export async function fetchRevenueData(
     group by "CampaignMonth";
   `;
   const result = await runQuery(query);
-
   revalidatePath("/dashboard");
   return result.data as { CampaignMonth: string; Revenue: string }[];
 }

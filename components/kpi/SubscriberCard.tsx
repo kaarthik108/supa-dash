@@ -1,6 +1,7 @@
 import { Users } from "lucide-react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Separator } from "../ui/separator";
 
 export async function SubscriberCard({
   rawData,
@@ -25,11 +26,14 @@ export async function SubscriberCard({
 
   return (
     <Card
-      className="animate-fade-up shadow-2xl"
+      className="animate-fade-up shadow-2xl border-none"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium">Total Subscribers</CardTitle>
+        <CardTitle className="text-xs font-medium">
+          Total Subscribers
+          <Separator className="bg-slate-300" />
+        </CardTitle>
         <Users className="h-3 w-3 text-muted-foreground" />
       </CardHeader>
       <CardContent className="pb-0">

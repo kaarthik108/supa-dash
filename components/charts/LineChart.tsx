@@ -26,7 +26,7 @@ export function LineChartHero({ chartData, title }: LineChartHeroProps) {
         data={chartData.map((item) => ({ ...item, [title]: item.Value }))}
         index="Month"
         categories={[title]}
-        colors={["indigo"]}
+        colors={["teal"]}
         yAxisWidth={60}
         valueFormatter={(value) => formatNumber(value)}
       />
@@ -39,7 +39,7 @@ export function LineChartHero({ chartData, title }: LineChartHeroProps) {
       data={chartData.map((item) => ({ ...item, [title]: item.Value }))}
       index="Month"
       categories={[title]}
-      colors={["indigo"]}
+      colors={["teal"]}
       yAxisWidth={60}
       valueFormatter={(value) => `${value.toFixed(2)}%`}
     />

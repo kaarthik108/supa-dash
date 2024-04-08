@@ -1,6 +1,7 @@
 import { MousePointer2 } from "lucide-react";
 import { RevenueOverTime } from "../charts/sparkChart";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Separator } from "../ui/separator";
 
 export async function ClicksCard({
   rawData,
@@ -24,11 +25,14 @@ export async function ClicksCard({
   const formattedTotalRevenue = formatter.format(totalRevenue);
   return (
     <Card
-      className="animate-fade-up shadow-2xl"
+      className="animate-fade-up shadow-2xl border-none"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-medium">Total Clicks</CardTitle>
+        <CardTitle className="text-xs font-medium">
+          Total Clicks
+          <Separator className="bg-slate-300" />
+        </CardTitle>
         <MousePointer2 className="h-3 w-3 text-muted-foreground" />
       </CardHeader>
       <CardContent>

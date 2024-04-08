@@ -39,7 +39,7 @@ export function RevenueOverTime({ chartData }: RevenueOverTimeProps) {
         data={chartData}
         categories={["value"]}
         index="month"
-        colors={["blue"]}
+        colors={["teal"]}
         className="h-20 w-72"
         showAnimation
         showXAxis={false}

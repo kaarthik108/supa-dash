@@ -13,17 +13,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 
-const MAX_VISIBLE_CAMPAIGNS = 5;
-
 export function CampaignFilter() {
   const pathname = usePathname();
-
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,7 +35,6 @@ export function CampaignFilter() {
       const ids = result.map((item: { CampaignID: string }) => item.CampaignID);
       setCampaignIds(ids);
     };
-
     fetchData();
   }, []);
 
@@ -60,10 +57,6 @@ export function CampaignFilter() {
     campaignId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const visibleCampaignIds = filteredCampaignIds.slice(
-    0,
-    MAX_VISIBLE_CAMPAIGNS
-  );
   if (!pathname?.startsWith("/dashboard")) {
     return null;
   }
@@ -90,26 +83,28 @@ export function CampaignFilter() {
             onValueChange={setSearchQuery}
           />
           <CommandEmpty>No campaigns found.</CommandEmpty>
-          <CommandGroup>
-            {visibleCampaignIds.map((campaignId) => (
-              <CommandItem
-                key={campaignId}
-                value={campaignId}
-                onSelect={() => handleCampaignChange(campaignId)}
-                className="cursor-pointer flex items-center"
-              >
-                <span className="ml-2">{campaignId}</span>
-                <CheckIcon
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    selectedCampaignId === campaignId
-                      ? "opacity-100"
-                      : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <ScrollArea className="h-72">
+            <CommandGroup>
+              {filteredCampaignIds.map((campaignId) => (
+                <CommandItem
+                  key={campaignId}
+                  value={campaignId}
+                  onSelect={() => handleCampaignChange(campaignId)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <span className="ml-2">{campaignId}</span>
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      selectedCampaignId === campaignId
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>
