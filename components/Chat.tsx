@@ -3,7 +3,6 @@ import { AI } from "@/app/action";
 import { ChatList } from "@/components/chat-list";
 import { EmptyScreen } from "@/components/empty-screen";
 import { UserMessage } from "@/components/message";
-import { ChatScrollAnchor } from "@/lib/hooks/chat-scroll-anchor";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import { useActions, useUIState } from "ai/rsc";
 import { Send } from "lucide-react";
@@ -18,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { ScrollArea } from "./ui/scroll-area";
 
 export function Chat() {
   const [messages, setMessages] = useUIState<typeof AI>();
@@ -69,7 +67,7 @@ export function Chat() {
           Chat with our AI assistant to get help on your queries
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto max-h-[745px] w-full mb-2 mt-2 justify-center">
+      <CardContent className="flex-1 overflow-y-auto max-h-[750px] w-full mb-2 mt-2 justify-center">
         {messages.length ? (
           <ChatList messages={messages} />
         ) : (

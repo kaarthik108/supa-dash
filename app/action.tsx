@@ -20,6 +20,7 @@ import { GoodOverBadquery } from "./actions/query";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
+  baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_TAG}/snowbrain/openai`,
 });
 
 type OpenAIQueryResponse = z.infer<typeof FQueryResponse>;

@@ -6,7 +6,7 @@ WITH AvgCampaignMetrics AS (
         AVG(c."NewSubscriptions") AS "AvgNewSubscriptions",
         AVG(c."Revenue") AS "AvgRevenue",
         AVG(c."Subscription Cost") AS "AvgSubscriptionCost",
-        AVG(c."Revenue") - AVG(c."Subscription Cost") AS "AvgROI"
+        AVG(c."Revenue") - AVG(c."Budget") AS "AvgROI"
     FROM
         Campaign c
 ),
@@ -19,7 +19,7 @@ CampaignMetrics AS (
         c."NewSubscriptions",
         c."Revenue",
         c."Subscription Cost",
-        (c."Revenue" - c."Subscription Cost") AS "ROI",
+        (c."Revenue" - c."Budget") AS "ROI",
         acm."AvgImpressions",
         acm."AvgClicks",
         acm."AvgNewSubscriptions",

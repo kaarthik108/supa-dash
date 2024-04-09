@@ -3,6 +3,7 @@ import { IconGitHub } from "@/components/ui/icons";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { Suspense } from "react";
 import { AI } from "./action";
 import "./globals.css";
 
@@ -36,11 +37,11 @@ export default function RootLayout({
               <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px" />
             </div>
           </div>
-          <main className="flex-grow p-8 bg-[#f0eee6]">
+          <main className="flex-grow py-8 px-1 bg-[#f0eee6]">
             <div>
               <TopHeader />
             </div>
-            {children}
+            <Suspense fallback={null}> {children}</Suspense>
             <Analytics />
           </main>
           <footer className="py-4 bg-[#f0eee6]">

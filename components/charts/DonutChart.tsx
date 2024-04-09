@@ -72,8 +72,6 @@ export const DonutChartComponent = ({
         className="text-tremor-content dark:text-dark-tremor-content mt-4 h-48"
         onValueChange={handleClick}
         colors={[
-          "teal-900",
-          "teal-800",
           "teal-700",
           "teal-600",
           "teal-500",
@@ -89,8 +87,6 @@ export const DonutChartComponent = ({
         className="text-tremor-content dark:text-dark-tremor-content text-xs mt-6 w-full"
         color="text-tremor-content"
         colors={[
-          "teal-900",
-          "teal-800",
           "teal-700",
           "teal-600",
           "teal-500",

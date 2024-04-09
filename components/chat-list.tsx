@@ -5,7 +5,7 @@ export function ChatList({ messages }: { messages: any[] }) {
 
   return (
     <div
-      className="relative mx-auto max-w-2xl p-4 sm:px-8 md:px-16 lg:px-12"
+      className="relative mx-auto max-w-2xl p-4 sm:px-8 md:px-16 lg:px-4"
       id="chat"
     >
       {messages.map((message, index) => (

@@ -15,7 +15,7 @@ export async function ContentCard({
 
   return (
     <Card
-      className="mx-auto overflow-x-auto animate-fade-up w-full h-80 shadow-2xl"
+      className="mx-auto overflow-x-auto animate-fade-up w-full  h-[355px] shadow-2xl"
       style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
     >
       <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">

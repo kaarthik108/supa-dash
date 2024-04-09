@@ -5,7 +5,7 @@ import { Skeleton } from "../ui/skeleton";
 
 export function CardSkeleton({ height = 52 }) {
   return (
-    <Card className="h-52 bg-[#f0eee6]/80">
+    <Card className="h-52">
       <Skeleton className="h-full w-full" />
     </Card>
   );

@@ -9,7 +9,6 @@ import {
   PlatformComp,
 } from "./DashCards";
 
-import { GoodOverBad } from "./ai/GoodOverBad";
 import {
   BudgetCard,
   ClicksCard,
@@ -67,14 +66,9 @@ export async function Dashboard({
         </div>
         <div className="flex flex-col gap-4 sm:grid lg:grid-cols-2">
           <div className="flex flex-col gap-4">
-            <div className="h-auto shadow-2xl">
+            <div className="h-auto shadow-2xl border-none rounded-md">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformComp rawData={PlatformData} />
-              </Suspense>
-            </div>
-            <div className="shadow-2xl rounded-md">
-              <Suspense fallback={<CardSkeleton />}>
-                <EngagementComp rawData={EngagementData} />
               </Suspense>
             </div>
             <Suspense fallback={<CardSkeleton />}>
@@ -84,6 +78,11 @@ export async function Dashboard({
                 location={location || null}
               />
             </Suspense>
+            <div className="shadow-2xl rounded-md">
+              <Suspense fallback={<CardSkeleton />}>
+                <EngagementComp rawData={EngagementData} />
+              </Suspense>
+            </div>
           </div>
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">

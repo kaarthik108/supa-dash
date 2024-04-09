@@ -8,7 +8,7 @@ import { MonthFilter } from "./ui/combobox";
 
 export function TopHeader() {
   return (
-    <header className="sticky top-0 flex items-center gap-4  px-4 py-2 md:px-6 md:py-4 flex-wrap bg-[#f0eee6]">
+    <header className="sticky top-0 flex items-center gap-4 px-6 py-2 md:px-8 md:py-4 flex-wrap bg-[#f0eee6]">
       <div className="flex items-center gap-4">
         <Link
           href="/"

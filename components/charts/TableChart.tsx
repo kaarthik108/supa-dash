@@ -1,5 +1,6 @@
 "use client";
 import {
+  Badge,
   Table,
   TableBody,
   TableCell,
@@ -89,7 +90,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Revenue</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                ${formatNumber(item.revenue)}
+                <Badge color={item.revenue < 0 ? "red" : "teal-600"}>
+                  ${formatNumber(item.revenue)}
+                </Badge>
               </TableCell>
             ))}
           </TableRow>
@@ -97,7 +100,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Return on Investment (ROI)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.ROI)}%
+                <Badge color={item.ROI < 0 ? "red" : "teal-600"}>
+                  {formatNumber(item.ROI)}%
+                </Badge>
               </TableCell>
             ))}
           </TableRow>
@@ -105,7 +110,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Cost per Acquisition (CPA)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.CPA)}%
+                <Badge color={item.CPA < 0 ? "red" : "teal-600"}>
+                  {formatNumber(item.CPA)}%
+                </Badge>
               </TableCell>
             ))}
           </TableRow>
@@ -113,7 +120,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Click Through Rate (CTR)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.CTR)}%
+                <Badge color={item.CTR < 0 ? "red" : "teal-600"}>
+                  {formatNumber(item.CTR)}%
+                </Badge>
               </TableCell>
             ))}
           </TableRow>
@@ -121,7 +130,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>ConversionRate</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                {formatNumber(item.ConversionRate)}%
+                <Badge color={item.ConversionRate < 0 ? "red" : "teal-600"}>
+                  {formatNumber(item.ConversionRate)}%
+                </Badge>
               </TableCell>
             ))}
           </TableRow>

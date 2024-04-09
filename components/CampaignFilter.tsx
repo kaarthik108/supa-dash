@@ -25,18 +25,34 @@ export function CampaignFilter() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const month = searchParams.get("month") || "all";
+  const audience = searchParams.get("audience") || null;
+  const contentType = searchParams.get("contentType") || null;
+  const satisfaction = searchParams.get("satisfaction") || null;
+  const location = searchParams.get("location") || null;
+  const age = searchParams.get("age") || null;
+  const platform = searchParams.get("platform") || null;
+
   const selectedCampaignId = searchParams.get("campaignId") || null;
   const [campaignIds, setCampaignIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = (await fetchCampaignIds()) as { CampaignID: string }[];
+      const result = (await fetchCampaignIds(
+        month,
+        audience,
+        contentType,
+        satisfaction,
+        location,
+        age,
+        platform
+      )) as { CampaignID: string }[];
       const ids = result.map((item: { CampaignID: string }) => item.CampaignID);
       setCampaignIds(ids);
     };
     fetchData();
-  }, []);
+  }, [month, audience, contentType, satisfaction, location, age, platform]);
 
   const handleCampaignChange = useCallback(
     (value: string | null) => {
