@@ -256,9 +256,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
       let query = input.query;
 
       const format_query = sql_format(query, { language: "sql" });
-      console.log("Formatted query:", format_query);
       const res = await runQuery(format_query);
-      console.log("Query results:", res);
       // const res = testquery;
       const compatibleQueryResult: QueryResult = {
         columns: res.columns,
@@ -278,7 +276,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
               yaxis={yaxis}
               size={size}
             />
-            <div className="py-4 whitespace-pre-line w-full max-w-xs lg:max-w-2xl">
+            <div className="py-4 whitespace-pre-line">
               <Code lang="sql" className="text-xs md:text-md">
                 {format_query}
               </Code>

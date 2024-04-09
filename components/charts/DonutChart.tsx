@@ -69,7 +69,7 @@ export const DonutChartComponent = ({
         variant={variant}
         valueFormatter={dataFormatter}
         label={variant === "donut" ? `${totalValue} subs` : undefined}
-        className="text-tremor-content dark:text-dark-tremor-content mt-4 h-48"
+        className="text-tremor-content dark:text-dark-tremor-content mt-4"
         onValueChange={handleClick}
         colors={[
           "teal-700",

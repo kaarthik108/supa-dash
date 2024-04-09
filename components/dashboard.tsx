@@ -64,28 +64,30 @@ export async function Dashboard({
             <SubscriberCard rawData={SubsData} />
           </Suspense>
         </div>
-        <div className="flex flex-col gap-4 sm:grid lg:grid-cols-2">
-          <div className="flex flex-col gap-4">
-            <div className="h-auto shadow-2xl border-none rounded-md">
+        <div className="flex flex-col gap-4 sm:grid md:grid lg:grid-cols-2 lg:row-span-1 h-auto">
+          <div className="flex flex-col gap-4 h-auto">
+            <div className="h-auto shadow-2xl border-none rounded-md ">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformComp rawData={PlatformData} />
               </Suspense>
             </div>
-            <Suspense fallback={<CardSkeleton />}>
-              <LocationComp
-                subscribersByLocation={subscribersByLocation}
-                ageDistributionByLocation={ageDistributionByLocation}
-                location={location || null}
-              />
-            </Suspense>
-            <div className="shadow-2xl rounded-md">
+            <div className="h-auto border-none rounded-md ">
+              <Suspense fallback={<CardSkeleton />}>
+                <LocationComp
+                  subscribersByLocation={subscribersByLocation}
+                  ageDistributionByLocation={ageDistributionByLocation}
+                  location={location || null}
+                />
+              </Suspense>
+            </div>
+            <div className="shadow-2xl rounded-md h-auto">
               <Suspense fallback={<CardSkeleton />}>
                 <EngagementComp rawData={EngagementData} />
               </Suspense>
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+          <div className="flex flex-col gap-4 h-auto">
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 h-auto">
               <Suspense fallback={<CardSkeleton />}>
                 <AudienceComp AudienceData={AudienceData} />
               </Suspense>
@@ -93,7 +95,7 @@ export async function Dashboard({
                 <ContentComp ContentData={ContentData} />
               </Suspense>
             </div>
-            <div className="flex h-full">
+            <div className="flex h-full min-h-48">
               <Suspense fallback>
                 <Chat />
               </Suspense>

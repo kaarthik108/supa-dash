@@ -66,7 +66,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
 
   return (
     <div className="h-full overflow-x-auto hide-scrollbar">
-      <Table className="h-full text-xs">
+      <Table className="text-xs">
         <TableHead>
           <TableRow>
             <TableHeaderCell></TableHeaderCell>
@@ -85,14 +85,16 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             ))}
           </TableRow>
         </TableHead>
-        <TableBody className="text-xs md:text-md">
+        <TableBody className="text-xs md:text-md space-x-2">
           <TableRow>
             <TableCell>Revenue</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                <Badge color={item.revenue < 0 ? "red" : "teal-600"}>
-                  ${formatNumber(item.revenue)}
-                </Badge>
+                {item.revenue < 0 ? (
+                  <Badge color="red">${formatNumber(item.revenue)}</Badge>
+                ) : (
+                  `$${formatNumber(item.revenue)}`
+                )}
               </TableCell>
             ))}
           </TableRow>
@@ -100,9 +102,11 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Return on Investment (ROI)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                <Badge color={item.ROI < 0 ? "red" : "teal-600"}>
-                  {formatNumber(item.ROI)}%
-                </Badge>
+                {item.ROI < 0 ? (
+                  <Badge color="red">{formatNumber(item.ROI)}%</Badge>
+                ) : (
+                  `${formatNumber(item.ROI)}%`
+                )}
               </TableCell>
             ))}
           </TableRow>
@@ -110,9 +114,11 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Cost per Acquisition (CPA)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                <Badge color={item.CPA < 0 ? "red" : "teal-600"}>
-                  {formatNumber(item.CPA)}%
-                </Badge>
+                {item.CPA < 0 ? (
+                  <Badge color="red">{formatNumber(item.CPA)}%</Badge>
+                ) : (
+                  `${formatNumber(item.CPA)}%`
+                )}
               </TableCell>
             ))}
           </TableRow>
@@ -120,9 +126,11 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>Click Through Rate (CTR)</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                <Badge color={item.CTR < 0 ? "red" : "teal-600"}>
-                  {formatNumber(item.CTR)}%
-                </Badge>
+                {item.CTR < 0 ? (
+                  <Badge color="red">{formatNumber(item.CTR)}%</Badge>
+                ) : (
+                  `${formatNumber(item.CTR)}%`
+                )}
               </TableCell>
             ))}
           </TableRow>
@@ -130,9 +138,13 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             <TableCell>ConversionRate</TableCell>
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
-                <Badge color={item.ConversionRate < 0 ? "red" : "teal-600"}>
-                  {formatNumber(item.ConversionRate)}%
-                </Badge>
+                {item.ConversionRate < 0 ? (
+                  <Badge color="red">
+                    {formatNumber(item.ConversionRate)}%
+                  </Badge>
+                ) : (
+                  `${formatNumber(item.ConversionRate)}%`
+                )}
               </TableCell>
             ))}
           </TableRow>

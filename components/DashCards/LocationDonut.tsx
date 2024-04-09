@@ -46,7 +46,7 @@ export async function LocationCard({
         </CardContent>
       </Card>
       <Card
-        className="shadow-2xl animate-fade-up w-full"
+        className="shadow-2xl animate-fade-up w-full lg:col-span-1 md:col-span-2"
         style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         <CardHeader className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-medium">
