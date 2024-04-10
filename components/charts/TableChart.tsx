@@ -1,6 +1,6 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import {
-  Badge,
   Table,
   TableBody,
   TableCell,
@@ -91,7 +91,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {item.revenue < 0 ? (
-                  <Badge color="red">${formatNumber(item.revenue)}</Badge>
+                  <Badge variant="default" className="bg-[#D3BDB0]">
+                    ${formatNumber(item.revenue)}
+                  </Badge>
                 ) : (
                   `$${formatNumber(item.revenue)}`
                 )}
@@ -103,7 +105,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {item.ROI < 0 ? (
-                  <Badge color="red">{formatNumber(item.ROI)}%</Badge>
+                  <Badge variant="default" className="bg-[#D3BDB0]">
+                    {formatNumber(item.ROI)}%
+                  </Badge>
                 ) : (
                   `${formatNumber(item.ROI)}%`
                 )}
@@ -115,7 +119,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {item.CPA < 0 ? (
-                  <Badge color="red">{formatNumber(item.CPA)}%</Badge>
+                  <Badge variant="default" className="bg-[#D3BDB0]">
+                    {formatNumber(item.CPA)}%
+                  </Badge>
                 ) : (
                   `${formatNumber(item.CPA)}%`
                 )}
@@ -127,7 +133,9 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {item.CTR < 0 ? (
-                  <Badge color="red">{formatNumber(item.CTR)}%</Badge>
+                  <Badge variant="default" className="bg-[#D3BDB0]">
+                    {formatNumber(item.CTR)}%
+                  </Badge>
                 ) : (
                   `${formatNumber(item.CTR)}%`
                 )}
@@ -139,7 +147,7 @@ export const PlatformTable = ({ data }: PlatformTableProps) => {
             {data.map((item) => (
               <TableCell key={item.platform} className="text-center px-2">
                 {item.ConversionRate < 0 ? (
-                  <Badge color="red">
+                  <Badge variant="default" className="bg-[#D3BDB0]">
                     {formatNumber(item.ConversionRate)}%
                   </Badge>
                 ) : (

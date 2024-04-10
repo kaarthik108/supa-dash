@@ -1,14 +1,10 @@
 "use client";
-
 import { DonutChart, Legend } from "@tremor/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 type DonutChartComponentProps = {
-  data: {
-    name: string;
-    value: number;
-  }[];
+  data: { name: string; value: number }[];
   variant: "donut" | "pie";
   filterType?: "location" | "age";
   selectedFilter?: string | null;
@@ -47,6 +43,7 @@ export const DonutChartComponent = ({
       if (payload) {
         if (clickedData && clickedData.name === payload.name) {
           params.delete(filterType || "");
+          router.refresh();
           setClickedData(null);
         } else {
           params.set(filterType || "", payload.name);
@@ -61,6 +58,10 @@ export const DonutChartComponent = ({
     },
     [router, searchParams, clickedData, filterType]
   );
+
+  const filteredData = clickedData
+    ? data.filter((d) => d.name === clickedData.name)
+    : data;
 
   return (
     <div className="flex flex-col items-center justify-between w-full h-full">
@@ -83,7 +84,7 @@ export const DonutChartComponent = ({
         showAnimation
       />
       <Legend
-        categories={data.map((d) => d.name)}
+        categories={filteredData.map((d) => d.name)}
         className="text-tremor-content dark:text-dark-tremor-content text-xs mt-6 w-full"
         color="text-tremor-content"
         colors={[

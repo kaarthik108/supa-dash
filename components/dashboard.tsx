@@ -66,7 +66,7 @@ export async function Dashboard({
         </div>
         <div className="flex flex-col gap-4 sm:grid md:grid lg:grid-cols-2 lg:row-span-1 h-auto">
           <div className="flex flex-col gap-4 h-auto">
-            <div className="h-auto shadow-2xl border-none rounded-md ">
+            <div className=" shadow-2xl border-none rounded-md ">
               <Suspense fallback={<CardSkeleton />}>
                 <PlatformComp rawData={PlatformData} />
               </Suspense>
