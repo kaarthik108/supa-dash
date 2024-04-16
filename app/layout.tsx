@@ -16,6 +16,21 @@ export const metadata: Metadata = {
   title: "Hack-Dash",
   description: "Hack-Dash is a dashboard built on top of Next.js and Supabase",
   metadataBase: new URL("https://supa-dash.vercel.app"),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  twitter: {
+    title: "Hack-Dash",
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -41,7 +56,16 @@ export default function RootLayout({
             <div>
               <TopHeader />
             </div>
-            <Suspense fallback={null}> {children}</Suspense>
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center text-gray-600 text-sm mt-4 h-screen">
+                  Loading....
+                </div>
+              }
+            >
+              {" "}
+              {children}
+            </Suspense>
             <Analytics />
           </main>
           <footer className="py-4 bg-[#f0eee6]">
@@ -51,6 +75,7 @@ export default function RootLayout({
                 <a
                   href="https://nextjs.org"
                   className="text-black hover:underline"
+                  target="_blank"
                 >
                   Next.js
                 </a>{" "}
@@ -58,6 +83,7 @@ export default function RootLayout({
                 <a
                   href="https://supabase.io"
                   className="text-black hover:underline mr-1"
+                  target="_blank"
                 >
                   Supabase
                 </a>{" "}
@@ -65,6 +91,7 @@ export default function RootLayout({
                 <a
                   href="https://github.com/kaarthik108/subs-dash"
                   className="text-black hover:underline"
+                  target="_blank"
                 >
                   <IconGitHub className="inline-block h-3 w-3 ml-1" />
                 </a>

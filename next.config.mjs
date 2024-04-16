@@ -9,6 +9,9 @@ const nextConfig = {
 
     return config;
   },
+  experimental: {
+    ppr: true,
+  },
 };
 
 export default nextConfig;
