@@ -32,9 +32,9 @@ export type SearchParams = {
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<SearchParams>;
 }) {
-  const params = searchParams as unknown as SearchParams;
+  const resolvedSearchParams = await searchParams;
 
   const {
     month,
@@ -45,7 +45,7 @@ export default async function Home({
     age,
     platform,
     campaignId,
-  } = params;
+  } = resolvedSearchParams;
 
   const [
     AudienceData,
