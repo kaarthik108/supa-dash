@@ -32,8 +32,10 @@ export type SearchParams = {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
+  const params = searchParams as unknown as SearchParams;
+
   const {
     month,
     audience,
@@ -43,7 +45,7 @@ export default async function Home({
     age,
     platform,
     campaignId,
-  } = searchParams;
+  } = params;
 
   const [
     AudienceData,
